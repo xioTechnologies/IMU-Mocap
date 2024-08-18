@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "imumocap"
+version = "0.0.2"
+description = "IMU Mocap"
+readme = {text = "See [github](https://github.com/xioTechnologies/IMU-Mocap) for documentation and examples.", content-type = "text/markdown" }
+authors = [{name = "x-io Technologies Limited", email = "info@x-io.co.uk"}]
+license = {file = "LICENSE.md"}
+
+[project.urls]
+Repository = "https://github.com/xioTechnologies/IMU-Mocap"
+
+[tool.setuptools]
+py-modules = ["imumocap"]
