@@ -69,7 +69,7 @@ jobs:
         name: Publish Python package
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYTHON_TOKEN }}
         run: python -m twine upload --verbose --repository pypi dist/* --skip-existing
 
   imu-mocap-viewer-macos:
