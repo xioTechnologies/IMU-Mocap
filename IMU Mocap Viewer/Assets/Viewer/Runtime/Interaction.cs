@@ -33,6 +33,7 @@ namespace Viewer.Runtime
 
         private Tool active = Tool.None;
 
+        private float zoomNotAllowedTimeout = 0;
         private float distance = 0.1f;
         private float distanceVelocity;
 
@@ -105,15 +106,18 @@ namespace Viewer.Runtime
             this.hasFocus = hasFocus;
         }
 
-        private bool CheckForReset(bool overUI) => (overUI == false && viewerInputs.Plotter.DoubleClick.triggered) | Utils.ConsumeFlag(ref shouldResetView);
-
-        private (bool click, bool rightClick, Vector2 point, Vector2 pointDelta, int scrollWheel, bool control) GetInput()
+        private (bool click, bool rightClick, bool doubleClick, Vector2 point, Vector2 pointDelta, int scrollWheel, bool control) GetInput()
         {
-            if (hasFocus == false) return (false, false, Vector2.zero, Vector2.zero, 0, false);
+            var noInput = (false, false, false, Vector2.zero, Vector2.zero, 0, false);
+
+            if (hasFocus == false) return noInput;
+
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return noInput;
 
             return (
                 viewerInputs.Plotter.Click.ReadValue<float>() > 0.5f,
                 viewerInputs.Plotter.RightClick.ReadValue<float>() > 0.5f,
+                viewerInputs.Plotter.DoubleClick.triggered,
                 viewerInputs.Plotter.Point.ReadValue<Vector2>(),
                 viewerInputs.Plotter.PointDelta.ReadValue<Vector2>(),
                 (int)Mathf.Clamp(viewerInputs.Plotter.ScrollWheel.ReadValue<Vector2>().y, -1, 1),
@@ -123,17 +127,7 @@ namespace Viewer.Runtime
 
         private void UpdateView()
         {
-            (bool click, bool rightClick, Vector2 point, Vector2 pointDelta, int scrollWheel, bool control) = GetInput();
-
-            bool overUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
-
-            if (click && overUI)
-            {
-                click = false;
-                rightClick = false;
-                pointDelta = Vector2.zero;
-                scrollWheel = 0;
-            }
+            (bool click, bool rightClick, bool doubleClick, Vector2 point, Vector2 pointDelta, int scrollWheel, bool control) = GetInput();
 
             Vector3 viewDelta = mainCamera.ScreenToViewportPoint(pointDelta);
 
@@ -143,7 +137,7 @@ namespace Viewer.Runtime
                 return;
             }
 
-            if (CheckForReset(overUI))
+            if (Utils.ConsumeFlag(ref shouldResetView) || doubleClick)
             {
                 Reset();
                 FitZoomToDataBounds(true);
@@ -153,19 +147,53 @@ namespace Viewer.Runtime
 
             if (Tracking)
             {
-                switch (click, rightClick, control)
+                if (scrollWheel != 0) zoomNotAllowedTimeout = Time.time + 0.3f; // 0.3 seconds
+
+                if (click && rightClick == false) // if left-click only
+                {
+                    if (active != Tool.NotAllowed && viewDelta.magnitude < 0.001f)
+                        Idle();
+                    else
+                        NotAllowed();
+                }
+                else if (click == false && rightClick && control) // if right-click only and Ctrl key
+                {
+                    NotAllowed();
+                }
+                else if (click == false && rightClick) // if right-click only
+                {
+                    Orbit(viewDelta);
+                    zoomNotAllowedTimeout = 0;
+                }
+                else if (zoomNotAllowedTimeout >= Time.time)
+                {
+                    NotAllowed();
+                }
+                else
+                {
+                    Idle();
+                }
+
+                ClearSettingsOfUnusedTools();
+                FitZoomToDataBounds(false);
+            }
+            else
+            {
+                zoomNotAllowedTimeout = 0;
+
+                Zoom(scrollWheel);
+                UpdateCamera();
+
+                switch (click, rightClick, control: control)
                 {
                     case (false, true, false):
                         Orbit(viewDelta);
                         break;
                     case (false, true, true):
-                        NotAllowed();
+                        Height(point);
                         break;
                     case (true, false, _):
-                        if (active != Tool.NotAllowed && viewDelta.magnitude < 0.001f)
-                            Idle();
-                        else
-                            NotAllowed();
+                        Translate(point);
                         break;
                     default:
                         Idle();
@@ -173,37 +201,17 @@ namespace Viewer.Runtime
                 }
 
                 ClearSettingsOfUnusedTools();
-                FitZoomToDataBounds(false);
-
-                return;
+                UpdateCamera();
             }
-
-            Zoom(scrollWheel);
-            UpdateCamera();
-
-            switch (click, rightClick, control)
-            {
-                case (false, true, false):
-                    Orbit(viewDelta);
-                    break;
-                case (false, true, true):
-                    Height(point);
-                    break;
-                case (true, false, _):
-                    Translate(point);
-                    break;
-                default:
-                    Idle();
-                    break;
-            }
-
-            ClearSettingsOfUnusedTools();
-            UpdateCamera();
         }
 
         private void FitZoomToDataBounds(bool instantaneous, bool lockToGround = false)
         {
-            if (plotter.IsEmpty == true) return;
+            if (plotter.IsEmpty == true)
+            {
+                UpdateCamera();
+                return;
+            }
 
             var bounds = plotter.Bounds;
 
