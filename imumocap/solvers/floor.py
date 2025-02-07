@@ -26,6 +26,9 @@ def _wheel_lowest_point(link: Link) -> np.ndarray:
 
     lowest_spoke = np.cross(axis, np.cross(axis, np.array([0, 0, 1])))
 
+    if np.isclose(lowest_spoke, 0).all():
+        return link.get_joint_global().xyz
+
     lowest_spoke /= np.linalg.norm(lowest_spoke)
 
     return link.get_joint_global().xyz + (link.length * lowest_spoke)
