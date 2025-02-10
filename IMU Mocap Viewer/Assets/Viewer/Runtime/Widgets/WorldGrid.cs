@@ -26,12 +26,12 @@ namespace Viewer.Runtime.Widgets
         [SerializeField] private Color yLineColor;
 
         private StretchableDrawBatch lines;
-        private new Camera camera;
+        private Camera mainCamera;
 
         private void Awake()
         {
             lines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
-            camera = Camera.main;
+            mainCamera = Camera.main;
         }
 
         private void OnEnable() => group.RegisterSource(lines);
@@ -68,7 +68,7 @@ namespace Viewer.Runtime.Widgets
                 var isMajor = ((int)absValue % 10) == 0;
                 var lineColor = Color.Lerp(darkColor, isOrigin ? xLineColor : isMajor ? majorLineColor : minorLineColor, line.Value.intensity);
 
-                PlotFadedLine(line.Value, lineColor, camera.transform.position);
+                PlotFadedLine(line.Value, lineColor, mainCamera.transform.position);
             }
 
             for (int z = 0; z <= countZ + 1; z++)
@@ -83,7 +83,7 @@ namespace Viewer.Runtime.Widgets
                 var isMajor = ((int)absValue % 10) == 0;
                 var lineColor = Color.Lerp(darkColor, isOrigin ? yLineColor : isMajor ? majorLineColor : minorLineColor, line.Value.intensity);
 
-                PlotFadedLine(line.Value, lineColor, camera.transform.position);
+                PlotFadedLine(line.Value, lineColor, mainCamera.transform.position);
             }
         }
 
