@@ -950,42 +950,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
   m_ActionId: b9e428b6-d2a8-4093-ab5f-1e1c19192315
---- !u!21 &637189682
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Plot_Stretchable
-  m_Shader: {fileID: 4800000, guid: 0fae4fdfa41b46a8a8912e43d3a881b2, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _PixelScaleFactor: 0.0011432678
-    - _Thickness: 5
-    m_Colors:
-    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
-    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1 &666484892
 GameObject:
   m_ObjectHideFlags: 0
@@ -1475,42 +1439,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   setting: {fileID: 11400000, guid: 3c63284a7cae97745a33d5996de79656, type: 2}
---- !u!21 &1003186274
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Plot_Stretchable
-  m_Shader: {fileID: 4800000, guid: 0fae4fdfa41b46a8a8912e43d3a881b2, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _PixelScaleFactor: 0.0011432678
-    - _Thickness: 4
-    m_Colors:
-    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
-    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1 &1009116607
 GameObject:
   m_ObjectHideFlags: 0
@@ -2066,7 +1994,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1896.37, y: -15}
+  m_AnchoredPosition: {x: 1194.37, y: -15}
   m_SizeDelta: {x: 31.26, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1365172081
@@ -2571,7 +2499,6 @@ GameObject:
   - component: {fileID: 1642079163}
   - component: {fileID: 1642079166}
   - component: {fileID: 1642079162}
-  - component: {fileID: 1642079167}
   - component: {fileID: 1642079168}
   m_Layer: 5
   m_Name: UI
@@ -2655,7 +2582,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1673570339}
+  - {fileID: 1967537427}
   - {fileID: 666484893}
   - {fileID: 468391262}
   - {fileID: 1009116608}
@@ -2679,20 +2606,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minimumWidthInPixels: 480
---- !u!114 &1642079167
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1642079161}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e630240e8ff5a44f917ce9440f51eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 1673570339}
-  delayFrames: 1
 --- !u!114 &1642079168
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2708,69 +2621,6 @@ MonoBehaviour:
   tooltipLabel: {fileID: 666484898}
   showForSeconds: 0.2
   offset: {x: 0, y: 0}
---- !u!1 &1673570338
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1673570339}
-  - component: {fileID: 1673570340}
-  m_Layer: 5
-  m_Name: Layout
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1673570339
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1673570338}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1967537427}
-  m_Father: {fileID: 1642079165}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1673570340
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1673570338}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 1
-  m_Spacing: 0
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 1
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
 --- !u!1001 &1704794114
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3280,12 +3130,12 @@ RectTransform:
   - {fileID: 1704794115}
   - {fileID: 1766517546}
   - {fileID: 866032716}
-  m_Father: {fileID: 1673570339}
+  m_Father: {fileID: 1642079165}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -0}
-  m_SizeDelta: {x: 1920, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &1967537429
 CanvasRenderer:
