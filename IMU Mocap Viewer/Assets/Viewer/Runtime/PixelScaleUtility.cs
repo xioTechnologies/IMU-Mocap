@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Viewer.Runtime
 {
@@ -31,22 +32,46 @@ namespace Viewer.Runtime
             return Vector3.one * GetWorldSizeFromPixels(pixelSize, worldPosition);
         }
 
-        public static float CalculateRequiredDistance(Camera camera, Bounds bounds, bool lockToGround = false, float margin = 1.0f)
+        public static float CalculateRequiredDistance(Camera camera, Bounds bounds, float margin = 1.0f)
         {
-            var sphere = new BoundingSphere(bounds.center, bounds.extents.magnitude);
+            Vector3 center = bounds.center;
+            Vector3 extents = bounds.extents;
+            
+            Matrix4x4 virtualViewMatrix = Matrix4x4.TRS(center, camera.transform.rotation, Vector3.one).inverse;
+            
+            Vector3[] corners = new Vector3[8];
+            for (int i = 0; i < 8; i++)
+            {
+                Vector3 offset = new Vector3(
+                    ((i & 1) == 0) ? extents.x : -extents.x,
+                    ((i & 2) == 0) ? extents.y : -extents.y,
+                    ((i & 4) == 0) ? extents.z : -extents.z
+                );
+                corners[i] = virtualViewMatrix.MultiplyPoint3x4(center + offset);
+            }
 
-            float verticalFOV = camera.fieldOfView;
-            float aspectRatio = camera.aspect;
+            float fov = camera.fieldOfView;
+            float aspect = camera.aspect;
+            float tanHalfFov = Mathf.Tan(Mathf.Deg2Rad * fov * 0.5f);
 
-            float verticalFOVRad = verticalFOV * Mathf.Deg2Rad;
-            float horizontalFOVRad = 2f * Mathf.Atan(Mathf.Tan(verticalFOVRad / 2f) * aspectRatio);
+            float requiredDistance = 0;
+            
+            foreach (var corner in corners)
+            {
+                float x = Mathf.Abs(corner.x);
+                float y = Mathf.Abs(corner.y);
+                float z = corner.z; 
 
-            float radius = sphere.radius * margin;
+                // If a point is behind the virtual camera, compute the correction
+                float correction = Mathf.Min(z, 0);
+                
+                float requiredZForX = (x / (tanHalfFov * aspect)) - correction;
+                float requiredZForY = (y / tanHalfFov) - correction;
 
-            float distanceV = (lockToGround ? radius + Mathf.Abs(sphere.position.y) : radius) / Mathf.Sin(verticalFOVRad / 2f);
-            float distanceH = radius / Mathf.Sin(horizontalFOVRad / 2f);
+                requiredDistance = Mathf.Max(requiredDistance, requiredZForX, requiredZForY);
+            }
 
-            return Mathf.Max(distanceV, distanceH);
+            return requiredDistance * margin;
         }
     }
 }

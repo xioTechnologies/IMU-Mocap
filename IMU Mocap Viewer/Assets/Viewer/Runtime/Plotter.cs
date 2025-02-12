@@ -22,28 +22,18 @@ namespace Viewer.Runtime
 
         [Header("Label")] [SerializeField] private LabelPlotter labels;
         [SerializeField, Range(1f, 200f)] private float labelSizeInPoints = 20f;
-
-        private bool hasBounds = false;
-
-        private Bounds bounds;
-
-        public Bounds Bounds => hasBounds ? bounds : new Bounds();
-
+        
         private float DpiScaleFactor => primitiveScale * PixelScaleUtility.DpiScaleFactor;
 
-        public bool IsEmpty => hasBounds == false;
+        private Bounds? bounds;
 
-        private void Encapsulate(Vector3 xyz)
-        {
-            if (hasBounds) bounds.Encapsulate(xyz);
-            else bounds = new Bounds(xyz, Vector3.zero);
+        public Bounds Bounds => bounds ?? new Bounds();
 
-            hasBounds = true;
-        }
+        public bool IsEmpty => bounds == null;
 
         public void Clear()
         {
-            hasBounds = false;
+            bounds = null;
 
             line.Clear();
             circle.Clear();
@@ -54,36 +44,36 @@ namespace Viewer.Runtime
 
         public void Line(Vector3 start, Vector3 end)
         {
-            Encapsulate(start);
-            Encapsulate(end);
+            bounds.Encapsulate(start);
+            bounds.Encapsulate(end);
 
             line.Plot(start, end, DpiScaleFactor * lineWidthInPixels);
         }
 
         public void Circle(Vector3 xyz, Vector3 axis, float radius)
         {
-            Encapsulate(xyz);
+            bounds.Encapsulate(Utils.CircleBounds(xyz, axis, radius));
 
             circle.Plot(xyz, axis, radius, DpiScaleFactor * lineWidthInPixels * circleLineWidthScaleFactor);
         }
 
         public void Dot(Vector3 xyz, float size)
         {
-            Encapsulate(xyz);
+            bounds.Encapsulate(xyz);
 
             dot.Plot(xyz, size * DpiScaleFactor * dotSizeInPixels);
         }
 
         public void Axes(Vector3 xyz, Quaternion quaternion, float scale)
         {
-            Encapsulate(xyz);
+            bounds.Encapsulate(xyz);
 
             axes.Plot(xyz, quaternion, scale, DpiScaleFactor * axesLineWidthInPixels);
         }
 
         public void Label(Vector3 xyz, string text)
         {
-            Encapsulate(xyz);
+            bounds.Encapsulate(xyz);
 
             labels.Plot(xyz, DpiScaleFactor * labelSizeInPoints, text);
         }
