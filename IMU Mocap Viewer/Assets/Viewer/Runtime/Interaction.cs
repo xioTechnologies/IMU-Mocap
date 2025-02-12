@@ -23,19 +23,18 @@ namespace Viewer.Runtime
         [SerializeField] private Plotter plotter;
 
         [Header("Tracking")] [SerializeField] private bool tracking = true;
-        [SerializeField] private bool trackingZoomSmoothingEnabled;
-        [SerializeField, Range(0f, 10f)] private float trackingZoomSmoothingTime = 1f;
 
         [Header("Cursor")] [SerializeField] private TranslationCursor translationCursor;
         [SerializeField] private GlobalSetting notAllowedCursor;
         [SerializeField] private RotationCursor rotationCursor;
         [SerializeField] private HeightStick heightStick;
+        [SerializeField] private BoundingBox boundingBox;
 
         private Tool active = Tool.None;
 
         private float zoomNotAllowedTimeout = 0;
         private float distance = 0.1f;
-        private float distanceVelocity;
+        private Bounds? cumulativeBounds;
 
         private Camera mainCamera;
 
@@ -74,7 +73,8 @@ namespace Viewer.Runtime
             distance = (float)Math.Pow(0.05f, 1f / 3f);
 
             target.position = Vector3.zero;
-            distanceVelocity = 0;
+
+            ClearBounds();
 
             ClearToolStates();
 
@@ -140,7 +140,8 @@ namespace Viewer.Runtime
             if (Utils.ConsumeFlag(ref shouldResetView) || doubleClick)
             {
                 Reset();
-                FitZoomToDataBounds(true);
+                AccumulateBounds();
+                FitZoomToDataBounds();
 
                 return;
             }
@@ -174,8 +175,13 @@ namespace Viewer.Runtime
                     Idle();
                 }
 
+                AccumulateBounds();
+
                 ClearSettingsOfUnusedTools();
-                FitZoomToDataBounds(false);
+
+                FitZoomToDataBounds();
+
+                ShowBoundingBox();
             }
             else
             {
@@ -200,32 +206,45 @@ namespace Viewer.Runtime
                         break;
                 }
 
+                ClearBounds();
+
                 ClearSettingsOfUnusedTools();
+
                 UpdateCamera();
             }
         }
 
-        private void FitZoomToDataBounds(bool instantaneous, bool lockToGround = false)
+        private void AccumulateBounds()
         {
-            if (plotter.IsEmpty == true)
+            if (plotter.IsEmpty == false) cumulativeBounds.Encapsulate(plotter.Bounds);
+        }
+
+        private void ClearBounds() => cumulativeBounds = null;
+
+        private void ShowBoundingBox()
+        {
+            if (cumulativeBounds.HasValue == false) return;
+
+            boundingBox.Bounds = cumulativeBounds.Value;
+            boundingBox.Show();
+        }
+
+        private void FitZoomToDataBounds()
+        {
+            if (cumulativeBounds == null)
             {
                 UpdateCamera();
                 return;
             }
 
-            var bounds = plotter.Bounds;
+            target.position = cumulativeBounds.Value.center;
 
-            target.position = lockToGround ? bounds.center._x0z() : bounds.center;
             UpdateCamera();
 
-            float requiredDistance = PixelScaleUtility.CalculateRequiredDistance(mainCamera, bounds, lockToGround, margin);
+            float requiredDistance = PixelScaleUtility.CalculateRequiredDistance(mainCamera, cumulativeBounds.Value, margin);
             float newDistanceValue = Mathf.Pow(Mathf.InverseLerp(distanceRange.x, distanceRange.y, requiredDistance), 1f / 3f);
 
-            if (instantaneous) distance = newDistanceValue;
-            else
-                distance = trackingZoomSmoothingEnabled
-                    ? Mathf.SmoothDamp(distance, newDistanceValue, ref distanceVelocity, trackingZoomSmoothingTime)
-                    : newDistanceValue;
+            distance = newDistanceValue;
 
             UpdateCamera();
 
@@ -384,6 +403,7 @@ namespace Viewer.Runtime
             if (active != Tool.Translate) translationSettings = null;
             if (active != Tool.Orbit) rotationSettings = null;
             if (active != Tool.Height) altitudeSettings = null;
+            if (cumulativeBounds.HasValue == false) boundingBox.Hide();
         }
 
         private void SwitchToTool(Tool tool, Vector3 location)
