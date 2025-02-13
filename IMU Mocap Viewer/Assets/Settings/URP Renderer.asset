@@ -69,6 +69,8 @@ MonoBehaviour:
   renderPassEvent: 300
   passName: Draw Render Pass
   groups:
+  - {fileID: 11400000, guid: 143ce248fd50e2b469b5763bbc3e7114, type: 2}
+  - {fileID: 11400000, guid: 905f846f26829cc4ab09795b93ee5800, type: 2}
   - {fileID: 11400000, guid: 9d011c73e56b5b44faeb351a38b19e95, type: 2}
   - {fileID: 11400000, guid: 6c6566df2d3c8a64daf9d744472649c8, type: 2}
   - {fileID: 11400000, guid: 4dd7c4222f1a1c64fa48ec84dc91c970, type: 2}
