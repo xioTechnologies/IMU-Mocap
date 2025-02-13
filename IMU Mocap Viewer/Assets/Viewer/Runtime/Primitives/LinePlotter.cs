@@ -12,9 +12,21 @@ namespace Viewer.Runtime.Primitives
         [SerializeField] private Material instanceMaterial;
         [SerializeField] private Color color = Color.white;
 
+        private Color colorLinear;
+
+        void CacheColors() => colorLinear = color.linear;
+
+#if UNITY_EDITOR
+        void OnValidate() => CacheColors();
+#endif
+
         private StretchableDrawBatch boxes;
 
-        private void Awake() => boxes = new StretchableDrawBatch(maxBoxCount, boxMesh, instanceMaterial);
+        private void Awake()
+        {
+            boxes = new StretchableDrawBatch(maxBoxCount, boxMesh, instanceMaterial);
+            CacheColors();
+        }
 
         private void OnEnable() => group.RegisterSource(boxes);
 
@@ -24,6 +36,6 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear() => boxes?.Clear();
 
-        public void Plot(Vector3 start, Vector3 end, float thickness) => boxes?.AddLine(start, end, thickness, color, color);
+        public void Plot(Vector3 start, Vector3 end, float thickness) => boxes?.AddLine(start, end, thickness, colorLinear, colorLinear);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using Viewer.Runtime.Draw;
@@ -24,7 +24,7 @@ namespace Viewer.Runtime.Widgets
         [SerializeField] private Color minorLineColor;
         [SerializeField] private Color xLineColor;
         [SerializeField] private Color yLineColor;
-
+        
         private StretchableDrawBatch lines;
         private Camera mainCamera;
 
@@ -43,6 +43,12 @@ namespace Viewer.Runtime.Widgets
         void Update()
         {
             lines.Clear();
+
+            Color darkColorLinear = darkColor.linear;
+            Color majorLineColorLinear = majorLineColor.linear;
+            Color minorLineColorLinear = minorLineColor.linear;
+            Color xLineColorLinear = xLineColor.linear;
+            Color yLineColorLinear = yLineColor.linear;
 
             var center = origin.position / 10f;
             center.x = math.floor(center.x);
@@ -68,7 +74,7 @@ namespace Viewer.Runtime.Widgets
                 var isMajor = ((int)absValue % 10) == 0;
                 var lineColor = Color.Lerp(darkColor, isOrigin ? xLineColor : isMajor ? majorLineColor : minorLineColor, line.Value.intensity);
 
-                PlotFadedLine(line.Value, lineColor, mainCamera.transform.position);
+                PlotFadedLine(line.Value, darkColorLinear, lineColor, mainCamera.transform.position);
             }
 
             for (int z = 0; z <= countZ + 1; z++)
@@ -83,11 +89,11 @@ namespace Viewer.Runtime.Widgets
                 var isMajor = ((int)absValue % 10) == 0;
                 var lineColor = Color.Lerp(darkColor, isOrigin ? yLineColor : isMajor ? majorLineColor : minorLineColor, line.Value.intensity);
 
-                PlotFadedLine(line.Value, lineColor, mainCamera.transform.position);
+                PlotFadedLine(line.Value, darkColorLinear, lineColor, mainCamera.transform.position);
             }
         }
 
-        private void PlotFadedLine((Vector3 min, Vector3 minFadeEnd, Vector3 maxFadeEnd, Vector3 max, float intensity) line, Color color, Vector3 split)
+        private void PlotFadedLine((Vector3 min, Vector3 minFadeEnd, Vector3 maxFadeEnd, Vector3 max, float intensity) line, Color dark, Color color, Vector3 split)
         {
             float lineWidth = lineWidthPixels * PixelScaleUtility.DpiScaleFactor;
 
@@ -97,17 +103,17 @@ namespace Viewer.Runtime.Widgets
             {
                 Vector3 intersection = GetIntersectionAndColor(
                     line.min, line.minFadeEnd,
-                    darkColor, color,
+                    dark, color,
                     split, normal,
                     out var intersectionColor
                 );
 
-                lines.AddLine(line.min._x0z(), intersection, lineWidth, darkColor, intersectionColor);
+                lines.AddLine(line.min._x0z(), intersection, lineWidth, dark, intersectionColor);
                 lines.AddLine(intersection, line.minFadeEnd._x0z(), lineWidth, intersectionColor, color);
             }
             else
             {
-                lines.AddLine(line.min._x0z(), line.minFadeEnd._x0z(), lineWidth, darkColor, color);
+                lines.AddLine(line.min._x0z(), line.minFadeEnd._x0z(), lineWidth, dark, color);
             }
 
             if (CrossesPlane(line.minFadeEnd._x0z(), line.maxFadeEnd._x0z(), split, normal))
@@ -125,17 +131,17 @@ namespace Viewer.Runtime.Widgets
             {
                 Vector3 intersection = GetIntersectionAndColor(
                     line.maxFadeEnd, line.max,
-                    color, darkColor,
+                    color, dark,
                     split, normal,
                     out var intersectionColor
                 );
 
                 lines.AddLine(line.maxFadeEnd._x0z(), intersection, lineWidth, color, intersectionColor);
-                lines.AddLine(intersection, line.max._x0z(), lineWidth, intersectionColor, darkColor);
+                lines.AddLine(intersection, line.max._x0z(), lineWidth, intersectionColor, dark);
             }
             else
             {
-                lines.AddLine(line.maxFadeEnd._x0z(), line.max._x0z(), lineWidth, color, darkColor);
+                lines.AddLine(line.maxFadeEnd._x0z(), line.max._x0z(), lineWidth, color, dark);
             }
         }
 

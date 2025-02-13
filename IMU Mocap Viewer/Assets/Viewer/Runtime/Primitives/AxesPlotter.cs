@@ -17,7 +17,26 @@ namespace Viewer.Runtime.Primitives
 
         private StretchableDrawBatch boxes;
 
-        private void Awake() => boxes = new StretchableDrawBatch(maxBoxCount, boxMesh, instanceMaterial);
+        private Color xColorLinear;
+        private Color yColorLinear;
+        private Color zColorLinear;
+
+        void CacheColors()
+        {
+            xColorLinear = xColor.linear;
+            yColorLinear = yColor.linear;
+            zColorLinear = zColor.linear;
+        }
+
+#if UNITY_EDITOR
+        void OnValidate() => CacheColors();
+#endif
+
+        private void Awake()
+        {
+            boxes = new StretchableDrawBatch(maxBoxCount, boxMesh, instanceMaterial);
+            CacheColors();
+        }
 
         private void OnEnable() => group.RegisterSource(boxes);
 
@@ -35,9 +54,9 @@ namespace Viewer.Runtime.Primitives
                 boxes?.AddLine(point, point + quiverOffset, thickness, color, color);
             }
 
-            AddQuiver(Vector3.right, xColor);
-            AddQuiver(Vector3.forward, yColor);
-            AddQuiver(Vector3.up, zColor);
+            AddQuiver(Vector3.right, xColorLinear);
+            AddQuiver(Vector3.forward, yColorLinear);
+            AddQuiver(Vector3.up, zColorLinear);
         }
     }
 }
