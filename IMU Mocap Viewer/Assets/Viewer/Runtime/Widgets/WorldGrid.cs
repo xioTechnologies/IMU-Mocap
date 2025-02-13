@@ -1,6 +1,5 @@
-using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
+using Unity.Mathematics;
 using Viewer.Runtime.Draw;
 
 namespace Viewer.Runtime.Widgets
@@ -11,7 +10,9 @@ namespace Viewer.Runtime.Widgets
         [SerializeField] private float radius = 10f;
         [SerializeField, Range(0f, 1f)] private float fadeProportion = 0.5f;
 
-        [Header("Drawing")] [SerializeField] private DrawingGroup group;
+        [Header("Drawing")] [SerializeField] private DrawingGroup axisGroup;
+        [SerializeField] private DrawingGroup majorGroup;
+        [SerializeField] private DrawingGroup minorGroup;
         [SerializeField] private int maxLineCount = 1000;
         [SerializeField] private Mesh lineMesh;
         [SerializeField] private Material instanceMaterial;
@@ -24,25 +25,47 @@ namespace Viewer.Runtime.Widgets
         [SerializeField] private Color minorLineColor;
         [SerializeField] private Color xLineColor;
         [SerializeField] private Color yLineColor;
-        
-        private StretchableDrawBatch lines;
+
+        private StretchableDrawBatch axisLines;
+        private StretchableDrawBatch majorLines;
+        private StretchableDrawBatch minorLines;
         private Camera mainCamera;
 
         private void Awake()
         {
-            lines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
+            axisLines = new StretchableDrawBatch(16, lineMesh, instanceMaterial);
+            majorLines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
+            minorLines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
+
             mainCamera = Camera.main;
         }
 
-        private void OnEnable() => group.RegisterSource(lines);
+        private void OnEnable()
+        {
+            axisGroup.RegisterSource(axisLines);
+            majorGroup.RegisterSource(majorLines);
+            minorGroup.RegisterSource(minorLines);
+        }
 
-        private void OnDisable() => group.UnregisterSource(lines);
+        private void OnDisable()
+        {
+            axisGroup.UnregisterSource(axisLines);
+            majorGroup.UnregisterSource(majorLines);
+            minorGroup.UnregisterSource(minorLines);
+        }
 
-        private void OnDestroy() => lines?.Dispose();
+        private void OnDestroy()
+        {
+            axisLines?.Dispose();
+            majorLines?.Dispose();
+            minorLines?.Dispose();
+        }
 
         void Update()
         {
-            lines.Clear();
+            axisLines.Clear();
+            majorLines.Clear();
+            minorLines.Clear();
 
             Color darkColorLinear = darkColor.linear;
             Color majorLineColorLinear = majorLineColor.linear;
@@ -59,41 +82,46 @@ namespace Viewer.Runtime.Widgets
             Vector3 min = center - Vector3.one._x0z() * (int)radius;
             Vector3 max = center + Vector3.one._x0z() * (int)radius;
 
-            int countX = (int)(max.x - min.x);
-            int countZ = (int)(max.z - min.z);
+            int countX = (int)(max.x - min.x) + 10;
+            int countZ = (int)(max.z - min.z) + 10;
+
+            var originPosition = origin.position;
 
             for (int x = 0; x <= countX + 1; x++)
             {
                 var xLine = min + Vector3.forward._x0z() * x;
-                var line = CalculateLine(origin.position, radius, fadeProportion, xLine, Vector3.right._x0z());
+
+                var line = CalculateLine(originPosition, radius, fadeProportion, xLine, Vector3.right._x0z());
 
                 if (line == null) continue;
 
                 var absValue = Mathf.Abs(xLine.z);
                 var isOrigin = absValue < 0.0001f;
                 var isMajor = ((int)absValue % 10) == 0;
-                var lineColor = Color.Lerp(darkColor, isOrigin ? xLineColor : isMajor ? majorLineColor : minorLineColor, line.Value.intensity);
+                var lineColor = Color.Lerp(darkColorLinear, isOrigin ? xLineColorLinear : isMajor ? majorLineColorLinear : minorLineColorLinear, line.Value.intensity);
+                var batch = isOrigin ? axisLines : isMajor ? majorLines : minorLines;
 
-                PlotFadedLine(line.Value, darkColorLinear, lineColor, mainCamera.transform.position);
+                PlotFadedLine(line.Value, darkColorLinear, lineColor, mainCamera.transform.position, batch);
             }
 
             for (int z = 0; z <= countZ + 1; z++)
             {
                 var zLine = min + Vector3.right._x0z() * z;
-                var line = CalculateLine(origin.position, radius, fadeProportion, zLine, Vector3.forward._x0z());
+                var line = CalculateLine(originPosition, radius, fadeProportion, zLine, Vector3.forward._x0z());
 
                 if (line == null) continue;
 
                 var absValue = Mathf.Abs(zLine.x);
                 var isOrigin = absValue < 0.0001f;
                 var isMajor = ((int)absValue % 10) == 0;
-                var lineColor = Color.Lerp(darkColor, isOrigin ? yLineColor : isMajor ? majorLineColor : minorLineColor, line.Value.intensity);
+                var lineColor = Color.Lerp(darkColorLinear, isOrigin ? yLineColorLinear : isMajor ? majorLineColorLinear : minorLineColorLinear, line.Value.intensity);
+                var batch = isOrigin ? axisLines : isMajor ? majorLines : minorLines;
 
-                PlotFadedLine(line.Value, darkColorLinear, lineColor, mainCamera.transform.position);
+                PlotFadedLine(line.Value, darkColorLinear, lineColor, mainCamera.transform.position, batch);
             }
         }
 
-        private void PlotFadedLine((Vector3 min, Vector3 minFadeEnd, Vector3 maxFadeEnd, Vector3 max, float intensity) line, Color dark, Color color, Vector3 split)
+        private void PlotFadedLine((Vector3 min, Vector3 minFadeEnd, Vector3 maxFadeEnd, Vector3 max, float intensity) line, Color dark, Color color, Vector3 split, StretchableDrawBatch lines)
         {
             float lineWidth = lineWidthPixels * PixelScaleUtility.DpiScaleFactor;
 

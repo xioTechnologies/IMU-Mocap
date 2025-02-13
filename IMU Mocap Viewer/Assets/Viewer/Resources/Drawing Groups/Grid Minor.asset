@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0fa8014f65be4137aecc39206838d8b7, type: 3}
-  m_Name: Grid
+  m_Name: Grid Minor
   m_EditorClassIdentifier: 
-  id: Grid
+  id: Grid Minor
