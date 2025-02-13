@@ -37,24 +37,21 @@ namespace Viewer.Runtime
             Vector3 horizontalSpoke = Vector3.Cross(axis, axisCloseToVertical ? Vector3.forward : Vector3.up).normalized * radius;
 
             Vector3 highestSpoke = Vector3.Cross(horizontalSpoke, axis).normalized * radius;
+            
+            Vector3 p0 = center + horizontalSpoke + highestSpoke;
+            Vector3 p1 = center + horizontalSpoke - highestSpoke;
+            Vector3 p2 = center - horizontalSpoke + highestSpoke;
+            Vector3 p3 = center - horizontalSpoke - highestSpoke;
+            
+            Vector3 min = p0;
+            min = Vector3.Min(min, p1);
+            min = Vector3.Min(min, p2);
+            min = Vector3.Min(min, p3);
 
-            Vector3[] points =
-            {
-                center + horizontalSpoke + highestSpoke,
-                center + horizontalSpoke - highestSpoke,
-                center - horizontalSpoke + highestSpoke,
-                center - horizontalSpoke - highestSpoke
-            };
-
-            // Compute AABB bounds from these points
-            Vector3 min = points[0];
-            Vector3 max = points[0];
-
-            foreach (var point in points)
-            {
-                min = Vector3.Min(min, point);
-                max = Vector3.Max(max, point);
-            }
+            Vector3 max = p0;
+            max = Vector3.Max(max, p1);
+            max = Vector3.Max(max, p2);
+            max = Vector3.Max(max, p3);
 
             return new Bounds((min + max) * 0.5f, max - min);
         }
