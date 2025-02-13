@@ -87,7 +87,7 @@ Shader "Plot/Stretchables"
                 
                 output.positionCS = mul(GetWorldToHClipMatrix(), worldPos);
                 
-                output.color = pow(abs(lerp(instance.nearColor, instance.farColor, input.uv.x)), 2.2); 
+                output.color = lerp(instance.nearColor, instance.farColor, input.uv.x); 
                 
                 return output;
             }
