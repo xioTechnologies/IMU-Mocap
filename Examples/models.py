@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import Dict
 
-from imumocap import Link, Matrix
+from imumocap import Joint, Link, Matrix
 
 # Head
 HEAD_LENGTH = 0.20
@@ -175,6 +176,38 @@ class Model(ABC):
         self.right_carpus.connect(self.right_forth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25))
         self.right_carpus.connect(self.right_fifth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.5))
 
+        # Joints
+        self.__joints = {
+            # Head
+            "Head": Joint(self.head, Matrix(rot_y=90, rot_z=90)),
+            "Neck": Joint(self.neck, Matrix(rot_y=90, rot_z=90)),
+            # Left arm
+            "Left Wrist": Joint(self.left_hand, Matrix(rot_x=90, rot_z=90)),
+            "Left Elbow": Joint(self.left_forearm, Matrix(rot_y=180, rot_z=-90)),
+            "Left Shoulder": Joint(self.left_upper_arm, Matrix(rot_y=90)),
+            "Left Clavicle": Joint(self.left_shoulder, Matrix(rot_y=90)),
+            # Right arm
+            "Right Wrist": Joint(self.right_hand, Matrix(rot_x=-90, rot_z=90)),
+            "Right Elbow": Joint(self.right_forearm, Matrix(rot_z=90)),
+            "Right Shoulder": Joint(self.right_upper_arm, Matrix(rot_y=-90)),
+            "Right Clavicle": Joint(self.right_shoulder, Matrix(rot_y=-90)),
+            # Torso
+            "Upper Torso": Joint(self.upper_torso, Matrix(rot_x=-90, rot_y=90)),
+            "Lower Torso": Joint(self.lower_torso, Matrix(rot_x=-90, rot_y=90)),
+            "Upper Lumbar": Joint(self.upper_lumbar, Matrix(rot_x=-90, rot_y=90)),
+            "Lower Lumbar": Joint(self.lower_lumbar, Matrix(rot_x=-90, rot_y=90)),
+            # Left leg
+            "Left Toe": Joint(self.left_toe, Matrix(rot_x=90)),
+            "Left Ankle": Joint(self.left_foot, Matrix(rot_x=90, rot_y=90)),
+            "Left Knee": Joint(self.left_lower_leg, Matrix(rot_x=-90, rot_y=90)),
+            "Left Hip": Joint(self.left_upper_leg, Matrix(rot_x=90, rot_y=90)),
+            # Right leg
+            "Right Toe": Joint(self.right_toe, Matrix(rot_x=-90, rot_z=180)),
+            "Right Ankle": Joint(self.right_foot, Matrix(rot_x=90, rot_y=-90)),
+            "Right Knee": Joint(self.right_lower_leg, Matrix(rot_x=-90, rot_y=-90)),
+            "Right Hip": Joint(self.right_upper_leg, Matrix(rot_x=90, rot_y=-90)),
+        }
+
     @property
     @abstractmethod
     def root(self) -> Link:
@@ -206,6 +239,10 @@ class Model(ABC):
     def _connect_carpi_to_arms(self) -> None:
         self.left_forearm.connect(self.left_carpus)
         self.right_forearm.connect(self.right_carpus)
+
+    @property
+    def joints(self) -> Dict[str, Joint]:
+        return self.__joints
 
 
 class UpperBody(Model):
