@@ -55,6 +55,10 @@ class Link:
     def length(self) -> float:
         return np.linalg.norm(self.__end.xyz)
 
+    @property
+    def is_root(self) -> bool:
+        return self.__is_root
+
     def __update(self, origin: Union[None, Matrix] = None) -> None:
         if origin is not None:
             self.__origin = origin
