@@ -56,22 +56,24 @@ class Model(ABC):
 
         # Left arm
         self.left_hand = Link("Left Hand", Matrix(y=HAND_LENGTH))
-        self.left_forearm = Link("Left Forearm", Matrix(y=FOREARM_LENGTH))
+        self.left_forearm = Link("Left Forearm", Matrix(y=FOREARM_LENGTH))  # left hand not connected
         self.left_upper_arm = Link("Left Upper Arm", Matrix(y=UPPER_ARM_LENGTH)).connect(self.left_forearm)
         self.left_shoulder = Link("Left Shoulder", Matrix(y=SHOULDER_LENGTH)).connect(self.left_upper_arm)
 
         # Right arm
         self.right_hand = Link("Right Hand", Matrix(y=-HAND_LENGTH))
-        self.right_forearm = Link("Right Forearm", Matrix(y=-FOREARM_LENGTH))
+        self.right_forearm = Link("Right Forearm", Matrix(y=-FOREARM_LENGTH))  # right hand not connected
         self.right_upper_arm = Link("Right Upper Arm", Matrix(y=-UPPER_ARM_LENGTH)).connect(self.right_forearm)
         self.right_shoulder = Link("Right Shoulder", Matrix(y=-SHOULDER_LENGTH)).connect(self.right_upper_arm)
 
-        # Torso
+        # Upper torso
         self.upper_torso = Link("Upper Torso", Matrix(z=TORSO_LENGTH / 2))
         self.upper_torso.connect(self.neck)
         self.upper_torso.connect(self.left_shoulder, Matrix(y=TORSO_WIDTH / 2, z=-SHOULDER_OFFSET))
         self.upper_torso.connect(self.right_shoulder, Matrix(y=-TORSO_WIDTH / 2, z=-SHOULDER_OFFSET))
-        self.lower_torso = Link("Lower Torso", Matrix(z=TORSO_LENGTH / 2)).connect(self.upper_torso)
+
+        # Lower torso and lumbar
+        self.lower_torso = Link("Lower Torso", Matrix(z=TORSO_LENGTH / 2))  # upper torso not connected
         self.upper_lumbar = Link("Upper Lumbar", Matrix(z=LUMBAR_LENGTH / 2)).connect(self.lower_torso)
         self.lower_lumbar = Link("Lower Lumbar", Matrix(z=LUMBAR_LENGTH / 2)).connect(self.upper_lumbar)
 
@@ -89,11 +91,13 @@ class Model(ABC):
 
         # Pelvis
         self.pelvis = Link("Pelvis", Matrix(z=PELVIS_LENGTH))
+        self.pelvis.connect(self.left_upper_leg, Matrix(y=PELVIS_WIDTH / 2, z=-PELVIS_LENGTH))
+        self.pelvis.connect(self.right_upper_leg, Matrix(y=-PELVIS_WIDTH / 2, z=-PELVIS_LENGTH))
 
         # Wheelchair
         self.left_wheel = Link("Left Wheel", Matrix(z=WHEEL_RADIUS), Matrix(y=1))
         self.right_wheel = Link("Right Wheel", Matrix(z=WHEEL_RADIUS), Matrix(y=1))
-        self.seat = Link("Seat", Matrix(z=SEAT_HEIGHT))
+        self.seat = Link("Seat", Matrix(z=SEAT_HEIGHT))  # pelvis not connected
         self.seat.connect(self.left_wheel, Matrix(y=-SEAT_WIDTH / 2, z=-SEAT_HEIGHT))
         self.seat.connect(self.right_wheel, Matrix(y=SEAT_WIDTH / 2, z=-SEAT_HEIGHT))
 
@@ -190,12 +194,11 @@ class Model(ABC):
         self.left_forearm.connect(self.left_hand)
         self.right_forearm.connect(self.right_hand)
 
-    def _connect_legs_to_pelvis(self) -> None:
-        self.pelvis.connect(self.left_upper_leg, Matrix(y=PELVIS_WIDTH / 2, z=-PELVIS_LENGTH))
-        self.pelvis.connect(self.right_upper_leg, Matrix(y=-PELVIS_WIDTH / 2, z=-PELVIS_LENGTH))
-
     def _connect_lumbar_to_pelvis(self) -> None:
         self.pelvis.connect(self.lower_lumbar)
+
+    def _connect_torso(self) -> None:
+        self.lower_torso.connect(self.upper_torso)
 
     def _connect_pelvis_to_seat(self) -> None:
         self.seat.connect(self.pelvis)
@@ -213,14 +216,12 @@ class UpperBody(Model):
 
     @property
     def root(self) -> Link:
-        return self.lower_lumbar
+        return self.upper_torso
 
 
 class LowerBody(Model):
     def __init__(self) -> None:
         super().__init__()
-
-        self._connect_legs_to_pelvis()
 
     @property
     def root(self) -> Link:
@@ -232,8 +233,8 @@ class Body(Model):
         super().__init__()
 
         self._connect_hands_to_arms()
+        self._connect_torso()
         self._connect_lumbar_to_pelvis()
-        self._connect_legs_to_pelvis()
 
     @property
     def root(self) -> Link:
@@ -254,8 +255,8 @@ class BodyWithWheelchair(Model):
         super().__init__()
 
         self._connect_hands_to_arms()
+        self._connect_torso()
         self._connect_lumbar_to_pelvis()
-        self._connect_legs_to_pelvis()
         self._connect_pelvis_to_seat()
 
     @property
@@ -289,7 +290,7 @@ class UpperBodyWithHands(Model):
 
     @property
     def root(self) -> Link:
-        return self.lower_lumbar
+        return self.upper_torso
 
 
 class BodyWithHands(Model):
@@ -297,8 +298,8 @@ class BodyWithHands(Model):
         super().__init__()
 
         self._connect_carpi_to_arms()
+        self._connect_torso()
         self._connect_lumbar_to_pelvis()
-        self._connect_legs_to_pelvis()
 
     @property
     def root(self) -> Link:
@@ -310,8 +311,8 @@ class BodyWithWheelchairAndHands(Model):
         super().__init__()
 
         self._connect_carpi_to_arms()
+        self._connect_torso()
         self._connect_lumbar_to_pelvis()
-        self._connect_legs_to_pelvis()
         self._connect_pelvis_to_seat()
 
     @property
