@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Tuple, Union
 
 import numpy as np
@@ -168,13 +170,13 @@ class Matrix:
             )
 
     @property
-    def T(self) -> "Matrix":
+    def T(self) -> Matrix:
         return Matrix(matrix=self.__matrix.T)
 
-    def copy(self) -> "Matrix":
+    def copy(self) -> Matrix:
         return Matrix(matrix=self.__matrix)
 
-    def __mul__(self, other: "Matrix") -> "Matrix":
+    def __mul__(self, other: Matrix) -> Matrix:
         return Matrix(matrix=self.__matrix * other.__matrix)
 
     def __str__(self) -> str:
