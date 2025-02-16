@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Dict, List, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -46,7 +48,7 @@ class Link:
         self.__imu = Matrix(x=self.__imu.x, y=self.__imu.y, z=self.__imu.z, rotation=imu.rotation)  # ignore imu.xyz
 
     @property
-    def links(self) -> List[Tuple["Link", Matrix]]:
+    def links(self) -> List[Tuple[Link, Matrix]]:
         return self.__links
 
     @property
@@ -60,7 +62,7 @@ class Link:
         for link, matrix in self.__links:
             link.__update(self.__origin * self.joint * self.__end * matrix)
 
-    def connect(self, link: "Link", matrix: Matrix = Matrix()) -> "Link":  # matrix is the origin of the next link relative to the end of this link
+    def connect(self, link: Link, matrix: Matrix = Matrix()) -> Link:  # matrix is the origin of the next link relative to the end of this link
         link.__is_root = False
         self.__links.append((link, matrix))
         self.__update()
@@ -84,7 +86,7 @@ class Link:
     def get_wheel_axis_global(self) -> Matrix:
         return Matrix(rotation=(self.__origin * self.__joint).rotation) * self.__wheel_axis
 
-    def flatten(self) -> List["Link"]:
+    def flatten(self) -> List[Link]:
         links = [self]
 
         for link, _ in self.__links:
@@ -92,7 +94,7 @@ class Link:
 
         return links
 
-    def dictionary(self) -> Dict[str, "Link"]:
+    def dictionary(self) -> Dict[str, Link]:
         return {l.name: l for l in self.flatten()}
 
     def plot(
