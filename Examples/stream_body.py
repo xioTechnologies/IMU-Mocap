@@ -49,14 +49,8 @@ while True:
     for name, imu in imus.items():
         model.root.dictionary()[name].set_joint_from_imu_global(imu.matrix)
 
-    # interpolated = [
-    #     model.neck.name,
-    #     model.lower_torso.name,
-    #     model.upper_lumbar.name,
-    #     model.lower_lumbar.name,
-    # ]  # the pose of these parts of the body will inferred
-
-    # imumocap.solvers.interpolation(model.root, interpolated)
+    imumocap.solvers.interpolate([model.pelvis, model.lower_lumbar, model.upper_lumbar, model.lower_torso, model.upper_torso])
+    imumocap.solvers.interpolate([model.upper_torso, model.neck, model.head])
 
     imumocap.solvers.floor(model.root)
 

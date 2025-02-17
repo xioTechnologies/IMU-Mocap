@@ -42,8 +42,6 @@ while True:
     for name, imu in imus.items():
         model.root.dictionary()[name].set_joint_from_imu_global(imu.matrix)
 
-    # imumocap.solvers.interpolate(model.upper_torso, model.head)
-
-    imumocap.solvers.floor(model.root)
+    imumocap.solvers.interpolate([model.upper_torso, model.neck, model.head])
 
     connection.send(imumocap.viewer.link_to_primitives(model.root))

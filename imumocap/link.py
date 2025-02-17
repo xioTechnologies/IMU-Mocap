@@ -71,6 +71,9 @@ class Link:
     def get_joint_global(self) -> Matrix:
         return self.__origin * self.__joint
 
+    def set_joint_global(self, joint_global: Matrix) -> None:
+        self.joint = self.__origin.T * joint_global  # transpose can be used instead of inverse because joint.xyz ignored
+
     def get_end_global(self) -> Matrix:
         return self.__origin * self.__joint * self.__end
 
