@@ -10,6 +10,9 @@ from ..matrix import Matrix
 def floor(root: Link) -> None:
     links = root.flatten()
 
+    if not root.is_root:
+        raise ValueError(f"{root.name} is not the root")
+
     joints_z = np.array([l.get_joint_global().z for l in links])
 
     ends_z = np.array([l.get_end_global().z for l in links])
