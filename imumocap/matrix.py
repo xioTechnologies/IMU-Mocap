@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Tuple, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 
@@ -40,6 +40,8 @@ class Matrix:
             )
         elif quaternion is not None:
             # Quaternions and Rotation Sequence by Jack B. Kuipers, ISBN 0-691-10298-8, Page 168
+
+            quaternion /= np.linalg.norm(quaternion)
 
             qw = quaternion[0]
             qx = quaternion[1]
@@ -181,3 +183,31 @@ class Matrix:
 
     def __str__(self) -> str:
         return str(self.__matrix)
+
+    @staticmethod
+    def slerp(m0: Matrix, m1: Matrix, n: int) -> List[Matrix]:
+        # https://en.wikipedia.org/wiki/Slerp
+
+        q0 = Matrix(rotation=m0.rotation).quaternion
+        q1 = Matrix(rotation=m1.rotation).quaternion
+
+        q_delta = (Matrix(rotation=m0.rotation).T * Matrix(rotation=m1.rotation)).quaternion
+
+        theta = 2 * np.arccos(np.clip(q_delta[0], -1, 1))
+
+        if np.isclose(theta, 0):
+            return [
+                Matrix(
+                    xyz=m0.xyz + t * (m1.xyz - m0.xyz),
+                    quaternion=q0,
+                )
+                for t in np.linspace(0, 1, n)
+            ]
+
+        return [
+            Matrix(
+                xyz=m0.xyz + t * (m1.xyz - m0.xyz),
+                quaternion=((np.sin((1 - t) * theta) * q0) + (np.sin(t * theta) * q1)) / np.sin(theta),
+            )
+            for t in np.linspace(0, 1, n)
+        ]
