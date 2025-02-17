@@ -33,7 +33,7 @@ namespace Viewer.Runtime.Primitives
                 isDirty = true;
             }
         }
-
+        
         public Color NearColor
         {
             get => nearColor;
@@ -140,9 +140,13 @@ namespace Viewer.Runtime.Primitives
             if (materialInstance == null) return;
 
             materialInstance.SetFloat(ThicknessProperty, lineWidthInPixels);
-            materialInstance.SetColor(NearColorProperty, nearColor);
-            materialInstance.SetColor(FarColorProperty, farColor);
+            materialInstance.SetColor(NearColorProperty, GetNearColor());
+            materialInstance.SetColor(FarColorProperty, GetFarColor());
         }
+
+        protected virtual Color GetFarColor() => farColor;
+
+        protected virtual Color GetNearColor() => nearColor;
 
         protected virtual void UpdateTransform() { }
 

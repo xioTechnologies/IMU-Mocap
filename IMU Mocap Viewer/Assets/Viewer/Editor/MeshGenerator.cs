@@ -634,6 +634,9 @@ namespace Viewer.Editor
         [MenuItem("Viewer/Generate Sphere Mesh (24x24)")]
         private static void GenerateStretchSphereMesh24x24() => GenerateStretchSphereMesh(24, 24, "Assets/Viewer/Resources/Stretchable Meshes/Sphere.asset");
 
+        [MenuItem("Viewer/Generate Circle Mesh (36x12)")]
+        private static void GenerateStretchTorusMesh36x16() => GenerateStretchTorusMesh(36, 12, "Assets/Viewer/Resources/Stretchable Meshes/Circle.asset");
+        
         private static void GenerateStretchTorusMesh(int ringSegments, int tubeSegments, string path)
         {
             // Create a new mesh
@@ -729,8 +732,131 @@ namespace Viewer.Editor
             Debug.Log($"Torus mesh with {tubeSegments} tube segments and {ringSegments} ring segments saved to {path}");
         }
 
-        [MenuItem("Viewer/Generate Circle Mesh (36x12)")]
-        private static void GenerateStretchTorusMesh36x16() => GenerateStretchTorusMesh(36, 12, "Assets/Viewer/Resources/Stretchable Meshes/Circle.asset");
+        [MenuItem("Viewer/Generate Angle Mesh (36)")]
+        private static void GenerateAngleMesh36() => GenerateAngleMesh(36, "Assets/Viewer/Resources/Stretchable Meshes/Angle.asset");
+
+       private static void GenerateAngleMesh(int segments, string path) 
+        {
+             var mesh = new Mesh
+            {
+                name = $"Angle Mesh {segments}"
+            };
+            
+            var vertices = new List<Vector3>();
+            var thickness = new List<Vector4>();
+            var uvs = new List<Vector2>();
+            var triangles = new List<int>();
+            
+            float innerRadius = 0f;
+            float outerRadius = 1f;
+
+            float angleIncrement = 2f * Mathf.PI / (segments);
+            float vIncrement = 1f / (segments);
+            
+            {
+                float angle = 0 * angleIncrement;
+                float x = Mathf.Cos(angle);
+                float y = Mathf.Sin(angle);
+                
+                vertices.Add(new Vector3(x, 0, y) * innerRadius);
+                thickness.Add(new Vector4(0f, 0f, 0f, 0f));
+                uvs.Add(new Vector2(0, 0));
+                
+                vertices.Add(new Vector3(x, 0, y) * outerRadius);
+                thickness.Add(new Vector4(0f, 0f, 0f, 0f));
+                uvs.Add(new Vector2(1, 0));
+            }
+            
+            for (int i = 1; i <= segments; i++)
+            {
+                float increment = i - 0.5f;
+                
+                float angle = (increment * angleIncrement);
+                float x = Mathf.Cos(angle);
+                float y = Mathf.Sin(angle);
+                
+                vertices.Add(new Vector3(x, 0, y) * innerRadius);
+                thickness.Add(new Vector4(0f, 0f, 0f, 0f));
+                uvs.Add(new Vector2(0, vIncrement * increment));
+                
+                increment = i;
+                angle = increment * angleIncrement;
+                x = Mathf.Cos(angle);
+                y = Mathf.Sin(angle);
+                
+                vertices.Add(new Vector3(x, 0, y) * outerRadius);
+                thickness.Add(new Vector4(0f, 0f, 0f, 0f));
+                uvs.Add(new Vector2(1, vIncrement * increment));
+            }
+            
+            {
+                float angle = segments * angleIncrement;
+                float x = Mathf.Cos(angle);
+                float y = Mathf.Sin(angle);
+                
+                vertices.Add(new Vector3(x, 0, y) * innerRadius);
+                thickness.Add(new Vector4(0f, 0f, 0f, 0f));
+                uvs.Add(new Vector2(0, 1));
+            }
+
+            // Generate side triangles
+            for (int i = 0; i < segments; i++)
+            {
+                int innerCurrent = i * 2;
+                int outerCurrent = innerCurrent + 1;
+                int innerNext = (innerCurrent + 2);
+                int outerNext = (innerCurrent + 3);
+
+                // First triangle of quad
+                triangles.Add(innerCurrent);
+                triangles.Add(innerNext);
+                triangles.Add(outerCurrent);
+
+                // Second triangle of quad
+                triangles.Add(innerNext);
+                triangles.Add(outerNext);
+                triangles.Add(outerCurrent);
+                
+                // backface triangles
+                
+                triangles.Add(innerCurrent);
+                triangles.Add(outerCurrent);
+                triangles.Add(innerNext);
+                
+                triangles.Add(innerNext);
+                triangles.Add(outerCurrent);
+                triangles.Add(outerNext);
+            }
+
+            {
+                int innerCurrent = segments * 2;
+                int outerCurrent = innerCurrent + 1;
+                int innerNext = (innerCurrent + 2);
+
+                triangles.Add(innerCurrent);
+                triangles.Add(innerNext);
+                triangles.Add(outerCurrent);
+                
+                triangles.Add(innerCurrent);
+                triangles.Add(outerCurrent);
+                triangles.Add(innerNext);
+            }
+
+            // Assign data to the mesh
+            mesh.vertices = vertices.ToArray();
+            mesh.tangents = thickness.ToArray();
+            mesh.uv = uvs.ToArray();
+            mesh.triangles = triangles.ToArray();
+            
+            mesh.bounds = new Bounds(Vector3.zero, Vector3.one);
+
+            // Save the mesh as an asset
+            AssetDatabase.CreateAsset(mesh, path);
+            AssetDatabase.SaveAssets();
+
+            // Log the completion
+            Debug.Log($"Angle mesh with {segments} segments saved to {path}");
+        }
 
         private static int GetMidPointIndex(int indexA, int indexB, ref List<Vector3> vertices, ref List<Vector4> thickness, ref List<Vector2> uvs, Dictionary<long, int> midPointCache, float radius)
         {
