@@ -7,17 +7,16 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Plot_Stretchable
-  m_Shader: {fileID: 4800000, guid: 0fae4fdfa41b46a8a8912e43d3a881b2, type: 3}
+  m_Name: Plot_Stretchables (Stencil)
+  m_Shader: {fileID: 4800000, guid: 074d5036798e4007bcac945eb06cd5e6, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _STENCILENABLED_ON
+  m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -31,11 +30,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _PixelScaleFactor: 1
-    - _StencilEnabled: 1
     - _StencilValue: 1
-    - _Thickness: 0.25
-    m_Colors:
-    - _FarColor: {r: 1, g: 1, b: 1, a: 1}
-    - _NearColor: {r: 1, g: 1, b: 1, a: 1}
+    m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

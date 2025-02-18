@@ -16,6 +16,7 @@ namespace Viewer.Runtime.Widgets
         [SerializeField] private int maxLineCount = 1000;
         [SerializeField] private Mesh lineMesh;
         [SerializeField] private Material instanceMaterial;
+        [SerializeField, Range(0, 255)] private int stencilValue = 1;
 
         [Header("Line Properties")] [SerializeField, Range(0f, 10f)]
         private float lineWidthPixels = 1f;
@@ -33,9 +34,9 @@ namespace Viewer.Runtime.Widgets
 
         private void Awake()
         {
-            axisLines = new StretchableDrawBatch(16, lineMesh, instanceMaterial);
-            majorLines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
-            minorLines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
+            axisLines = new StretchableDrawBatch(16, lineMesh, instanceMaterial, stencilValue);
+            majorLines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial, stencilValue);
+            minorLines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial, stencilValue);
 
             mainCamera = Camera.main;
         }

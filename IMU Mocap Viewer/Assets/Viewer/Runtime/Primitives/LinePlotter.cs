@@ -11,6 +11,7 @@ namespace Viewer.Runtime.Primitives
         [SerializeField] private Mesh boxMesh;
         [SerializeField] private Material instanceMaterial;
         [SerializeField] private Color color = Color.white;
+        [SerializeField, Range(0, 255)] private int stencilValue = 1;
 
         private Color colorLinear;
 
@@ -24,18 +25,20 @@ namespace Viewer.Runtime.Primitives
 
         private void Awake()
         {
-            boxes = new StretchableDrawBatch(maxBoxCount, boxMesh, instanceMaterial);
+            boxes = new StretchableDrawBatch(maxBoxCount, boxMesh, instanceMaterial, stencilValue);
             CacheColors();
         }
 
-        private void OnEnable() => group.RegisterSource(boxes);
-
-        private void OnDisable() => group.UnregisterSource(boxes);
+        // private void OnEnable() => group.RegisterSource(boxes);
+        //
+        // private void OnDisable() => group.UnregisterSource(boxes);
 
         private void OnDestroy() => boxes?.Dispose();
 
         public void Clear() => boxes?.Clear();
 
         public void Plot(Vector3 start, Vector3 end, float thickness) => boxes?.AddLine(start, end, thickness, colorLinear, colorLinear);
+
+        void OnRenderObject() => boxes?.Draw();
     }
 }

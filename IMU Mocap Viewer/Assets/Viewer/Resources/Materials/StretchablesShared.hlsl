@@ -1,28 +1,5 @@
-Shader "Plot/Stretchables"
-{
-    Properties 
-    { 
-        _PixelScaleFactor ("Pixel Scale Factor", Float) = 1.0
-    }
-    
-    SubShader
-    {
-        Tags 
-        { 
-            "RenderType" = "Opaque"
-            "RenderPipeline" = "UniversalPipeline"
-        }
-        LOD 100
-
-        Pass
-        {
-            Name "Stretchable"
-            
-            HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #pragma target 4.5
-            
+﻿#ifndef STRETCHABLES_SHARED_INCLUDED
+#define STRETCHABLES_SHARED_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -51,6 +28,7 @@ struct Instance
 TEXTURE2D(_MainTex);
 SAMPLER(sampler_MainTex);
 float _PixelScaleFactor;
+float _StencilValue;
 
 StructuredBuffer<Instance> _Instances;
 
@@ -98,7 +76,4 @@ half4 frag(Varyings input) : SV_Target
     return input.color;
 }
 
-            ENDHLSL
-        }
-    }
-}
+#endif 

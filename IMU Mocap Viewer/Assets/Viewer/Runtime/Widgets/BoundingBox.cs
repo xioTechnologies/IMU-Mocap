@@ -22,7 +22,7 @@ namespace Viewer.Runtime.Widgets
 
         public Bounds Bounds { get; set; }
 
-        private void Awake() => lines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
+        private void Awake() => lines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial, 1);
 
         private void OnEnable() => group.RegisterSource(lines);
 

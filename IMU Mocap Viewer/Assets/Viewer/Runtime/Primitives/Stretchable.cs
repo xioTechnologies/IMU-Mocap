@@ -10,6 +10,7 @@ namespace Viewer.Runtime.Primitives
         private static readonly int NearColorProperty = Shader.PropertyToID("_NearColor");
         private static readonly int FarColorProperty = Shader.PropertyToID("_FarColor");
         private static readonly int PixelScaleFactorProperty = Shader.PropertyToID("_PixelScaleFactor");
+        private static readonly int StencilValueProperty = Shader.PropertyToID("_StencilValue");
 
         [SerializeField] protected Material material;
 
@@ -18,6 +19,8 @@ namespace Viewer.Runtime.Primitives
         [SerializeField] protected Color nearColor = Color.white;
 
         [SerializeField] protected Color farColor = Color.gray;
+
+        [SerializeField, Range(0, 255)] protected int stencilValue = 1;
 
         private Material materialInstance;
         private MeshRenderer meshRenderer;
@@ -142,6 +145,7 @@ namespace Viewer.Runtime.Primitives
             materialInstance.SetFloat(ThicknessProperty, lineWidthInPixels);
             materialInstance.SetColor(NearColorProperty, nearColor);
             materialInstance.SetColor(FarColorProperty, farColor);
+            materialInstance.SetFloat(StencilValueProperty, stencilValue);
         }
 
         protected virtual void UpdateTransform() { }

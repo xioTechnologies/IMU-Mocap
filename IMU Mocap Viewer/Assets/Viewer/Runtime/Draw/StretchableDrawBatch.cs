@@ -21,8 +21,11 @@ namespace Viewer.Runtime.Draw
         private Bounds bounds;
         private int activeCount;
         private bool isDirty;
+        
         private static readonly int PixelScaleFactor = Shader.PropertyToID("_PixelScaleFactor");
-
+        
+        private static readonly int StencilValueProperty = Shader.PropertyToID("_StencilValue");
+        
         [StructLayout(LayoutKind.Sequential)]
         struct InstanceData
         {
@@ -38,17 +41,21 @@ namespace Viewer.Runtime.Draw
         }
 
         public int Order { get; set; } = 0;
+        
+        public int StencilValue { get; set; } = 0;
 
-        public StretchableDrawBatch(int max, Mesh mesh, Material material)
+        public StretchableDrawBatch(int max, Mesh mesh, Material material, int stencilValue)
         {
             maxCount = max;
             this.mesh = mesh ?? throw new ArgumentNullException(nameof(mesh));
             this.material = material ?? throw new ArgumentNullException(nameof(material));
-
+            StencilValue = stencilValue;
+            
             instances = new InstanceData[maxCount];
             instanceBuffer = new ComputeBuffer(maxCount, Marshal.SizeOf<InstanceData>());
 
             propertyBlock = new MaterialPropertyBlock();
+            
             isDirty = true;
         }
 
@@ -123,6 +130,7 @@ namespace Viewer.Runtime.Draw
 
             instanceBuffer.SetData(instances, 0, 0, activeCount);
             propertyBlock.SetFloat(PixelScaleFactor, PixelScaleUtility.PixelScaleFactor);
+            propertyBlock.SetFloat(StencilValueProperty, StencilValue);
             propertyBlock.SetBuffer(InstancesProperty, instanceBuffer);
         }
 

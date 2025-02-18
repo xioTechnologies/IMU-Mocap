@@ -1,8 +1,10 @@
-Shader "Plot/Stretchables"
+Shader "Plot/Stretchables (Stencil)"
 {
     Properties 
     { 
         _PixelScaleFactor ("Pixel Scale Factor", Float) = 1.0
+        
+        _StencilValue ("Stencil Value", Float) = 1
     }
     
     SubShader
@@ -17,6 +19,13 @@ Shader "Plot/Stretchables"
         Pass
         {
             Name "Stretchable"
+            
+            Stencil
+            {
+                Ref [_StencilValue]
+                Comp GEqual
+                Pass Replace
+            }
             
             HLSLPROGRAM
             #pragma vertex vert
@@ -51,6 +60,7 @@ struct Instance
 TEXTURE2D(_MainTex);
 SAMPLER(sampler_MainTex);
 float _PixelScaleFactor;
+float _StencilValue;
 
 StructuredBuffer<Instance> _Instances;
 
