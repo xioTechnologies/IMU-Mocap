@@ -169,7 +169,7 @@ def _assign(names: List[str], messages: List[ximu3.NetworkAnnouncementMessage]) 
             if len(selected) == 0:
                 continue
 
-            if selected[0].send_command("device_name") != "Unassigned":
+            if selected[0].send_command("device_name") != '"Unassigned"':
                 continue
 
             selected[0].send_command("color")  # restore normal LED behavior
