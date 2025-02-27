@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -59,7 +59,7 @@ class Link:
     def is_root(self) -> bool:
         return self.__is_root
 
-    def __update(self, origin: Union[None, Matrix] = None) -> None:
+    def __update(self, origin: Optional[Matrix] = None) -> None:
         if origin is not None:
             self.__origin = origin
 
@@ -106,15 +106,15 @@ class Link:
 
     def plot(
         self,
-        frames: Union[None, Dict[str, Matrix]] = None,  # each frame is a dictionary of joint matrices created by {l.name: l.joint for l in root.flatten()}
+        frames: Optional[Dict[str, Matrix]] = None,  # each frame is a dictionary of joint matrices created by {l.name: l.joint for l in root.flatten()}
         fps: float = 30,  # animation frames per second
         file_name: str = "",  # must be .gif
-        elev: Union[None, float] = None,  # see mpl_toolkits.mplot3d.axes3d.Axes3D.view_init
-        azim: Union[None, float] = None,  # see mpl_toolkits.mplot3d.axes3d.Axes3D.view_init
-        figsize: Union[None, Tuple[float, float]] = None,  # see matplotlib.pyplot.figure
-        dpi: Union[None, float] = None,  # see matplotlib.pyplot.figure
+        elev: Optional[float] = None,  # see mpl_toolkits.mplot3d.axes3d.Axes3D.view_init
+        azim: Optional[float] = None,  # see mpl_toolkits.mplot3d.axes3d.Axes3D.view_init
+        figsize: Optional[Tuple[float, float]] = None,  # see matplotlib.pyplot.figure
+        dpi: Optional[float] = None,  # see matplotlib.pyplot.figure
         hide_tick_labels: bool = True,  # hides the tick labels
-        block: Union[None, bool] = None,  # see matplotlib.pyplot.show
+        block: Optional[bool] = None,  # see matplotlib.pyplot.show
     ) -> None:
         links = self.flatten()
 
@@ -154,7 +154,7 @@ class Link:
         axes.view_init(elev=elev, azim=azim)
 
         # Update plot
-        def update(index: Union[None, int] = None) -> None:
+        def update(index: Optional[int] = None) -> None:
             # Set joints
             if index is not None:
                 for name, joint in frames[index].items():
