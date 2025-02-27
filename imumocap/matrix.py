@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -8,15 +8,15 @@ import numpy as np
 class Matrix:
     def __init__(
         self,
-        matrix: Union[None, np.matrix] = None,
-        xyz: Union[None, np.ndarray] = None,
+        matrix: Optional[np.matrix] = None,
+        xyz: Optional[np.ndarray] = None,
         x: float = 0,
         y: float = 0,
         z: float = 0,
-        rotation: Union[None, np.ndarray] = None,
-        quaternion: Union[None, np.ndarray] = None,
-        axis_angle: Union[None, Tuple[np.ndarray, float]] = None,
-        rot_xyz: Union[None, np.ndarray] = None,
+        rotation: Optional[np.ndarray] = None,
+        quaternion: Optional[np.ndarray] = None,
+        axis_angle: Optional[Tuple[np.ndarray, float]] = None,
+        rot_xyz: Optional[np.ndarray] = None,
         rot_x: float = 0,
         rot_y: float = 0,
         rot_z: float = 0,
