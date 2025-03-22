@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Viewer.Runtime
 {
-    static class Swizzle
+    internal static class Swizzle
     {
         // swizzle of size 2
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
