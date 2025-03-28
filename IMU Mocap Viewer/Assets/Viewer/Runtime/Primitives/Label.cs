@@ -34,14 +34,18 @@ namespace Viewer.Runtime.Primitives
 
         public void AdjustForCamera()
         {
-            float worldSize = PixelScaleUtility.GetWorldSizeFromPixels(Scale * 10f, rectTransform.position);
-            float worldMargin = PixelScaleUtility.GetWorldSizeFromPixels(Margin * 10f, rectTransform.position);
+            RectTransform rect = rectTransform;
+
+            if (rect == null) return;
+
+            float worldSize = PixelScaleUtility.GetWorldSizeFromPixels(Scale * 10f, rect.position);
+            float worldMargin = PixelScaleUtility.GetWorldSizeFromPixels(Margin * 10f, rect.position);
 
             text.fontSize = worldSize;
             text.margin = new Vector4(worldMargin, 0, 0, 0);
 
-            rectTransform.localScale = Vector3.one;
-            rectTransform.sizeDelta = new Vector2(text.preferredWidth, text.preferredHeight);
+            rect.localScale = Vector3.one;
+            rect.sizeDelta = new Vector2(text.preferredWidth, text.preferredHeight);
         }
     }
 }

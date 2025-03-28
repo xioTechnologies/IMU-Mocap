@@ -21,6 +21,7 @@ Shader "Plot/Cursor"
         {
             Name "Forward"
             Blend SrcAlpha OneMinusSrcAlpha
+            ZTest Always
             Cull Off  
 
             HLSLPROGRAM

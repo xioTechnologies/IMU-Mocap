@@ -22,6 +22,7 @@
             Name "Forward"
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite Off
+            ZTest Always
 
             HLSLPROGRAM
             #pragma vertex vert

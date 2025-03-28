@@ -1,6 +1,6 @@
 using UnityEngine;
 using Unity.Mathematics;
-using Viewer.Runtime.Draw;
+using Viewer.Runtime.Primitives;
 
 namespace Viewer.Runtime.Widgets
 {
@@ -10,12 +10,11 @@ namespace Viewer.Runtime.Widgets
         [SerializeField] private float radius = 10f;
         [SerializeField, Range(0f, 1f)] private float fadeProportion = 0.5f;
 
-        [Header("Drawing")] [SerializeField] private DrawingGroup axisGroup;
-        [SerializeField] private DrawingGroup majorGroup;
-        [SerializeField] private DrawingGroup minorGroup;
-        [SerializeField] private int maxLineCount = 1000;
+        [Header("Drawing")] [SerializeField] private int maxLineCount = 1000;
         [SerializeField] private Mesh lineMesh;
-        [SerializeField] private Material instanceMaterial;
+        [SerializeField] private Material axesMaterial;
+        [SerializeField] private Material majorMaterial;
+        [SerializeField] private Material minorMaterial;
 
         [Header("Line Properties")] [SerializeField, Range(0f, 10f)]
         private float lineWidthPixels = 1f;
@@ -33,25 +32,11 @@ namespace Viewer.Runtime.Widgets
 
         private void Awake()
         {
-            axisLines = new StretchableDrawBatch(16, lineMesh, instanceMaterial);
-            majorLines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
-            minorLines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
+            axisLines = new StretchableDrawBatch(16, lineMesh, axesMaterial);
+            majorLines = new StretchableDrawBatch(maxLineCount, lineMesh, majorMaterial);
+            minorLines = new StretchableDrawBatch(maxLineCount, lineMesh, minorMaterial);
 
             mainCamera = Camera.main;
-        }
-
-        private void OnEnable()
-        {
-            axisGroup.RegisterSource(axisLines);
-            majorGroup.RegisterSource(majorLines);
-            minorGroup.RegisterSource(minorLines);
-        }
-
-        private void OnDisable()
-        {
-            axisGroup.UnregisterSource(axisLines);
-            majorGroup.UnregisterSource(majorLines);
-            minorGroup.UnregisterSource(minorLines);
         }
 
         private void OnDestroy()
@@ -119,6 +104,10 @@ namespace Viewer.Runtime.Widgets
 
                 PlotFadedLine(line.Value, darkColorLinear, lineColor, mainCamera.transform.position, batch);
             }
+
+            axisLines.Draw();
+            majorLines.Draw();
+            minorLines.Draw();
         }
 
         private void PlotFadedLine((Vector3 min, Vector3 minFadeEnd, Vector3 maxFadeEnd, Vector3 max, float intensity) line, Color dark, Color color, Vector3 split, StretchableDrawBatch lines)

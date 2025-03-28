@@ -1,4 +1,4 @@
-﻿Shader "Plot/Stretchable"
+﻿Shader "Plot/Stretchable (Stencil)"
 {
     Properties 
     { 
@@ -8,6 +8,8 @@
         _FarColor ("Far Color", Color) = (1,1,1,1)
         
         _PixelScaleFactor ("Pixel Scale Factor", Float) = 1.0
+        
+        _StencilValue ("Stencil Value", Float) = 1
     }
     
     SubShader
@@ -19,18 +21,24 @@
             "Queue" = "Transparent"
         }
         LOD 100
-
+        
         Pass
         {
             Name "Stretchable"
             Blend SrcAlpha OneMinusSrcAlpha
-            // ZWrite Off
+            ZWrite Off
+            
+            Stencil
+            {
+                Ref [_StencilValue]
+                Comp GEqual
+                Pass Replace
+            }
             
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 4.5
-            #pragma shader_feature_local _STENCILENABLED_ON
             
             #include "StretchableShared.hlsl"
             ENDHLSL

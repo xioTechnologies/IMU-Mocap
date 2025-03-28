@@ -21,7 +21,8 @@
             Name "Unlit"
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite Off
-            Cull Off  
+            Cull Off
+            ZTest Always
 
             HLSLPROGRAM
             #pragma target 4.5

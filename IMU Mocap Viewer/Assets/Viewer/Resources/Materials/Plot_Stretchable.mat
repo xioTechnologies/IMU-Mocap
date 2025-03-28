@@ -11,7 +11,8 @@ Material:
   m_Shader: {fileID: 4800000, guid: 0fae4fdfa41b46a8a8912e43d3a881b2, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _STENCILENABLED_ON
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -30,8 +31,11 @@ Material:
     m_Ints: []
     m_Floats:
     - _PixelScaleFactor: 1
+    - _StencilEnabled: 1
+    - _StencilValue: 1
     - _Thickness: 0.25
     m_Colors:
     - _FarColor: {r: 1, g: 1, b: 1, a: 1}
     - _NearColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

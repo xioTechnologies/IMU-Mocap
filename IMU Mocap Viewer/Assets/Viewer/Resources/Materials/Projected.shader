@@ -21,7 +21,8 @@ Shader "Plot/Projected"
         {
             Name "Forward"
             Blend SrcAlpha OneMinusSrcAlpha
-            Cull Off  
+            Cull Off
+            ZTest Always
 
             HLSLPROGRAM
             #pragma vertex vert
