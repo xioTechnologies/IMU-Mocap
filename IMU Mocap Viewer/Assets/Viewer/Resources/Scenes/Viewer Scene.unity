@@ -150,42 +150,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1181713537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!21 &21681146
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Plot_Stretchable
-  m_Shader: {fileID: 4800000, guid: 0fae4fdfa41b46a8a8912e43d3a881b2, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _PixelScaleFactor: 1
-    - _Thickness: 5
-    m_Colors:
-    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
-    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!114 &51721642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -324,7 +288,11 @@ PrefabInstance:
     - target: {fileID: 2013068859009097967, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 1758797285}
+      objectReference: {fileID: 1168913369}
+    - target: {fileID: 2526683140091160412, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 9cf583083b59ecd4ab67381b78404b9b, type: 2}
     - target: {fileID: 4886090464880779281, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -368,11 +336,15 @@ PrefabInstance:
     - target: {fileID: 5485803776923042176, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2113160521}
+      objectReference: {fileID: 1552525091}
     - target: {fileID: 6099231209983652620, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
       propertyPath: m_Name
       value: Height Widget
       objectReference: {fileID: 0}
+    - target: {fileID: 8592182888409060898, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
+      propertyPath: material
+      value: 
+      objectReference: {fileID: 2100000, guid: f82e525b2054f3349bb2d3159f0b18c8, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -927,11 +899,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccf758db08ec43f18a70b7a014cbe06a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  group: {fileID: 11400000, guid: 6a8795e4835eb0c4fbc861fe3cc53c26, type: 2}
   maxBoxCount: 1000
   dotMesh: {fileID: 4300000, guid: 9cf583083b59ecd4ab67381b78404b9b, type: 2}
-  instanceMaterial: {fileID: 2100000, guid: 4ff918edede9ff948b353f38d839cec4, type: 2}
+  instanceMaterial: {fileID: 2100000, guid: cfffccd8d5cad294690ba031f1966b5c, type: 2}
   color: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
+  stencilValue: 1
 --- !u!114 &423723375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1474,10 +1446,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172ba2d235ba4d7fb4e0203b17045f16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  group: {fileID: 11400000, guid: 4dd7c4222f1a1c64fa48ec84dc91c970, type: 2}
   maxBoxCount: 1000
   boxMesh: {fileID: 4300000, guid: 4a166052882932f46a69354f8212644d, type: 2}
-  instanceMaterial: {fileID: 2100000, guid: 4ff918edede9ff948b353f38d839cec4, type: 2}
+  instanceMaterial: {fileID: 2100000, guid: ddd8a308bbd6dec4f95ccea9c86adf9d, type: 2}
+  stencilValue: 1
   xColor: {r: 0.87843144, g: 0.1254902, b: 0.1254902, a: 1}
   yColor: {r: 0.427451, g: 0.8313726, b: 0, a: 1}
   zColor: {r: 0.19607845, g: 0.7725491, b: 1, a: 1}
@@ -1689,11 +1661,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf72c255149b4c558d711e3738bfac51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  group: {fileID: 11400000, guid: 6c6566df2d3c8a64daf9d744472649c8, type: 2}
   maxBoxCount: 1000
   torusMesh: {fileID: 4300000, guid: 033514dbfa3cfca44a079b604e948423, type: 2}
-  instanceMaterial: {fileID: 2100000, guid: 4ff918edede9ff948b353f38d839cec4, type: 2}
+  instanceMaterial: {fileID: 2100000, guid: 9c92af324cdd2434b96f23bb39268c49, type: 2}
   color: {r: 0.40000004, g: 0.40000004, b: 0.40000004, a: 1}
+  stencilValue: 1
 --- !u!114 &1218196645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2014,7 +1986,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1065.37, y: -15}
+  m_AnchoredPosition: {x: 939.37, y: -15}
   m_SizeDelta: {x: 31.26, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1365172081
@@ -2470,6 +2442,45 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1515014778}
   m_CullTransparentMesh: 1
+--- !u!21 &1552525091
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Plot_Stretchable
+  m_Shader: {fileID: 4800000, guid: 0fae4fdfa41b46a8a8912e43d3a881b2, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _STENCILENABLED_ON
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _PixelScaleFactor: 0.0020257903
+    - _StencilEnabled: 1
+    - _StencilValue: 0
+    - _Thickness: 5
+    m_Colors:
+    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
+    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &1585730267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3469,11 +3480,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 068fefdb4f0e43639de5a4ffd50bac49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  group: {fileID: 11400000, guid: 6c6566df2d3c8a64daf9d744472649c8, type: 2}
   maxBoxCount: 1000
   boxMesh: {fileID: 4300000, guid: 4a166052882932f46a69354f8212644d, type: 2}
-  instanceMaterial: {fileID: 2100000, guid: 4ff918edede9ff948b353f38d839cec4, type: 2}
+  instanceMaterial: {fileID: 2100000, guid: 9c92af324cdd2434b96f23bb39268c49, type: 2}
   color: {r: 0.40000004, g: 0.40000004, b: 0.40000004, a: 1}
+  stencilValue: 1
 --- !u!114 &2066613459
 MonoBehaviour:
   m_ObjectHideFlags: 0

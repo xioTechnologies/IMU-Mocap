@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Viewer.Runtime.Primitives
 {
@@ -10,14 +10,17 @@ namespace Viewer.Runtime.Primitives
         private static readonly int NearColorProperty = Shader.PropertyToID("_NearColor");
         private static readonly int FarColorProperty = Shader.PropertyToID("_FarColor");
         private static readonly int PixelScaleFactorProperty = Shader.PropertyToID("_PixelScaleFactor");
+        private static readonly int StencilValueProperty = Shader.PropertyToID("_StencilValue");
 
         [SerializeField] protected Material material;
 
-        [SerializeField, Range(0f, 20f)] protected float lineWidthInPixels = 1f;
+        [SerializeField, Range(0f, 50f)] protected float lineWidthInPixels = 1f;
 
         [SerializeField] protected Color nearColor = Color.white;
 
         [SerializeField] protected Color farColor = Color.gray;
+
+        [SerializeField, Range(0, 255)] protected int stencilValue = 1;
 
         private Material materialInstance;
         private MeshRenderer meshRenderer;
@@ -140,9 +143,18 @@ namespace Viewer.Runtime.Primitives
             if (materialInstance == null) return;
 
             materialInstance.SetFloat(ThicknessProperty, lineWidthInPixels);
-            materialInstance.SetColor(NearColorProperty, nearColor);
-            materialInstance.SetColor(FarColorProperty, farColor);
+            materialInstance.SetColor(NearColorProperty, GetNearColor());
+            materialInstance.SetColor(FarColorProperty, GetFarColor());
+            materialInstance.SetFloat(StencilValueProperty, stencilValue);
+
+            UpdateProperties(materialInstance);
         }
+
+        protected virtual void UpdateProperties(Material materialInstance) { }
+
+        protected virtual Color GetFarColor() => farColor;
+
+        protected virtual Color GetNearColor() => nearColor;
 
         protected virtual void UpdateTransform() { }
 

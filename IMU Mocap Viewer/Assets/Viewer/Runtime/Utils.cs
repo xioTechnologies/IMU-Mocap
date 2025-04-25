@@ -37,12 +37,12 @@ namespace Viewer.Runtime
             Vector3 horizontalSpoke = Vector3.Cross(axis, axisCloseToVertical ? Vector3.forward : Vector3.up).normalized * radius;
 
             Vector3 highestSpoke = Vector3.Cross(horizontalSpoke, axis).normalized * radius;
-            
+
             Vector3 p0 = center + horizontalSpoke + highestSpoke;
             Vector3 p1 = center + horizontalSpoke - highestSpoke;
             Vector3 p2 = center - horizontalSpoke + highestSpoke;
             Vector3 p3 = center - horizontalSpoke - highestSpoke;
-            
+
             Vector3 min = p0;
             min = Vector3.Min(min, p1);
             min = Vector3.Min(min, p2);

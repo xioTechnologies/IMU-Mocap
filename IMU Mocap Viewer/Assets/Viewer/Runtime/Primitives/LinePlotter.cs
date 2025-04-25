@@ -1,17 +1,16 @@
 ﻿using UnityEngine;
-using Viewer.Runtime.Draw;
 
 namespace Viewer.Runtime.Primitives
 {
     public sealed class LinePlotter : MonoBehaviour
     {
-        [SerializeField] private DrawingGroup group;
-
         [SerializeField] private int maxBoxCount = 1000;
         [SerializeField] private Mesh boxMesh;
         [SerializeField] private Material instanceMaterial;
         [SerializeField] private Color color = Color.white;
+        [SerializeField, Range(0, 255)] private int stencilValue = 1;
 
+        private StretchableDrawBatch lines;
         private Color colorLinear;
 
         void CacheColors() => colorLinear = color.linear;
@@ -20,22 +19,18 @@ namespace Viewer.Runtime.Primitives
         void OnValidate() => CacheColors();
 #endif
 
-        private StretchableDrawBatch boxes;
-
         private void Awake()
         {
-            boxes = new StretchableDrawBatch(maxBoxCount, boxMesh, instanceMaterial);
+            lines = new StretchableDrawBatch(maxBoxCount, boxMesh, instanceMaterial);
             CacheColors();
         }
 
-        private void OnEnable() => group.RegisterSource(boxes);
+        private void OnDestroy() => lines?.Dispose();
 
-        private void OnDisable() => group.UnregisterSource(boxes);
+        public void Clear() => lines?.Clear();
 
-        private void OnDestroy() => boxes?.Dispose();
+        public void Plot(Vector3 start, Vector3 end, float thickness) => lines?.AddLine(start, end, thickness, colorLinear, colorLinear);
 
-        public void Clear() => boxes?.Clear();
-
-        public void Plot(Vector3 start, Vector3 end, float thickness) => boxes?.AddLine(start, end, thickness, colorLinear, colorLinear);
+        void Update() => lines?.Draw();
     }
 }

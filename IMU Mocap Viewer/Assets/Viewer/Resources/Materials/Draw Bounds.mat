@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Plot_Stretchables
-  m_Shader: {fileID: 4800000, guid: acc60aba29b44686bc066bff55153164, type: 3}
+  m_Name: Draw Bounds
+  m_Shader: {fileID: 4800000, guid: 40a9ad4c62f14e3cb1de5ffcf627f6ec, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2100
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -30,5 +30,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _PixelScaleFactor: 1
+    - _StencilValue: 0
     m_Colors: []
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -22,7 +22,7 @@ namespace Viewer.Runtime
 
         [Header("Label")] [SerializeField] private LabelPlotter labels;
         [SerializeField, Range(1f, 200f)] private float labelSizeInPoints = 20f;
-        
+
         private float DpiScaleFactor => primitiveScale * PixelScaleUtility.DpiScaleFactor;
 
         private Bounds? bounds;

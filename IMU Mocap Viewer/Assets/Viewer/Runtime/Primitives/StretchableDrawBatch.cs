@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
-using UnityEngine.Rendering;
 
-namespace Viewer.Runtime.Draw
+namespace Viewer.Runtime.Primitives
 {
-    public sealed class StretchableDrawBatch : IDisposable, ICommandSource
+    public sealed class StretchableDrawBatch : IDisposable
     {
         private static readonly int InstancesProperty = Shader.PropertyToID("_Instances");
 
@@ -21,6 +20,7 @@ namespace Viewer.Runtime.Draw
         private Bounds bounds;
         private int activeCount;
         private bool isDirty;
+
         private static readonly int PixelScaleFactor = Shader.PropertyToID("_PixelScaleFactor");
 
         [StructLayout(LayoutKind.Sequential)]
@@ -37,8 +37,6 @@ namespace Viewer.Runtime.Draw
             }
         }
 
-        public int Order { get; set; } = 0;
-
         public StretchableDrawBatch(int max, Mesh mesh, Material material)
         {
             maxCount = max;
@@ -49,6 +47,7 @@ namespace Viewer.Runtime.Draw
             instanceBuffer = new ComputeBuffer(maxCount, Marshal.SizeOf<InstanceData>());
 
             propertyBlock = new MaterialPropertyBlock();
+
             isDirty = true;
         }
 
@@ -106,15 +105,13 @@ namespace Viewer.Runtime.Draw
 
             if (Utils.ConsumeFlag(ref isDirty)) Flush();
 
-            material.SetPass(0);
-            Graphics.DrawMeshInstancedProcedural(
-                mesh,
-                0,
-                material,
-                bounds,
-                activeCount,
-                propertyBlock
-            );
+            RenderParams rp = new RenderParams(material)
+            {
+                worldBounds = bounds,
+                matProps = propertyBlock
+            };
+
+            Graphics.RenderMeshPrimitives(rp, mesh, 0, activeCount);
         }
 
         private void Flush()
@@ -124,15 +121,6 @@ namespace Viewer.Runtime.Draw
             instanceBuffer.SetData(instances, 0, 0, activeCount);
             propertyBlock.SetFloat(PixelScaleFactor, PixelScaleUtility.PixelScaleFactor);
             propertyBlock.SetBuffer(InstancesProperty, instanceBuffer);
-        }
-
-        public void PopulateCommands(RasterCommandBuffer buffer)
-        {
-            if (activeCount <= 0) return;
-
-            if (Utils.ConsumeFlag(ref isDirty)) Flush();
-
-            buffer.DrawMeshInstancedProcedural(mesh, 0, material, 0, activeCount, propertyBlock);
         }
     }
 }

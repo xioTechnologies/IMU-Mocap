@@ -1,12 +1,10 @@
-﻿using System;
-using UnityEngine;
-using Viewer.Runtime.Draw;
+﻿using UnityEngine;
+using Viewer.Runtime.Primitives;
 
 namespace Viewer.Runtime.Widgets
 {
     public class BoundingBox : MonoBehaviour
     {
-        [Header("Drawing")] [SerializeField] private DrawingGroup group;
         [SerializeField] private int maxLineCount = 1000;
         [SerializeField] private Mesh lineMesh;
         [SerializeField] private Material instanceMaterial;
@@ -23,10 +21,6 @@ namespace Viewer.Runtime.Widgets
         public Bounds Bounds { get; set; }
 
         private void Awake() => lines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
-
-        private void OnEnable() => group.RegisterSource(lines);
-
-        private void OnDisable() => group.UnregisterSource(lines);
 
         private void OnDestroy() => lines?.Dispose();
 
@@ -69,6 +63,8 @@ namespace Viewer.Runtime.Widgets
             DrawEdge(p1, p5, lineWidth, quiverLength);
             DrawEdge(p2, p6, lineWidth, quiverLength);
             DrawEdge(p3, p7, lineWidth, quiverLength);
+
+            lines.Draw();
         }
 
         private void DrawEdge(Vector3 start, Vector3 end, float lineWidth, float quiverLength)
