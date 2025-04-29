@@ -13,9 +13,14 @@ namespace Viewer.Editor
             StretchMeshes.GenerateBox("Assets/Viewer/Resources/Stretchable Meshes/Box.asset");
             StretchMeshes.GenerateCylinder(6, "Assets/Viewer/Resources/Stretchable Meshes/Cylinder.asset");
             StretchMeshes.GenerateCylinderWithRoundedCaps(12, 4, "Assets/Viewer/Resources/Stretchable Meshes/Capsule.asset");
+            StretchMeshes.GenerateCylinderWithOneRoundedCap(12, 4, "Assets/Viewer/Resources/Stretchable Meshes/Height Stick.asset");
             StretchMeshes.GenerateTorus(72, 12, "Assets/Viewer/Resources/Stretchable Meshes/Circle.asset");
-            
-            Sphere.GenerateMesh(2, "Assets/Viewer/Resources/Stretchable Meshes/Icosphere.asset");
+
+            Sphere.GenerateMesh(2, "Assets/Viewer/Resources/Stretchable Meshes/Sphere.asset");
+
+            AngleMeshes.GenerateArc(72, "Assets/Viewer/Resources/Stretchable Meshes/Angle Arc.asset");
+            AngleMeshes.GenerateArcLine(72, 12, 4, 0.2f, "Assets/Viewer/Resources/Stretchable Meshes/Angle Line Arc.asset");
+            AngleMeshes.GenerateNeedle(12, 4, 0.5f, "Assets/Viewer/Resources/Stretchable Meshes/Angle Needle.asset");
         }
     }
 }

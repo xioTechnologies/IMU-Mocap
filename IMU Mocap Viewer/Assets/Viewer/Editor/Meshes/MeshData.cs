@@ -22,9 +22,9 @@ namespace Viewer.Editor.Meshes
         public void AddTriangle(int a, int b, int c, bool flipNormals = false)
         {
             Triangles.Add(a);
-            
+
             (b, c) = flipNormals ? (c, b) : (b, c);
-        
+
             Triangles.Add(b);
             Triangles.Add(c);
         }
@@ -73,7 +73,7 @@ namespace Viewer.Editor.Meshes
                 yield return (rotatedDirection, angle);
             }
         }
-        
+
         public static MeshData Merge(params MeshData[] data) => Merge((IEnumerable<MeshData>)data);
 
         public static MeshData Merge(IEnumerable<MeshData> data)
@@ -126,11 +126,11 @@ namespace Viewer.Editor.Meshes
         public static (Mesh mesh, bool exists) CreateOrLoadMesh(string path, string defaultName)
         {
             Mesh mesh = AssetDatabase.LoadAssetAtPath<Mesh>(path);
-            
+
             bool exists = mesh != null;
 
             if (exists == false) mesh = new Mesh { name = defaultName };
-                
+
             mesh.Clear();
 
             return (mesh, exists);
@@ -211,7 +211,7 @@ namespace Viewer.Editor.Meshes
         public static MeshData Disc(Vector3 offset, Vector3 axis, int segments, float radius, Vector3 thicknessOffset, float thickness, Vector2 uv, float startAngle, bool flipNormals)
         {
             var data = new MeshData();
-            
+
             int centerIndex = data.Vertices.Count;
 
             data.AddVertex(offset, thicknessOffset._xyz0(), uv);
@@ -224,7 +224,7 @@ namespace Viewer.Editor.Meshes
                     uv
                 );
             }
-            
+
             for (int i = 0; i < segments; i++)
             {
                 int current = centerIndex + 1 + i;
@@ -241,11 +241,11 @@ namespace Viewer.Editor.Meshes
             var data = new MeshData();
 
             int centerIndex = data.Vertices.Count;
-            
+
             var extrusionDir = axis * (flipNormals ? -thickness : thickness);
 
             data.AddVertex(offset, extrusionDir._xyz0(), uv);
-            
+
             for (int ring = 1; ring <= subDivisions; ring++)
             {
                 float theta = Mathf.PI / 2 * (1f - ring / (float)subDivisions);
@@ -263,7 +263,7 @@ namespace Viewer.Editor.Meshes
                     );
                 }
             }
-            
+
             int ringStartIndex = centerIndex + 1;
 
             for (int ring = 0; ring < subDivisions; ring++)
@@ -314,7 +314,7 @@ namespace Viewer.Editor.Meshes
             float startAngle = 0)
         {
             var axis = (top - bottom).normalized;
-            
+
             Vector2 bottomUV = new Vector2(0, 0) * uvScale + uvOffset;
             Vector2 topUV = new Vector2(1, 0) * uvScale + uvOffset;
 
@@ -323,7 +323,7 @@ namespace Viewer.Editor.Meshes
                 Tube(bottom, top, segments, tubeSegments, radius, thickness, uvScale, uvOffset, startAngle),
                 Cap(top, topCapType, tubeSegments, capSubdivisions, radius, thickness, axis, topUV, startAngle, false)
             );
-            
+
             return meshData;
         }
 
