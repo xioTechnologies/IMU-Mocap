@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Serialization;
+using Viewer.Runtime.Primitives.Batching;
 
 namespace Viewer.Runtime.Primitives
 {
@@ -6,11 +8,11 @@ namespace Viewer.Runtime.Primitives
     [ExecuteAlways]
     public class Stretchable : MonoBehaviour
     {
-        private static readonly int ThicknessProperty = Shader.PropertyToID("_Thickness");
-        private static readonly int NearColorProperty = Shader.PropertyToID("_NearColor");
-        private static readonly int FarColorProperty = Shader.PropertyToID("_FarColor");
-        private static readonly int PixelScaleFactorProperty = Shader.PropertyToID("_PixelScaleFactor");
-        private static readonly int StencilValueProperty = Shader.PropertyToID("_StencilValue");
+        // private static readonly int ThicknessProperty = Shader.PropertyToID("_Thickness");
+        // private static readonly int NearColorProperty = Shader.PropertyToID("_NearColor");
+        // private static readonly int FarColorProperty = Shader.PropertyToID("_FarColor");
+        // private static readonly int PixelScaleFactorProperty = Shader.PropertyToID("_PixelScaleFactor");
+        // private static readonly int StencilValueProperty = Shader.PropertyToID("_StencilValue");
 
         [SerializeField] protected Material material;
 
@@ -20,7 +22,9 @@ namespace Viewer.Runtime.Primitives
 
         [SerializeField] protected Color farColor = Color.gray;
 
-        [SerializeField, Range(0, 255)] protected int stencilValue = 1;
+        [SerializeField] protected DrawType drawType = DrawType.Opaque;
+        [SerializeField, Range(0, 255)] protected int order = 1;
+        [SerializeField] protected StencilMode stencilMode = StencilMode.Stencil;
 
         private Material materialInstance;
         private MeshRenderer meshRenderer;
@@ -85,9 +89,9 @@ namespace Viewer.Runtime.Primitives
                 Initialize();
             }
 
-            materialInstance.SetFloat(PixelScaleFactorProperty, PixelScaleUtility.PixelScaleFactor);
+            // materialInstance.SetFloat(PixelScaleFactorProperty, PixelScaleUtility.PixelScaleFactor);
 
-            if (!isDirty) return;
+            if (isDirty == false) return;
 
             UpdateMaterialProperties();
 
@@ -119,7 +123,7 @@ namespace Viewer.Runtime.Primitives
 
             if (material == null)
             {
-                Debug.LogError($"Material not assigned on {gameObject.name}", this);
+                // Debug.LogError($"Material not assigned on {gameObject.name}", gameObject);
                 return;
             }
 
@@ -142,10 +146,13 @@ namespace Viewer.Runtime.Primitives
         {
             if (materialInstance == null) return;
 
-            materialInstance.SetFloat(ThicknessProperty, lineWidthInPixels);
-            materialInstance.SetColor(NearColorProperty, GetNearColor());
-            materialInstance.SetColor(FarColorProperty, GetFarColor());
-            materialInstance.SetFloat(StencilValueProperty, stencilValue);
+            materialInstance.SetFloat(StretchableMaterial.ThicknessProperty, lineWidthInPixels);
+            materialInstance.SetColor(StretchableMaterial.NearColorProperty, GetNearColor());
+            materialInstance.SetColor(StretchableMaterial.FarColorProperty, GetFarColor());
+
+            materialInstance.SetRenderOrder(drawType, order);
+            materialInstance.SetBlendMode(drawType);
+            materialInstance.ConfigureStencil(stencilMode, order);
 
             UpdateProperties(materialInstance);
         }

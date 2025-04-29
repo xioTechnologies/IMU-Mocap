@@ -20,7 +20,11 @@ namespace Viewer.Runtime
         [Header("Axes")] [SerializeField] private AxesPlotter axes;
         [SerializeField, Range(0f, 10f)] private float axesLineWidthInPixels = 1f;
 
+        [Header("Angle")] [SerializeField] private AnglePlotter angle;
+        [SerializeField, Range(0f, 10f)] private float angleLineWidthInPixels = 1f;
+
         [Header("Label")] [SerializeField] private LabelPlotter labels;
+        [SerializeField] private Color labelColor = Utils.ColorFromHex("E4E4E4");
         [SerializeField, Range(1f, 200f)] private float labelSizeInPoints = 20f;
 
         private float DpiScaleFactor => primitiveScale * PixelScaleUtility.DpiScaleFactor;
@@ -39,6 +43,7 @@ namespace Viewer.Runtime
             circle.Clear();
             dot.Clear();
             axes.Clear();
+            angle.Clear();
             labels.Clear();
         }
 
@@ -75,7 +80,14 @@ namespace Viewer.Runtime
         {
             bounds.Encapsulate(xyz);
 
-            labels.Plot(xyz, DpiScaleFactor * labelSizeInPoints, text);
+            labels.Plot(xyz, labelColor, DpiScaleFactor * labelSizeInPoints, text);
+        }
+
+        public void Angle(Vector3 xyz, Quaternion quaternion, float scale, AngleData? bend, AngleData? tilt, AngleData? twist)
+        {
+            bounds.Encapsulate(new Bounds(xyz, Vector3.one * scale));
+
+            angle.Plot(xyz, quaternion, scale, DpiScaleFactor * labelSizeInPoints, DpiScaleFactor * angleLineWidthInPixels, bend, tilt, twist);
         }
     }
 }

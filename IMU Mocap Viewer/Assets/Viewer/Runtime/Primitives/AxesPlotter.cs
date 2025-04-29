@@ -1,19 +1,25 @@
-﻿using UnityEngine;
+using UnityEngine;
+using UnityEngine.Serialization;
+using Viewer.Runtime.Primitives.Batching;
 
 namespace Viewer.Runtime.Primitives
 {
     public sealed class AxesPlotter : MonoBehaviour
     {
-        [SerializeField] private int maxBoxCount = 1000;
-        [SerializeField] private Mesh boxMesh;
+        [FormerlySerializedAs("maxBoxCount"), SerializeField]
+        private int maxCount = 1000;
+
+        [FormerlySerializedAs("boxMesh"), SerializeField]
+        private Mesh capsuleMesh;
+
         [SerializeField] private Material instanceMaterial;
-        [SerializeField, Range(0, 255)] private int stencilValue = 1;
+        [SerializeField, Range(0, 255)] private int order = 1;
 
         [SerializeField] private Color xColor = Color.red;
         [SerializeField] private Color yColor = Color.green;
         [SerializeField] private Color zColor = Color.blue;
 
-        private StretchableDrawBatch quivers;
+        private LineDrawBatch quivers;
 
         private Color xColorLinear;
         private Color yColorLinear;
@@ -26,14 +32,24 @@ namespace Viewer.Runtime.Primitives
             zColorLinear = zColor.linear;
         }
 
-#if UNITY_EDITOR
-        void OnValidate() => CacheColors();
-#endif
+        void AssignOrder()
+        {
+            if (quivers == null) return;
+
+            quivers.Order = order;
+        }
+
+        private void OnValidate()
+        {
+            CacheColors();
+            AssignOrder();
+        }
 
         private void Awake()
         {
-            quivers = new StretchableDrawBatch(maxBoxCount, boxMesh, instanceMaterial);
+            quivers = new LineDrawBatch(maxCount, capsuleMesh, instanceMaterial, gameObject.layer) { StencilMode = StencilMode.Stencil, };
             CacheColors();
+            AssignOrder();
         }
 
         private void OnDestroy() => quivers?.Dispose();
@@ -45,7 +61,7 @@ namespace Viewer.Runtime.Primitives
             void AddQuiver(Vector3 axis, Color color)
             {
                 var quiverOffset = rotation * axis * scale;
-                quivers?.AddLine(point, point + quiverOffset, thickness, color, color);
+                quivers?.Add(point, point + quiverOffset, thickness, color, color);
             }
 
             AddQuiver(Vector3.right, xColorLinear);

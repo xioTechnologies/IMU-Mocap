@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using UnityEngine;
+using Viewer.Runtime.Primitives.Batching;
 
 namespace Viewer.Runtime.Primitives
 {
@@ -8,28 +9,38 @@ namespace Viewer.Runtime.Primitives
         [SerializeField] private Mesh dotMesh;
         [SerializeField] private Material instanceMaterial;
         [SerializeField] private Color color = Color.white;
-        [SerializeField, Range(0, 255)] private int stencilValue = 1;
+        [SerializeField, Range(0, 255)] private int order = 1;
 
         private StretchableDrawBatch dots;
         private Color colorLinear;
 
         void CacheColors() => colorLinear = color.linear;
 
-#if UNITY_EDITOR
-        void OnValidate() => CacheColors();
-#endif
+        void AssignOrder()
+        {
+            if (dots == null) return;
+
+            dots.Order = order;
+        }
+
+        private void OnValidate()
+        {
+            CacheColors();
+            AssignOrder();
+        }
 
         private void Awake()
         {
-            dots = new StretchableDrawBatch(maxBoxCount, dotMesh, instanceMaterial);
+            dots = new StretchableDrawBatch(maxBoxCount, dotMesh, instanceMaterial, gameObject.layer) { StencilMode = StencilMode.Stencil, };
             CacheColors();
+            AssignOrder();
         }
 
         private void OnDestroy() => dots?.Dispose();
 
         public void Clear() => dots?.Clear();
 
-        public void Plot(Vector3 point, float radius) => dots?.AddBox(point, Quaternion.identity, 1f, radius, colorLinear, colorLinear);
+        public void Plot(Vector3 point, float radius) => dots?.Add(point, Quaternion.identity, 1f, radius, colorLinear, colorLinear);
 
         void Update() => dots?.Draw();
     }

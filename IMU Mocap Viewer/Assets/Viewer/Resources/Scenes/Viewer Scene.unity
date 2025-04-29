@@ -150,6 +150,49 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1181713537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!21 &13183899
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Plot_Stretchables
+  m_Shader: {fileID: 4800000, guid: 53edb87871424072bb75b1800f9d9ef1, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2255
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _DstBlend: 0
+    - _EndAngle: 1
+    - _PixelScaleFactor: 1
+    - _SrcBlend: 1
+    - _StartAngle: 0
+    - _StencilComp: 7
+    - _StencilPass: 2
+    - _StencilValue: 1
+    - _Thickness: 5
+    m_Colors:
+    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
+    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &51721642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,10 +328,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1064378142464897215, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 0c8f1862c92a3ca48814f21a6ff29b81, type: 2}
     - target: {fileID: 2013068859009097967, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 1168913369}
+      objectReference: {fileID: 784913560}
     - target: {fileID: 2526683140091160412, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -336,15 +383,31 @@ PrefabInstance:
     - target: {fileID: 5485803776923042176, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 1552525091}
+      objectReference: {fileID: 13183899}
     - target: {fileID: 6099231209983652620, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
       propertyPath: m_Name
       value: Height Widget
       objectReference: {fileID: 0}
+    - target: {fileID: 6539277781582164762, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
+      propertyPath: material
+      value: 
+      objectReference: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
+    - target: {fileID: 8592182888409060898, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
+      propertyPath: order
+      value: 255
+      objectReference: {fileID: 0}
+    - target: {fileID: 8592182888409060898, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
+      propertyPath: drawType
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8592182888409060898, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
       propertyPath: material
       value: 
-      objectReference: {fileID: 2100000, guid: f82e525b2054f3349bb2d3159f0b18c8, type: 2}
+      objectReference: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
+    - target: {fileID: 8592182888409060898, guid: 7de72cf32291ab94f94248c9ca529083, type: 3}
+      propertyPath: stencilMode
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -546,42 +609,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
   m_ActionId: c54995bb-c20a-47f1-bbb8-51f6488e45b4
---- !u!21 &296400421
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Plot_Stretchable
-  m_Shader: {fileID: 4800000, guid: 0fae4fdfa41b46a8a8912e43d3a881b2, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _PixelScaleFactor: 0.0020619652
-    - _Thickness: 4
-    m_Colors:
-    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
-    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -901,9 +928,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxBoxCount: 1000
   dotMesh: {fileID: 4300000, guid: 9cf583083b59ecd4ab67381b78404b9b, type: 2}
-  instanceMaterial: {fileID: 2100000, guid: cfffccd8d5cad294690ba031f1966b5c, type: 2}
+  instanceMaterial: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
   color: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
-  stencilValue: 1
+  order: 6
 --- !u!114 &423723375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1183,7 +1210,10 @@ MonoBehaviour:
   dotSizeInPixels: 10
   axes: {fileID: 932524538}
   axesLineWidthInPixels: 2
+  angle: {fileID: 0}
+  angleLineWidthInPixels: 1
   labels: {fileID: 2046400887}
+  labelColor: {r: 0.89411765, g: 0.89411765, b: 0.89411765, a: 1}
   labelSizeInPoints: 14
 --- !u!4 &666764579
 Transform:
@@ -1219,6 +1249,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
   m_ActionId: 176985cd-61f2-44aa-a1f4-744241203a50
+--- !u!21 &784913560
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Plot_Stretchables
+  m_Shader: {fileID: 4800000, guid: 53edb87871424072bb75b1800f9d9ef1, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3499
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _DstBlend: 10
+    - _EndAngle: 1
+    - _PixelScaleFactor: 1
+    - _SrcBlend: 5
+    - _StartAngle: 0
+    - _StencilComp: 7
+    - _StencilPass: 2
+    - _StencilValue: 1
+    - _Thickness: 4
+    m_Colors:
+    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
+    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &843806520 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1518845245509970256, guid: 65632b2fecc5533409164bfd84172441, type: 3}
@@ -1446,10 +1519,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172ba2d235ba4d7fb4e0203b17045f16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxBoxCount: 1000
-  boxMesh: {fileID: 4300000, guid: 4a166052882932f46a69354f8212644d, type: 2}
-  instanceMaterial: {fileID: 2100000, guid: ddd8a308bbd6dec4f95ccea9c86adf9d, type: 2}
-  stencilValue: 1
+  maxCount: 1000
+  capsuleMesh: {fileID: 4300000, guid: 4a166052882932f46a69354f8212644d, type: 2}
+  instanceMaterial: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
+  order: 5
   xColor: {r: 0.87843144, g: 0.1254902, b: 0.1254902, a: 1}
   yColor: {r: 0.427451, g: 0.8313726, b: 0, a: 1}
   zColor: {r: 0.19607845, g: 0.7725491, b: 1, a: 1}
@@ -1663,9 +1736,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxBoxCount: 1000
   torusMesh: {fileID: 4300000, guid: 033514dbfa3cfca44a079b604e948423, type: 2}
-  instanceMaterial: {fileID: 2100000, guid: 9c92af324cdd2434b96f23bb39268c49, type: 2}
+  instanceMaterial: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
   color: {r: 0.40000004, g: 0.40000004, b: 0.40000004, a: 1}
-  stencilValue: 1
+  order: 4
 --- !u!114 &1218196645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1986,7 +2059,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 939.37, y: -15}
+  m_AnchoredPosition: {x: 1161.37, y: -15}
   m_SizeDelta: {x: 31.26, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1365172081
@@ -2318,6 +2391,10 @@ PrefabInstance:
       propertyPath: lineMesh
       value: 
       objectReference: {fileID: 4300000, guid: 4a166052882932f46a69354f8212644d, type: 2}
+    - target: {fileID: 239250898587525223, guid: 2b406ebdf5bc2a04baa6517f0e01d7e4, type: 3}
+      propertyPath: instanceMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
     - target: {fileID: 4024733183636833096, guid: 2b406ebdf5bc2a04baa6517f0e01d7e4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2442,45 +2519,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1515014778}
   m_CullTransparentMesh: 1
---- !u!21 &1552525091
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Plot_Stretchable
-  m_Shader: {fileID: 4800000, guid: 0fae4fdfa41b46a8a8912e43d3a881b2, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _STENCILENABLED_ON
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _PixelScaleFactor: 0.0020257903
-    - _StencilEnabled: 1
-    - _StencilValue: 0
-    - _Thickness: 5
-    m_Colors:
-    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
-    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!114 &1585730267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2556,6 +2594,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   plotter: {fileID: 666764578}
   listenPort: 6000
+  xAngle: 0
+  yAngle: 0
+  zAngle: 0
+  minAngle: -45
+  maxAngle: 45
+  spinX: 0
+  spinY: 0
+  spinZ: 0
+  spinSpeed: 1
 --- !u!114 &1624570210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2893,42 +2940,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 905783338990321133, guid: 42e7cdd17681b254fa03cf2f77a7e937, type: 3}
   m_PrefabInstance: {fileID: 1704794114}
   m_PrefabAsset: {fileID: 0}
---- !u!21 &1758797285
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Plot_Stretchable
-  m_Shader: {fileID: 4800000, guid: 0fae4fdfa41b46a8a8912e43d3a881b2, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _PixelScaleFactor: 1
-    - _Thickness: 4
-    m_Colors:
-    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
-    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1001 &1766517545
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3375,6 +3386,49 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 50
+--- !u!21 &2037365369
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Plot_Stretchables
+  m_Shader: {fileID: 4800000, guid: 53edb87871424072bb75b1800f9d9ef1, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3245
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _DstBlend: 10
+    - _EndAngle: 1
+    - _PixelScaleFactor: 1
+    - _SrcBlend: 5
+    - _StartAngle: 0
+    - _StencilComp: 8
+    - _StencilPass: 0
+    - _StencilValue: 1
+    - _Thickness: 4
+    m_Colors:
+    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
+    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &2046400885
 GameObject:
   m_ObjectHideFlags: 0
@@ -3482,9 +3536,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxBoxCount: 1000
   boxMesh: {fileID: 4300000, guid: 4a166052882932f46a69354f8212644d, type: 2}
-  instanceMaterial: {fileID: 2100000, guid: 9c92af324cdd2434b96f23bb39268c49, type: 2}
+  instanceMaterial: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
   color: {r: 0.40000004, g: 0.40000004, b: 0.40000004, a: 1}
-  stencilValue: 1
+  order: 4
 --- !u!114 &2066613459
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3503,15 +3557,15 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3878192659940181253, guid: fab0c23e15e45794da40a36da1744315, type: 3}
   m_PrefabInstance: {fileID: 5802957170033964548}
   m_PrefabAsset: {fileID: 0}
---- !u!21 &2113160521
+--- !u!21 &2120004091
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Plot_Stretchable
-  m_Shader: {fileID: 4800000, guid: 0fae4fdfa41b46a8a8912e43d3a881b2, type: 3}
+  m_Name: Plot_Stretchables
+  m_Shader: {fileID: 4800000, guid: 53edb87871424072bb75b1800f9d9ef1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -3519,7 +3573,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 2255
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -3532,7 +3586,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _DstBlend: 0
+    - _EndAngle: 1
     - _PixelScaleFactor: 1
+    - _SrcBlend: 1
+    - _StartAngle: 0
+    - _StencilComp: 7
+    - _StencilPass: 2
+    - _StencilValue: 1
     - _Thickness: 5
     m_Colors:
     - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
@@ -3967,6 +4028,10 @@ PrefabInstance:
       propertyPath: origin
       value: 
       objectReference: {fileID: 7148315}
+    - target: {fileID: 7423033306705222353, guid: fab0c23e15e45794da40a36da1744315, type: 3}
+      propertyPath: material
+      value: 
+      objectReference: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
