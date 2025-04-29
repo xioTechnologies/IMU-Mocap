@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4024733183636833096}
   - component: {fileID: 239250898587525223}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Bounding Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxLineCount: 32
-  lineMesh: {fileID: 4300000, guid: 84837a18bcc964944b548540d588ddbb, type: 2}
-  instanceMaterial: {fileID: 2100000, guid: 4fd1bf9dd142fd940b98d083e9d0ec34, type: 2}
+  lineMesh: {fileID: 4300000, guid: 4a166052882932f46a69354f8212644d, type: 2}
+  instanceMaterial: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
   lineWidthPixels: 1
   color: {r: 0.89411765, g: 0.89411765, b: 0.89411765, a: 1}
   quiverRatio: 0.2

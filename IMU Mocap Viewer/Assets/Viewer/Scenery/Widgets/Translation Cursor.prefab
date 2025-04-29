@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1518845245509970256}
   - component: {fileID: 904275556531307203}
   - component: {fileID: 7751404217690194458}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Translation Cursor
   m_TagString: Untagged
   m_Icon: {fileID: 0}

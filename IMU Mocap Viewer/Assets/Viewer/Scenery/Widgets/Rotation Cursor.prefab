@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5135419208493853953}
   - component: {fileID: 7677284654283204438}
   - component: {fileID: 8095573611617889313}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Rotation Cursor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
