@@ -13,7 +13,7 @@ namespace Viewer.Editor
         public static void GenerateAll()
         {
             const int resolution = 128;
-            
+
             GenerateSDF("Angle", resolution);
             GenerateSDF("Axes", resolution);
             GenerateSDF("Dot", resolution);

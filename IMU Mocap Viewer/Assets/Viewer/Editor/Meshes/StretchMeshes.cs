@@ -9,7 +9,7 @@ namespace Viewer.Editor.Meshes
         public static void GenerateCylinder(int segments, string path)
         {
             (Mesh mesh, bool exists) = MeshData.CreateOrLoadMesh(path, $"Stretch Cylinder {segments}");
-            
+
             MeshData.Merge(mesh,
                 MeshData.CappedTube(
                     Vector3.forward * 0.5f, MeshData.CapType.Flat,
@@ -21,7 +21,7 @@ namespace Viewer.Editor.Meshes
             );
 
             mesh.bounds = new Bounds(Vector3.zero, Vector3.one);
-            
+
             MeshData.SaveMesh(exists, mesh, path);
         }
 
@@ -39,15 +39,15 @@ namespace Viewer.Editor.Meshes
                     Mathf.PI * 0.25f
                 )
             );
-            
+
             mesh.bounds = new Bounds(Vector3.zero, Vector3.one);
-            
+
             MeshData.SaveMesh(exists, mesh, path);
         }
 
         public static void GenerateCylinderWithRoundedCaps(int segments, int capSubdivisions, string path)
         {
-            (Mesh mesh, bool exists) = MeshData.CreateOrLoadMesh(path,  $"Stretch Cylinder with Rounded Caps {segments}x{capSubdivisions}" );
+            (Mesh mesh, bool exists) = MeshData.CreateOrLoadMesh(path, $"Stretch Cylinder with Rounded Caps {segments}x{capSubdivisions}");
 
             MeshData.Merge(mesh,
                 MeshData.CappedTube(
@@ -58,9 +58,28 @@ namespace Viewer.Editor.Meshes
                     Vector2.one, Vector2.zero
                 )
             );
-            
+
             mesh.bounds = new Bounds(Vector3.zero, Vector3.one);
-            
+
+            MeshData.SaveMesh(exists, mesh, path);
+        }
+
+        public static void GenerateCylinderWithOneRoundedCap(int segments, int capSubdivisions, string path)
+        {
+            (Mesh mesh, bool exists) = MeshData.CreateOrLoadMesh(path, $"Stretch Cylinder with one Rounded Cap {segments}x{capSubdivisions}");
+
+            MeshData.Merge(mesh,
+                MeshData.CappedTube(
+                    Vector3.forward * 0.5f, MeshData.CapType.Round,
+                    Vector3.forward * -0.5f, MeshData.CapType.None,
+                    1, segments, capSubdivisions,
+                    0.0f, 0.5f,
+                    Vector2.one, Vector2.zero
+                )
+            );
+
+            mesh.bounds = new Bounds(Vector3.zero, Vector3.one);
+
             MeshData.SaveMesh(exists, mesh, path);
         }
 
@@ -68,25 +87,25 @@ namespace Viewer.Editor.Meshes
         {
             (Mesh mesh, bool exists) = MeshData.CreateOrLoadMesh(path, $"Stretch Torus {tubeSegments}x{ringSegments}");
 
-            var meshData = new MeshData(); 
-            
+            var meshData = new MeshData();
+
             float majorRadius = 0.5f; // Distance from the center of the tube to the center of the torus
             float minorRadius = 0.5f; // Radius of the tube
 
             float angleScale = 1f / (Mathf.PI * 2f);
-            
+
             // Generate vertices and thickness (tangents)
-            foreach (var (ringDir, angle) in MeshData.IterateArc(ringSegments, Vector3.forward)) 
-            { 
+            foreach (var (ringDir, angle) in MeshData.IterateArc(ringSegments, Vector3.forward))
+            {
                 var ringCenter = new Vector3(ringDir.x * majorRadius, ringDir.y * majorRadius, 0);
 
-                float uv = UpDown(angle * angleScale); 
+                float uv = UpDown(angle * angleScale);
 
-                foreach (var (tubeDir, _) in MeshData.IterateArc(tubeSegments, Vector3.forward)) 
-                { 
+                foreach (var (tubeDir, _) in MeshData.IterateArc(tubeSegments, Vector3.forward))
+                {
                     // Direction vector from ring center to tube surface
                     var dir = new Vector3(ringDir.x * tubeDir.x, ringDir.y * tubeDir.x, tubeDir.y);
-            
+
                     meshData.AddVertex(
                         ringCenter,
                         new Vector4(dir.x * minorRadius, dir.y * minorRadius, dir.z * minorRadius, 0f),
@@ -94,7 +113,7 @@ namespace Viewer.Editor.Meshes
                     );
                 }
             }
-          
+
             int verticesPerRing = tubeSegments;
             for (int ring = 0; ring < ringSegments; ring++)
             {
@@ -118,11 +137,11 @@ namespace Viewer.Editor.Meshes
 
             MeshData.SaveMesh(exists, mesh, path);
         }
-        
+
         private static float UpDown(float value)
         {
-            float wrappedValue = (value * 2f) % 2f; 
-                
+            float wrappedValue = (value * 2f) % 2f;
+
             return Mathf.Clamp01(Mathf.Clamp01(wrappedValue) - Mathf.Clamp01(wrappedValue - 1f));
         }
     }
