@@ -77,5 +77,14 @@ namespace Viewer.Runtime
             }
             else bounds = aabb;
         }
+
+        public static Color ColorFromHex(string hex)
+        {
+            if (ColorUtility.TryParseHtmlString($"#{hex.TrimStart('#')}", out var color)) return color;
+
+            Debug.LogWarning($"Invalid hex color string: {hex}. Defaulting to white.");
+
+            return Color.magenta;
+        }
     }
 }

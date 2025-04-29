@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Viewer.Runtime.Primitives;
+using Viewer.Runtime.Primitives.Batching;
 
 namespace Viewer.Runtime.Widgets
 {
@@ -16,11 +17,11 @@ namespace Viewer.Runtime.Widgets
 
         [SerializeField, Range(0f, 1f)] private float quiverRatio = 0.2f;
 
-        private StretchableDrawBatch lines;
+        private LineDrawBatch lines;
 
         public Bounds Bounds { get; set; }
 
-        private void Awake() => lines = new StretchableDrawBatch(maxLineCount, lineMesh, instanceMaterial);
+        private void Awake() => lines = new LineDrawBatch(maxLineCount, lineMesh, instanceMaterial, gameObject.layer) { StencilMode = StencilMode.None, Order = -500 }; // use a negative order to render non-stencil materials later
 
         private void OnDestroy() => lines?.Dispose();
 
@@ -73,14 +74,14 @@ namespace Viewer.Runtime.Widgets
 
             if (distance < quiverLength * 2)
             {
-                lines.AddLine(start, end, lineWidth, color, color);
+                lines.Add(start, end, lineWidth, color, color);
                 return;
             }
 
             var axis = (end - start).normalized;
 
-            lines.AddLine(start, start + (axis * quiverLength), lineWidth, color, color);
-            lines.AddLine(end, end - (axis * quiverLength), lineWidth, color, color);
+            lines.Add(start, start + (axis * quiverLength), lineWidth, color, color);
+            lines.Add(end, end - (axis * quiverLength), lineWidth, color, color);
         }
 
         public void Show() => gameObject.SetActive(true);

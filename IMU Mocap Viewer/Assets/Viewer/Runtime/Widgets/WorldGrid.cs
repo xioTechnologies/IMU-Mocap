@@ -1,6 +1,9 @@
+using System;
 using UnityEngine;
 using Unity.Mathematics;
+using UnityEngine.Serialization;
 using Viewer.Runtime.Primitives;
+using Viewer.Runtime.Primitives.Batching;
 
 namespace Viewer.Runtime.Widgets
 {
@@ -10,11 +13,12 @@ namespace Viewer.Runtime.Widgets
         [SerializeField] private float radius = 10f;
         [SerializeField, Range(0f, 1f)] private float fadeProportion = 0.5f;
 
-        [Header("Drawing")] [SerializeField] private int maxLineCount = 1000;
+        [Header("Drawing")] [SerializeField, Range(0, 255)]
+        private int order = 1;
+
+        [SerializeField] private int maxLineCount = 1000;
         [SerializeField] private Mesh lineMesh;
-        [SerializeField] private Material axesMaterial;
-        [SerializeField] private Material majorMaterial;
-        [SerializeField] private Material minorMaterial;
+        [SerializeField] private Material material;
 
         [Header("Line Properties")] [SerializeField, Range(0f, 10f)]
         private float lineWidthPixels = 1f;
@@ -25,16 +29,31 @@ namespace Viewer.Runtime.Widgets
         [SerializeField] private Color xLineColor;
         [SerializeField] private Color yLineColor;
 
-        private StretchableDrawBatch axisLines;
-        private StretchableDrawBatch majorLines;
-        private StretchableDrawBatch minorLines;
+        private LineDrawBatch axisLines;
+        private LineDrawBatch majorLines;
+        private LineDrawBatch minorLines;
         private Camera mainCamera;
+
+        private void OnValidate() => AssignOrder();
+
+        private void AssignOrder()
+        {
+            if (minorLines == null) return;
+
+            int localOrder = order;
+
+            minorLines.Order = localOrder;
+            majorLines.Order = ++localOrder;
+            axisLines.Order = ++localOrder;
+        }
 
         private void Awake()
         {
-            axisLines = new StretchableDrawBatch(16, lineMesh, axesMaterial);
-            majorLines = new StretchableDrawBatch(maxLineCount, lineMesh, majorMaterial);
-            minorLines = new StretchableDrawBatch(maxLineCount, lineMesh, minorMaterial);
+            axisLines = new LineDrawBatch(16, lineMesh, material, gameObject.layer);
+            majorLines = new LineDrawBatch(maxLineCount, lineMesh, material, gameObject.layer);
+            minorLines = new LineDrawBatch(maxLineCount, lineMesh, material, gameObject.layer);
+
+            AssignOrder();
 
             mainCamera = Camera.main;
         }
@@ -110,7 +129,7 @@ namespace Viewer.Runtime.Widgets
             minorLines.Draw();
         }
 
-        private void PlotFadedLine((Vector3 min, Vector3 minFadeEnd, Vector3 maxFadeEnd, Vector3 max, float intensity) line, Color dark, Color color, Vector3 split, StretchableDrawBatch lines)
+        private void PlotFadedLine((Vector3 min, Vector3 minFadeEnd, Vector3 maxFadeEnd, Vector3 max, float intensity) line, Color dark, Color color, Vector3 split, LineDrawBatch lines)
         {
             float lineWidth = lineWidthPixels * PixelScaleUtility.DpiScaleFactor;
 
@@ -125,23 +144,23 @@ namespace Viewer.Runtime.Widgets
                     out var intersectionColor
                 );
 
-                lines.AddLine(line.min._x0z(), intersection, lineWidth, dark, intersectionColor);
-                lines.AddLine(intersection, line.minFadeEnd._x0z(), lineWidth, intersectionColor, color);
+                lines.Add(line.min._x0z(), intersection, lineWidth, dark, intersectionColor);
+                lines.Add(intersection, line.minFadeEnd._x0z(), lineWidth, intersectionColor, color);
             }
             else
             {
-                lines.AddLine(line.min._x0z(), line.minFadeEnd._x0z(), lineWidth, dark, color);
+                lines.Add(line.min._x0z(), line.minFadeEnd._x0z(), lineWidth, dark, color);
             }
 
             if (CrossesPlane(line.minFadeEnd._x0z(), line.maxFadeEnd._x0z(), split, normal))
             {
                 var intersection = GetIntersection(line.minFadeEnd._x0z(), line.maxFadeEnd._x0z(), split, normal);
-                lines.AddLine(line.minFadeEnd._x0z(), intersection, lineWidth, color, color);
-                lines.AddLine(intersection, line.maxFadeEnd._x0z(), lineWidth, color, color);
+                lines.Add(line.minFadeEnd._x0z(), intersection, lineWidth, color, color);
+                lines.Add(intersection, line.maxFadeEnd._x0z(), lineWidth, color, color);
             }
             else
             {
-                lines.AddLine(line.minFadeEnd._x0z(), line.maxFadeEnd._x0z(), lineWidth, color, color);
+                lines.Add(line.minFadeEnd._x0z(), line.maxFadeEnd._x0z(), lineWidth, color, color);
             }
 
             if (CrossesPlane(line.maxFadeEnd._x0z(), line.max._x0z(), split, normal))
@@ -153,12 +172,12 @@ namespace Viewer.Runtime.Widgets
                     out var intersectionColor
                 );
 
-                lines.AddLine(line.maxFadeEnd._x0z(), intersection, lineWidth, color, intersectionColor);
-                lines.AddLine(intersection, line.max._x0z(), lineWidth, intersectionColor, dark);
+                lines.Add(line.maxFadeEnd._x0z(), intersection, lineWidth, color, intersectionColor);
+                lines.Add(intersection, line.max._x0z(), lineWidth, intersectionColor, dark);
             }
             else
             {
-                lines.AddLine(line.maxFadeEnd._x0z(), line.max._x0z(), lineWidth, color, dark);
+                lines.Add(line.maxFadeEnd._x0z(), line.max._x0z(), lineWidth, color, dark);
             }
         }
 

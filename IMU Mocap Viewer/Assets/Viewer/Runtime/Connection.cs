@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -104,6 +104,10 @@ namespace Viewer.Runtime
                             plotter.Label(obj.Xyz._xzy(), obj.Text);
                             break;
 
+                        case "angle":
+                            plotter.Angle(obj.Xyz._xzy(), Swizzle(obj.Quaternion), obj.Scale, obj.Bend, obj.Tilt, obj.Twist);
+                            break;
+
                         default:
                             Debug.LogError("Unknown primitive type: " + obj.Type);
                             break;
@@ -130,6 +134,16 @@ namespace Viewer.Runtime
             public float Size;
 
             public string Text;
+
+            public AngleData? Twist;
+            public AngleData? Bend;
+            public AngleData? Tilt;
         }
+    }
+
+    public struct AngleData
+    {
+        public float Angle;
+        public float[] Range;
     }
 }

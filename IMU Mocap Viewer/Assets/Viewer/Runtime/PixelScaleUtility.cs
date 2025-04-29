@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using UnityEngine;
+using Viewer.Runtime.Primitives;
 
 namespace Viewer.Runtime
 {
@@ -14,12 +15,16 @@ namespace Viewer.Runtime
             PixelScaleFactor = CalculatePixelScaleFactor(camera.fieldOfView, Screen.height);
             CameraPosition = camera.transform.position;
             CameraForward = camera.transform.forward;
+            CameraUp = camera.transform.up;
+
+            Shader.SetGlobalFloat(StretchableMaterial.PixelScaleFactor, PixelScaleFactor);
         }
 
         public static float DpiScaleFactor { get; private set; } = 1f;
         public static float PixelScaleFactor { get; private set; } = CalculatePixelScaleFactor(90, 640); // arbitrary default values
         public static Vector3 CameraPosition { get; private set; } = Vector3.zero;
         public static Vector3 CameraForward { get; private set; } = Vector3.forward;
+        public static Vector3 CameraUp { get; private set; } = Vector3.up;
 
         public static float GetWorldSizeFromPixels(float pixelSize, Vector3 worldPosition)
         {
@@ -75,5 +80,17 @@ namespace Viewer.Runtime
         }
 
         static float CalculatePixelScaleFactor(float fov, float screenHeight) => (2.0f * Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad)) / screenHeight;
+    }
+
+    public enum DrawType
+    {
+        Opaque,
+        Transparent
+    }
+
+    public enum StencilMode
+    {
+        None,
+        Stencil,
     }
 }
