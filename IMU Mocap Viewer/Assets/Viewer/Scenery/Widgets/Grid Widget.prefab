@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3878192659940181253}
   - component: {fileID: 7423033306705222353}
   - component: {fileID: 1091194160228983938}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Grid Widget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,11 +48,10 @@ MonoBehaviour:
   origin: {fileID: 0}
   radius: 40
   fadeProportion: 0.125
+  order: 1
   maxLineCount: 1024
   lineMesh: {fileID: 4300000, guid: d0a3bddf1c177a9489777bd33b5ffe09, type: 2}
-  axesMaterial: {fileID: 2100000, guid: dcd45dafd04af8e4c928239156bef03c, type: 2}
-  majorMaterial: {fileID: 2100000, guid: 351fd089a91151840b47b94641bc6280, type: 2}
-  minorMaterial: {fileID: 2100000, guid: 319066c55da89704c89061ff98c4b669, type: 2}
+  material: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
   lineWidthPixels: 1
   darkColor: {r: 0.11764707, g: 0.11764707, b: 0.11764707, a: 1}
   majorLineColor: {r: 0.2627451, g: 0.2627451, b: 0.2627451, a: 1}
