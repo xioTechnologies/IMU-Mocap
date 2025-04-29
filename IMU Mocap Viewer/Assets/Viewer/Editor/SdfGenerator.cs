@@ -13,6 +13,8 @@ namespace Viewer.Editor
         public static void GenerateAll()
         {
             const int resolution = 128;
+            
+            GenerateSDF("Angle", resolution);
             GenerateSDF("Axes", resolution);
             GenerateSDF("Dot", resolution);
             GenerateSDF("Grid", resolution);
@@ -24,16 +26,16 @@ namespace Viewer.Editor
 
         private static void GenerateSDF(string icon, int outputResolution)
         {
-            string inputPath = $"Assets/Viewer/Resources/UI/Icons/{icon}.png";
-            string outputPath = $"Assets/Viewer/Resources/UI/Icons/{icon}.exr";
-            
+            string inputPath = $"Assets/Viewer/Resources/Icons/{icon}.png";
+            string outputPath = $"Assets/Viewer/Resources/Icons/{icon}.exr";
+
             Texture2D inputTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(inputPath);
             if (inputTexture == null)
             {
                 Debug.LogError("Input texture not found at " + inputPath);
                 return;
             }
-            
+
             string assetPath = AssetDatabase.GetAssetPath(inputTexture);
             var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
             if (importer != null && !importer.isReadable)
@@ -44,7 +46,7 @@ namespace Viewer.Editor
 
             int inputWidth = inputTexture.width;
             int inputHeight = inputTexture.height;
-            
+
             Color[] inputPixels = inputTexture.GetPixels();
             NativeArray<float> binaryImage = new NativeArray<float>(inputWidth * inputHeight, Allocator.TempJob);
             NativeArray<float> distanceField = new NativeArray<float>(outputResolution * outputResolution, Allocator.TempJob);
@@ -69,9 +71,9 @@ namespace Viewer.Editor
 
             JobHandle handle = distanceFieldJob.Schedule(outputResolution * outputResolution, 64);
             handle.Complete();
-            
+
             Texture2D outputTexture = new Texture2D(outputResolution, outputResolution, TextureFormat.RGFloat, false);
-            
+
             for (int i = 0; i < distanceField.Length; i++)
             {
                 int x = i % outputResolution;
@@ -80,11 +82,11 @@ namespace Viewer.Editor
             }
 
             outputTexture.Apply();
-            
+
             byte[] exrData = outputTexture.EncodeToEXR(Texture2D.EXRFlags.OutputAsFloat);
             File.WriteAllBytes(outputPath, exrData);
             AssetDatabase.Refresh();
-            
+
             binaryImage.Dispose();
             distanceField.Dispose();
 
@@ -106,11 +108,11 @@ namespace Viewer.Editor
             {
                 int outX = index % OutputWidth;
                 int outY = index / OutputWidth;
-                
+
                 // Map output coordinates to input texture space
                 float u = outX / (float)(OutputWidth - 1) * (InputWidth - 1);
                 float v = outY / (float)(OutputHeight - 1) * (InputHeight - 1);
-                
+
                 float minDistance = MaxDistance;
 
                 int startX = Mathf.Max(0, (int)(u - MaxDistance));
@@ -137,7 +139,7 @@ namespace Viewer.Editor
                         bool neighborInside = BinaryImage[inputIndex] == 0;
 
                         if (neighborInside == false) continue;
-                        
+
                         float dx = u - x;
                         float dy = v - y;
                         float distance = Mathf.Sqrt(dx * dx + dy * dy);
