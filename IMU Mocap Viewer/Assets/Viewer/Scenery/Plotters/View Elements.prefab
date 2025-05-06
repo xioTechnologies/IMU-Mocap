@@ -78,15 +78,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   plotter: {fileID: 1187826779116516828}
   listenPort: 6000
-  xAngle: 0
-  yAngle: 0
-  zAngle: 0
-  minAngle: -45
-  maxAngle: 45
-  spinX: 0
-  spinY: 0
-  spinZ: 0
-  spinSpeed: 0.01
 --- !u!114 &9203923122659862810
 MonoBehaviour:
   m_ObjectHideFlags: 0
