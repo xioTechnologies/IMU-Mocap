@@ -40,10 +40,10 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear() => circles?.Clear();
 
-        public void Plot(Vector3 point, Vector3 axis, float radius, float thickness)
+        public void Plot(Vector3 xyz, Vector3 axis, float radius, float thickness)
         {
-            circles?.Add(point, Quaternion.LookRotation(axis), radius * 2f, thickness, colorLinear, colorLinear);
-            circles?.Encapsulate(Utils.CircleBounds(point, axis, radius));
+            circles?.Add(xyz, Quaternion.LookRotation(axis), radius * 2f, thickness, colorLinear, colorLinear);
+            circles?.Encapsulate(Utils.CircleBounds(xyz, axis, radius));
         }
 
         void Update() => circles?.Draw();
