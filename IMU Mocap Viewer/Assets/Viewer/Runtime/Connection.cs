@@ -85,31 +85,30 @@ namespace Viewer.Runtime
                     switch (obj.Type)
                     {
                         case "line":
-                            plotter.Line(obj.Start._xzy(), obj.End._xzy());
+                            plotter.Line(SwizzleFromArray3(obj.Start), SwizzleFromArray3(obj.End));
                             break;
 
                         case "circle":
-                            plotter.Circle(obj.Xyz._xzy(), obj.Axis._xzy(), obj.Radius);
+                            plotter.Circle(SwizzleFromArray3(obj.Xyz), SwizzleFromArray3(obj.Axis), obj.Radius);
                             break;
 
                         case "dot":
-                            plotter.Dot(obj.Xyz._xzy(), obj.Size);
+                            plotter.Dot(SwizzleFromArray3(obj.Xyz), obj.Size);
                             break;
 
                         case "axes":
-                            plotter.Axes(obj.Xyz._xzy(), Swizzle(obj.Quaternion), obj.Scale);
+                            plotter.Axes(SwizzleFromArray3(obj.Xyz), SwizzleFromArray4(obj.Quaternion), obj.Scale);
                             break;
 
                         case "label":
-                            plotter.Label(obj.Xyz._xzy(), obj.Text);
+                            plotter.Label(SwizzleFromArray3(obj.Xyz), obj.Text);
                             break;
 
                         case "angles":
                             AngleAndLimit? rotX = obj.RotX.HasValue ? new AngleAndLimit() { Angle = obj.RotX.Value, Limit = obj.LimitX } : null;
                             AngleAndLimit? rotY = obj.RotY.HasValue ? new AngleAndLimit() { Angle = obj.RotY.Value, Limit = obj.LimitY } : null;
                             AngleAndLimit? rotZ = obj.RotZ.HasValue ? new AngleAndLimit() { Angle = obj.RotZ.Value, Limit = obj.LimitZ } : null;
-
-                            plotter.Angle(obj.Xyz._xzy(), Swizzle(obj.Quaternion), obj.Scale, rotX, rotY, rotZ);
+                            plotter.Angle(SwizzleFromArray3(obj.Xyz), SwizzleFromArray4(obj.Quaternion), obj.Scale, rotX, rotY, rotZ);
                             break;
 
                         default:
@@ -120,18 +119,34 @@ namespace Viewer.Runtime
             }
         }
 
+        private Vector3 SwizzleFromArray3(float[] array)
+        {
+            if (array == null) return Vector3.zero; 
+            if (array.Length != 3) return Vector3.zero;
+
+            return new Vector3(array[0], array[1], array[2])._xzy();
+        }
+        
+        private Quaternion SwizzleFromArray4(float[] array)
+        {
+            if (array == null) return Quaternion.identity; 
+            if (array.Length != 4) return Quaternion.identity;
+
+            return Swizzle(new Quaternion(array[1], array[2], array[2], array[0]));
+        }
+
         private Quaternion Swizzle(Quaternion wxyz) => new(-wxyz.x, -wxyz.z, -wxyz.y, wxyz.w);
 
         private struct PlotObject
         {
             public string Type;
-            public Vector3 Start;
-            public Vector3 End;
-            public Vector3 Xyz;
-            public Vector3 Axis;
+            public float[] Start;
+            public float[] End;
+            public float[] Xyz;
+            public float[] Axis;
             public float Radius;
             public float Size;
-            public Quaternion Quaternion;
+            public float[] Quaternion;
             public float Scale;
 
             [JsonProperty(PropertyName = "rot_x")] public float? RotX;

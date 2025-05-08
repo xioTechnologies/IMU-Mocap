@@ -16,50 +16,54 @@ class Primitive(ABC):
         return self._json
 
     @staticmethod
-    def _json_xyz(xyz: np.ndarray) -> str:
-        return f'{{"x":{xyz[0]:.6},"y":{xyz[1]:.6},"z":{xyz[2]:.6}}}'
+    def _number(number: float) -> str:
+        return f"{number:.6f}"
 
     @staticmethod
-    def _json_quaternion(quaternion: np.ndarray) -> str:
-        return f'{{"w":{quaternion[0]:.6},"x":{quaternion[1]:.6},"y":{quaternion[2]:.6},"z":{quaternion[3]:.6}}}'
+    def _xyz(xyz: np.ndarray) -> str:
+        return f"[{Primitive._number(xyz[0])},{Primitive._number(xyz[1])},{Primitive._number(xyz[2])}]"
+
+    @staticmethod
+    def _quaternion(quaternion: np.ndarray) -> str:
+        return f"[{Primitive._number(quaternion[0])},{Primitive._number(quaternion[1])},{Primitive._number(quaternion[2])},{Primitive._number(quaternion[3])}]"
 
 
 class Line(Primitive):
     def __init__(self, start: np.ndarray, end: np.ndarray) -> None:
         super().__init__()
 
-        self._json = f'{{"type":"line","start":{Primitive._json_xyz(start)},"end":{Primitive._json_xyz(end)}}}'
+        self._json = f'{{"type":"line","start":{Primitive._xyz(start)},"end":{Primitive._xyz(end)}}}'
 
 
 class Circle(Primitive):
     def __init__(self, xyz: np.ndarray, axis: np.ndarray, radius: float) -> None:
         super().__init__()
 
-        self._json = f'{{"type":"circle","xyz":{Primitive._json_xyz(xyz)},"axis":{Primitive._json_xyz(axis)},"radius":{radius}}}'
+        self._json = f'{{"type":"circle","xyz":{Primitive._xyz(xyz)},"axis":{Primitive._xyz(axis)},"radius":{Primitive._number(radius)}}}'
 
 
 class Dot(Primitive):
-    def __init__(self, xyz: np.ndarray, size: int = 1) -> None:
+    def __init__(self, xyz: np.ndarray, size: float = 1.0) -> None:
         super().__init__()
 
-        self._json = f'{{"type":"dot","xyz":{Primitive._json_xyz(xyz)},"size":{size}}}'
+        self._json = f'{{"type":"dot","xyz":{Primitive._xyz(xyz)},"size":{Primitive._number(size)}}}'
 
 
 class Axes(Primitive):
-    def __init__(self, matrix: Matrix, scale: int = 1) -> None:
+    def __init__(self, matrix: Matrix, scale: float = 1.0) -> None:
         super().__init__()
 
         xyz = matrix.xyz
         quaternion = matrix.quaternion
 
-        self._json = f'{{"type":"axes","xyz":{Primitive._json_xyz(xyz)},"quaternion":{Primitive._json_quaternion(quaternion)},"scale":{scale}}}'
+        self._json = f'{{"type":"axes","xyz":{Primitive._xyz(xyz)},"quaternion":{Primitive._quaternion(quaternion)},"scale":{Primitive._number(scale)}}}'
 
 
 class Label(Primitive):
     def __init__(self, xyz: np.ndarray, text: str) -> None:
         super().__init__()
 
-        self._json = f'{{"type":"label","xyz":{Primitive._json_xyz(xyz)},"text":"{text}"}}'
+        self._json = f'{{"type":"label","xyz":{Primitive._xyz(xyz)},"text":"{text}"}}'
 
 
 def link_to_primitives(root: Link) -> List[Primitive]:
