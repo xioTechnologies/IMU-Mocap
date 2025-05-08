@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Serialization;
 using Viewer.Runtime.Primitives.Batching;
 
@@ -105,31 +105,42 @@ namespace Viewer.Runtime.Primitives
             values?.Clear();
         }
 
-        public void Plot(Vector3 xyz, Quaternion baseRotation, float scale, float labelScale, float thickness, AngleData? twist, AngleData? bend, AngleData? tilt)
+        public void Plot(Vector3 xyz, Quaternion quaternion, AngleAndLimit? rotX, AngleAndLimit? rotY, AngleAndLimit? rotZ, float scale, float thickness, float labelScale)
         {
             var zRotation = Quaternion.AngleAxis(0, Vector3.up);
             var yRotation = Quaternion.AngleAxis(0, Vector3.right);
             var xRotation = Quaternion.AngleAxis(0, Vector3.forward);
 
             int inset = 6;
+            float insetScale = 1f / inset * scale;
+            
             bool hasLabels = labels != null;
 
-            if (twist != null)
+            if (rotZ != null)
             {
-                float angle = twist.Value.Angle;
+                float angle = rotZ.Value.Angle;
 
-                var rotation = Quaternion.Euler(0, 0, 90); // zRotation;
+                var rotationOffset = Quaternion.Euler(0, 0, 90); 
 
                 zRotation = Quaternion.AngleAxis(-angle, Vector3.up);
 
-                var labelOffsetRotation = zRotation * rotation;
+                var labelOffsetRotation = zRotation * rotationOffset;
 
-                Add(twist.Value, baseRotation * rotation, baseRotation * labelOffsetRotation, inset-- * 0.25f, twistColorLinear, twistAlphaLinear, twistColor);
+                Add(
+                    rotZ.Value,
+                    quaternion * rotationOffset,
+                    quaternion * labelOffsetRotation,
+                    inset-- * insetScale,
+                    twistColorLinear,
+                    twistAlphaLinear, 
+                    twistColor
+                );
+                
             }
 
-            if (bend != null)
+            if (rotY != null)
             {
-                float angle = bend.Value.Angle;
+                float angle = rotY.Value.Angle;
 
                 var rotation = zRotation;
 
@@ -137,28 +148,43 @@ namespace Viewer.Runtime.Primitives
 
                 var labelOffsetRotation = rotation * yRotation;
 
-                Add(bend.Value, baseRotation * rotation, baseRotation * labelOffsetRotation, inset-- * 0.25f, tiltColorLinear, tiltAlphaLinear, tiltColor);
+                Add(
+                    rotY.Value,
+                    quaternion * rotation,
+                    quaternion * labelOffsetRotation,
+                    inset-- * insetScale,
+                    tiltColorLinear,
+                    tiltAlphaLinear,
+                    tiltColor
+                );
             }
 
-            if (tilt != null)
+            if (rotX != null)
             {
-                float angle = tilt.Value.Angle;
+                float angle = rotX.Value.Angle;
 
                 var rotation = zRotation * yRotation;
 
                 xRotation = Quaternion.AngleAxis(angle, Vector3.forward); // why does this one need to be positive?! 
 
-                var labelOffsetRotation = rotation * xRotation;
+                Quaternion rotationOffset = Quaternion.Euler(0, 90, 0) * Quaternion.Euler(-90, 0, 0);
 
-                Quaternion offset = Quaternion.Euler(0, 90, 0) * Quaternion.Euler(-90, 0, 0);
+                var labelOffsetRotation = rotation * xRotation * rotationOffset;
+                
+                rotation *= rotationOffset;
 
-                rotation *= offset;
-                labelOffsetRotation *= offset;
-
-                Add(tilt.Value, baseRotation * rotation, baseRotation * labelOffsetRotation, inset * 0.25f, bendColorLinear, bendAlphaLinear, bendColor);
+                Add(
+                    rotX.Value,
+                    quaternion * rotation,
+                    quaternion * labelOffsetRotation,
+                    inset * insetScale,
+                    bendColorLinear,
+                    bendAlphaLinear,
+                    bendColor
+                );
             }
 
-            void Add(AngleData data, Quaternion rotation, Quaternion labelOffsetRotation, float angleScale, Color color, Color alphaColor, Color labelColor)
+            void Add(AngleAndLimit data, Quaternion rotation, Quaternion labelOffsetRotation, float angleScale, Color color, Color alphaColor, Color labelColor)
             {
                 float angle = data.Angle;
 
@@ -166,7 +192,7 @@ namespace Viewer.Runtime.Primitives
 
                 needles.Add(xyz, rotation, angleScale, thickness * needleScale, color, angle, angle);
 
-                float[] range = data.Range;
+                float[] range = data.Limit;
 
                 if (range is { Length: 2 }) ranges.Add(xyz, rotation, angleScale, thickness, color, range[0], range[1]);
 

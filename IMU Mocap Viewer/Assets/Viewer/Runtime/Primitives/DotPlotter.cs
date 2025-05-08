@@ -40,7 +40,7 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear() => dots?.Clear();
 
-        public void Plot(Vector3 point, float radius) => dots?.Add(point, Quaternion.identity, 1f, radius, colorLinear, colorLinear);
+        public void Plot(Vector3 xyz, float size) => dots?.Add(xyz, Quaternion.identity, 1f, size, colorLinear, colorLinear);
 
         void Update() => dots?.Draw();
     }

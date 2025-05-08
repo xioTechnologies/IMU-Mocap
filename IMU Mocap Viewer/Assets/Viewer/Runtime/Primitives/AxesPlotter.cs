@@ -56,12 +56,12 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear() => quivers?.Clear();
 
-        public void Plot(Vector3 point, Quaternion rotation, float scale, float thickness)
+        public void Plot(Vector3 xyz, Quaternion quaternion, float scale, float thickness)
         {
             void AddQuiver(Vector3 axis, Color color)
             {
-                var quiverOffset = rotation * axis * scale;
-                quivers?.Add(point, point + quiverOffset, thickness, color, color);
+                var quiverOffset = quaternion * axis * scale;
+                quivers?.Add(xyz, xyz + quiverOffset, thickness, color, color);
             }
 
             AddQuiver(Vector3.right, xColorLinear);

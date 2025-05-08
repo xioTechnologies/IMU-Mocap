@@ -76,18 +76,24 @@ namespace Viewer.Runtime
             axes.Plot(xyz, quaternion, scale, DpiScaleFactor * axesLineWidthInPixels);
         }
 
+        public void Angle(Vector3 xyz, Quaternion quaternion, float scale, AngleAndLimit? rotX, AngleAndLimit? rotY, AngleAndLimit? rotZ)
+        {
+            bounds.Encapsulate(new Bounds(xyz, Vector3.one * scale));
+
+            angle.Plot(xyz, quaternion, rotX, rotY, rotZ, scale, DpiScaleFactor * angleLineWidthInPixels, DpiScaleFactor * labelSizeInPoints);
+        }
+
         public void Label(Vector3 xyz, string text)
         {
             bounds.Encapsulate(xyz);
 
-            labels.Plot(xyz, labelColor, DpiScaleFactor * labelSizeInPoints, text);
+            labels.Plot(xyz, text, labelColor, DpiScaleFactor * labelSizeInPoints);
         }
+    }
 
-        public void Angle(Vector3 xyz, Quaternion quaternion, float scale, AngleData? bend, AngleData? tilt, AngleData? twist)
-        {
-            bounds.Encapsulate(new Bounds(xyz, Vector3.one * scale));
-
-            angle.Plot(xyz, quaternion, scale, DpiScaleFactor * labelSizeInPoints, DpiScaleFactor * angleLineWidthInPixels, bend, tilt, twist);
-        }
+    public struct AngleAndLimit
+    {
+        public float Angle;
+        public float[] Limit;
     }
 }

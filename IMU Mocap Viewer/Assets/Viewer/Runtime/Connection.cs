@@ -104,8 +104,12 @@ namespace Viewer.Runtime
                             plotter.Label(obj.Xyz._xzy(), obj.Text);
                             break;
 
-                        case "angle":
-                            plotter.Angle(obj.Xyz._xzy(), Swizzle(obj.Quaternion), obj.Scale, obj.Bend, obj.Tilt, obj.Twist);
+                        case "angles":
+                            AngleAndLimit? rotX = obj.RotX.HasValue ? new AngleAndLimit() { Angle = obj.RotX.Value, Limit = obj.LimitX } : null;
+                            AngleAndLimit? rotY = obj.RotY.HasValue ? new AngleAndLimit() { Angle = obj.RotY.Value, Limit = obj.LimitY } : null;
+                            AngleAndLimit? rotZ = obj.RotZ.HasValue ? new AngleAndLimit() { Angle = obj.RotZ.Value, Limit = obj.LimitZ } : null;
+
+                            plotter.Angle(obj.Xyz._xzy(), Swizzle(obj.Quaternion), obj.Scale, rotX, rotY, rotZ);
                             break;
 
                         default:
@@ -121,29 +125,29 @@ namespace Viewer.Runtime
         private struct PlotObject
         {
             public string Type;
-
             public Vector3 Start;
             public Vector3 End;
-
             public Vector3 Xyz;
-            public Quaternion Quaternion;
             public Vector3 Axis;
-
             public float Radius;
-            public float Scale;
             public float Size;
+            public Quaternion Quaternion;
+            public float Scale;
+
+            [JsonProperty(PropertyName = "rot_x")] public float? RotX;
+            [JsonProperty(PropertyName = "rot_y")] public float? RotY;
+            [JsonProperty(PropertyName = "rot_z")] public float? RotZ;
+
+            [JsonProperty(PropertyName = "limit_x")]
+            public float[] LimitX;
+
+            [JsonProperty(PropertyName = "limit_y")]
+            public float[] LimitY;
+
+            [JsonProperty(PropertyName = "limit_z")]
+            public float[] LimitZ;
 
             public string Text;
-
-            public AngleData? Twist;
-            public AngleData? Bend;
-            public AngleData? Tilt;
         }
-    }
-
-    public struct AngleData
-    {
-        public float Angle;
-        public float[] Range;
     }
 }
