@@ -1,22 +1,39 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Pool;
 
 namespace Viewer.Runtime.Primitives
 {
     public sealed class LabelPlotter : MonoBehaviour
     {
+        private RectTransform privateContainer;
+        [SerializeField] private RectTransform container;
         [SerializeField] private Label prefab;
 
+        private readonly DepthComparer comparer = new();
         private readonly List<Label> objects = new();
+        private readonly List<Label> objectsSorted = new();
         private int currentIndex;
 
         private ObjectPool<Label> objectPool;
 
         private void Awake()
         {
+            var containerObject = new GameObject($"{gameObject.name} Labels", typeof(RectTransform));
+
+            privateContainer = containerObject.GetComponent<RectTransform>();
+
+            privateContainer.SetParent(container, false);
+            privateContainer.anchorMin = Vector2.zero;
+            privateContainer.anchorMax = Vector2.one;
+            privateContainer.offsetMin = Vector2.zero;
+            privateContainer.offsetMax = Vector2.zero;
+
             objectPool = new ObjectPool<Label>(
-                () => Instantiate(prefab, transform),
+                () => Instantiate(prefab, privateContainer),
                 obj => obj.gameObject.SetActive(true),
                 obj => obj.gameObject.SetActive(false),
                 obj => Destroy(obj.gameObject),
@@ -28,6 +45,38 @@ namespace Viewer.Runtime.Primitives
             currentIndex = 0;
         }
 
+        private void OnEnable()
+        {
+            if (privateContainer == null) return;
+
+            privateContainer.gameObject.SetActive(true);
+        }
+
+        private void OnDisable()
+        {
+            if (privateContainer == null) return;
+
+            privateContainer.gameObject.SetActive(false);
+        }
+
+        private void OnDestroy()
+        {
+            Destroy(privateContainer.gameObject);
+
+            privateContainer = null;
+        }
+
+        class DepthComparer : IComparer<Label>
+        {
+            public int Compare(Label a, Label b)
+            {
+                Assert.IsNotNull(a);
+                Assert.IsNotNull(b);
+
+                return b.Depth.CompareTo(a.Depth); // back to front
+            }
+        }
+
         private void Update()
         {
             for (int i = 0; i < currentIndex; i++)
@@ -35,14 +84,31 @@ namespace Viewer.Runtime.Primitives
                 objects[i].AdjustForCamera();
             }
 
-            if (currentIndex == objects.Count) return;
-
-            for (int i = currentIndex; i < objects.Count; i++)
+            if (currentIndex != objects.Count)
             {
-                objectPool.Release(objects[i]);
+                for (int i = currentIndex; i < objects.Count; i++)
+                {
+                    objectPool.Release(objects[i]);
+                }
+
+                objects.RemoveRange(currentIndex, objects.Count - currentIndex);
+                
+                objectsSorted.Clear();
+                for (int i = 0; i < currentIndex; i++) objectsSorted.Add(objects[i]);
             }
 
-            objects.RemoveRange(currentIndex, objects.Count - currentIndex);
+            objectsSorted.Sort(0, currentIndex, comparer);
+
+            for (int i = 0; i < currentIndex; i++)
+            {
+                var label = objectsSorted[i];
+
+                if (label.LastSiblingIndex == i) continue;
+
+                label.transform.SetSiblingIndex(i);
+
+                label.LastSiblingIndex = i;
+            }
         }
 
         public void Clear() => currentIndex = 0;
@@ -60,6 +126,7 @@ namespace Viewer.Runtime.Primitives
                 obj = objectPool.Get();
 
                 objects.Add(obj);
+                objectsSorted.Add(obj);
             }
 
             obj.Position = xyz;
@@ -83,6 +150,7 @@ namespace Viewer.Runtime.Primitives
                 obj = objectPool.Get();
 
                 objects.Add(obj);
+                objectsSorted.Add(obj);
             }
 
             obj.Position = xyz;
