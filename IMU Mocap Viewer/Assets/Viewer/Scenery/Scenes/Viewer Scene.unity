@@ -119,64 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!114 &51721642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc1515ab76e54f068e2f2207940fab32, type: 3}
-  m_Name: UI/Navigate
-  m_EditorClassIdentifier: 
-  m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
-  m_ActionId: d1c1356d-5089-4eb1-8db2-7b7c62d0445c
---- !u!21 &221927684
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Plot_Stretchables
-  m_Shader: {fileID: 4800000, guid: 53edb87871424072bb75b1800f9d9ef1, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2256
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _DstBlend: 0
-    - _EndAngle: 1
-    - _PixelScaleFactor: 1
-    - _SrcBlend: 1
-    - _StartAngle: 0
-    - _StencilComp: 7
-    - _StencilPass: 2
-    - _StencilValue: 0
-    - _Thickness: 5
-    m_Colors:
-    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
-    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
---- !u!21 &247909019
+--- !u!21 &34961389
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -219,6 +162,20 @@ Material:
     - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.011764706}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
+--- !u!114 &51721642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc1515ab76e54f068e2f2207940fab32, type: 3}
+  m_Name: UI/Navigate
+  m_EditorClassIdentifier: 
+  m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
+  m_ActionId: d1c1356d-5089-4eb1-8db2-7b7c62d0445c
 --- !u!114 &289541978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -384,6 +341,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
   m_ActionId: 0c3f99a7-b6c1-4105-a992-dd1b08eacb57
+--- !u!21 &386796566
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Plot_Stretchables
+  m_Shader: {fileID: 4800000, guid: 53edb87871424072bb75b1800f9d9ef1, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3245
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _DstBlend: 10
+    - _EndAngle: 1
+    - _PixelScaleFactor: 1
+    - _SrcBlend: 5
+    - _StartAngle: 0
+    - _StencilComp: 7
+    - _StencilPass: 2
+    - _StencilValue: 255
+    - _Thickness: 4
+    m_Colors:
+    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
+    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.011764706}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -533,7 +533,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
   m_ActionId: 176985cd-61f2-44aa-a1f4-744241203a50
---- !u!21 &887569213
+--- !u!21 &1160546808
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -549,7 +549,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3245
+  m_CustomRenderQueue: 2256
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -562,18 +562,18 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _DstBlend: 10
+    - _DstBlend: 0
     - _EndAngle: 1
     - _PixelScaleFactor: 1
-    - _SrcBlend: 5
+    - _SrcBlend: 1
     - _StartAngle: 0
     - _StencilComp: 7
     - _StencilPass: 2
-    - _StencilValue: 255
-    - _Thickness: 4
+    - _StencilValue: 0
+    - _Thickness: 5
     m_Colors:
-    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
-    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.011764706}
+    - _FarColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
+    - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &1192280225
@@ -669,49 +669,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1482916933
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc1515ab76e54f068e2f2207940fab32, type: 3}
-  m_Name: UI/MiddleClick
-  m_EditorClassIdentifier: 
-  m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
-  m_ActionId: ce5894db-07e1-4a39-8e66-89ed4d883304
---- !u!114 &1585730267
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc1515ab76e54f068e2f2207940fab32, type: 3}
-  m_Name: UI/Click
-  m_EditorClassIdentifier: 
-  m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
-  m_ActionId: 669e77c0-0eee-4e1c-8df5-a30386cb6879
---- !u!114 &1597881998
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc1515ab76e54f068e2f2207940fab32, type: 3}
-  m_Name: UI/Cancel
-  m_EditorClassIdentifier: 
-  m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
-  m_ActionId: 9866a9b9-7158-433e-b227-c7d5d2245859
---- !u!21 &1847896435
+--- !u!21 &1431169699
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -754,6 +712,48 @@ Material:
     - _NearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
+--- !u!114 &1482916933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc1515ab76e54f068e2f2207940fab32, type: 3}
+  m_Name: UI/MiddleClick
+  m_EditorClassIdentifier: 
+  m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
+  m_ActionId: ce5894db-07e1-4a39-8e66-89ed4d883304
+--- !u!114 &1585730267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc1515ab76e54f068e2f2207940fab32, type: 3}
+  m_Name: UI/Click
+  m_EditorClassIdentifier: 
+  m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
+  m_ActionId: 669e77c0-0eee-4e1c-8df5-a30386cb6879
+--- !u!114 &1597881998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc1515ab76e54f068e2f2207940fab32, type: 3}
+  m_Name: UI/Cancel
+  m_EditorClassIdentifier: 
+  m_Asset: {fileID: -944628639613478452, guid: 2de721e259487624881745db15080062, type: 3}
+  m_ActionId: 9866a9b9-7158-433e-b227-c7d5d2245859
 --- !u!114 &2138815897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -830,7 +830,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2843252600953080855, guid: 624a3605eed8d4e45943bd3713746881, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 963.37
+      value: 1211.37
       objectReference: {fileID: 0}
     - target: {fileID: 2843252600953080855, guid: 624a3605eed8d4e45943bd3713746881, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -952,6 +952,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7304358664253896022, guid: 624a3605eed8d4e45943bd3713746881, type: 3}
+      propertyPath: visibleChildren
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7677306156040741369, guid: 624a3605eed8d4e45943bd3713746881, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1033,6 +1037,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 624a3605eed8d4e45943bd3713746881, type: 3}
+--- !u!114 &2211885475001569441 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7304358664253896022, guid: 624a3605eed8d4e45943bd3713746881, type: 3}
+  m_PrefabInstance: {fileID: 2211885475001569439}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0fb9d4f5adb40269bd46ccf01712bf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7464892098610742755
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1041,6 +1056,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 19216609149736729, guid: 6fc5ba99c57d331438840788a4148ce1, type: 3}
+      propertyPath: container
+      value: 
+      objectReference: {fileID: 2211885475001569441}
     - target: {fileID: 717530193259030561, guid: 6fc5ba99c57d331438840788a4148ce1, type: 3}
       propertyPath: m_Camera
       value: 
@@ -1052,7 +1071,11 @@ PrefabInstance:
     - target: {fileID: 4443413744221918125, guid: 6fc5ba99c57d331438840788a4148ce1, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 221927684}
+      objectReference: {fileID: 1431169699}
+    - target: {fileID: 5315926799997492988, guid: 6fc5ba99c57d331438840788a4148ce1, type: 3}
+      propertyPath: container
+      value: 
+      objectReference: {fileID: 2211885475001569441}
     - target: {fileID: 6747383131549908031, guid: 6fc5ba99c57d331438840788a4148ce1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1100,7 +1123,7 @@ PrefabInstance:
     - target: {fileID: 7666405625990116034, guid: 6fc5ba99c57d331438840788a4148ce1, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 247909019}
+      objectReference: {fileID: 34961389}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

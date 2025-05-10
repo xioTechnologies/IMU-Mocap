@@ -128,7 +128,7 @@ namespace Viewer.Runtime
         private void UpdateView()
         {
             PlotterSettings.Update();
-            
+
             (bool click, bool rightClick, bool doubleClick, Vector2 point, Vector2 pointDelta, int scrollWheel, bool control) = GetInput();
 
             Vector3 viewDelta = mainCamera.ScreenToViewportPoint(pointDelta);

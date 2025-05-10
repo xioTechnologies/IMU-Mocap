@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6bf0cc590304d47981022b0682aa922, type: 3}
   m_Name: Plotter Settings
   m_EditorClassIdentifier: 
+  uiScale: 1
+  labelColor: {r: 0.89411765, g: 0.89411765, b: 0.89411765, a: 1}
+  labelSizeInPoints: 14
   primitiveScale: 1
   lineWidthInPixels: 3
   circleLineWidthScaleFactor: 1
   dotSizeInPixels: 10
   axesLineWidthInPixels: 2
   angleLineWidthInPixels: 1
-  labelColor: {r: 0.89411765, g: 0.89411765, b: 0.89411765, a: 1}
-  labelSizeInPoints: 14
-  uiScale: 1

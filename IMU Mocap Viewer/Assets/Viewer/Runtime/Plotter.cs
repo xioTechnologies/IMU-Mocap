@@ -40,7 +40,7 @@ namespace Viewer.Runtime
             bounds.Encapsulate(start);
             bounds.Encapsulate(end);
 
-            line.Plot(start, end); 
+            line.Plot(start, end);
         }
 
         public void Circle(Vector3 xyz, Vector3 axis, float radius)
@@ -54,14 +54,14 @@ namespace Viewer.Runtime
         {
             bounds.Encapsulate(xyz);
 
-            dot.Plot(xyz, size); 
+            dot.Plot(xyz, size);
         }
 
         public void Axes(Vector3 xyz, Quaternion quaternion, float scale)
         {
             bounds.Encapsulate(xyz);
 
-            axes.Plot(xyz, quaternion, scale); 
+            axes.Plot(xyz, quaternion, scale);
         }
 
         public void Angle(Vector3 xyz, Quaternion quaternion, float scale, AngleAndLimit? rotX, AngleAndLimit? rotY, AngleAndLimit? rotZ)

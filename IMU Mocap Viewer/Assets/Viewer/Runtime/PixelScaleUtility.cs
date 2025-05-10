@@ -5,30 +5,26 @@ namespace Viewer.Runtime
 {
     public static class PixelScaleUtility
     {
+        public static float DpiScaleFactor { get; private set; } = 1f;
+
+        private static float pixelScaleFactor = CalculatePixelScaleFactor(90, 640); // arbitrary default values
+        private static Vector3 cameraPosition = Vector3.zero;
+        private static Vector3 cameraForward = Vector3.forward;
+        private static Camera camera;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void CalculateForCamera() => CalculateForCamera(Camera.main);
 
         public static void CalculateForCamera(Camera camera)
         {
+            PixelScaleUtility.camera = camera;
+
             DpiScaleFactor = Screen.dpi / 96f; // 96 is the standard DPI for Windows TODO: Check for other platforms
-            PixelScaleFactor = CalculatePixelScaleFactor(camera.fieldOfView, Screen.height);
-            CameraPosition = camera.transform.position;
-            CameraForward = camera.transform.forward;
-            CameraUp = camera.transform.up;
+            pixelScaleFactor = CalculatePixelScaleFactor(camera.fieldOfView, Screen.height);
+            cameraPosition = camera.transform.position;
+            cameraForward = camera.transform.forward;
 
-            Shader.SetGlobalFloat(StretchableMaterial.PixelScaleFactor, PixelScaleFactor);
-        }
-
-        public static float DpiScaleFactor { get; private set; } = 1f;
-        public static float PixelScaleFactor { get; private set; } = CalculatePixelScaleFactor(90, 640); // arbitrary default values
-        public static Vector3 CameraPosition { get; private set; } = Vector3.zero;
-        public static Vector3 CameraForward { get; private set; } = Vector3.forward;
-        public static Vector3 CameraUp { get; private set; } = Vector3.up;
-
-        public static float GetWorldSizeFromPixels(float pixelSize, Vector3 worldPosition)
-        {
-            float zDepth = Vector3.Dot(worldPosition - CameraPosition, CameraForward);
-            return pixelSize * PixelScaleFactor * zDepth;
+            Shader.SetGlobalFloat(StretchableMaterial.PixelScaleFactor, pixelScaleFactor);
         }
 
         public static Vector3 GetWorldScaleFromPixels(float pixelSize, Vector3 worldPosition)
@@ -79,6 +75,17 @@ namespace Viewer.Runtime
         }
 
         static float CalculatePixelScaleFactor(float fov, float screenHeight) => (2.0f * Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad)) / screenHeight;
+
+        public static Vector3 WorldToViewportPoint(Vector3 position) => camera.WorldToViewportPoint(position);
+
+        public static Vector3 WorldToScreenPoint(Vector3 position) => camera.WorldToScreenPoint(position);
+
+        private static float GetWorldSizeFromPixels(float pixelSize, Vector3 worldPosition)
+        {
+            float zDepth = Vector3.Dot(worldPosition - cameraPosition, cameraForward);
+
+            return pixelSize * pixelScaleFactor * zDepth;
+        }
     }
 
     public enum DrawType

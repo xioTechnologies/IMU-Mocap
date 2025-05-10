@@ -41,7 +41,7 @@ namespace Viewer.Runtime.Primitives
         public void Clear() => lines?.Clear();
 
         public void Plot(Vector3 start, Vector3 end) => lines?.Add(start, end, PlotterSettings.LineWidthInPixels, colorLinear, colorLinear);
-        
+
         public void Plot(Vector3 start, Vector3 end, float thickness) => lines?.Add(start, end, thickness, colorLinear, colorLinear);
 
         void Update() => lines?.Draw();
