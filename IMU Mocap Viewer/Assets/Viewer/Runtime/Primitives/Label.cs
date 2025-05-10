@@ -52,8 +52,12 @@ namespace Viewer.Runtime.Primitives
             parentTransform = rectTransform.parent.GetComponent<RectTransform>();
         }
 
+        public void Hide() => gameObject.SetActive(false);
+
         public void AdjustForCamera()
         {
+            gameObject.SetActive(true);
+
             Vector3 viewportPosition = PixelScaleUtility.WorldToViewportPoint(Position);
 
             if (viewportPosition.z < 0)
@@ -103,7 +107,13 @@ namespace Viewer.Runtime.Primitives
 
             rectTransform.localScale = Vector3.one;
 
-            rectTransform.sizeDelta = new Vector2(text.preferredWidth, text.preferredHeight);
+            var preferred = text.GetPreferredValues();
+
+            if (Mathf.Abs(rectTransform.sizeDelta.x - preferred.x) > 0.1f ||
+                Mathf.Abs(rectTransform.sizeDelta.y - preferred.y) > 0.1f)
+            {
+                rectTransform.sizeDelta = preferred;
+            }
         }
     }
 }
