@@ -40,7 +40,7 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear() => dots?.Clear();
 
-        public void Plot(Vector3 xyz, float size) => dots?.Add(xyz, Quaternion.identity, 1f, size, colorLinear, colorLinear);
+        public void Plot(Vector3 xyz, float size) => dots?.Add(xyz, Quaternion.identity, 1f, size * PlotterSettings.DotSizeInPixels, colorLinear, colorLinear);
 
         void Update() => dots?.Draw();
     }

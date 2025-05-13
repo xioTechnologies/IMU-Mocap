@@ -47,7 +47,7 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear() => currentIndex = 0;
 
-        public void Plot(Vector3 xyz, string text, Color color, float scale)
+        public void Plot(Vector3 xyz, string text, Color color)
         {
             Label obj;
 
@@ -64,13 +64,12 @@ namespace Viewer.Runtime.Primitives
 
             obj.Position = xyz;
             obj.Text = text;
-            obj.Scale = scale;
             obj.Color = color;
 
             currentIndex++;
         }
 
-        public void Plot(Vector3 xyz, Color color, float scale, string text, Vector3 marginDirection, float margin)
+        public void Plot(Vector3 xyz, Color color, string text, Vector3 marginDirection, float margin)
         {
             Label obj;
 
@@ -87,7 +86,6 @@ namespace Viewer.Runtime.Primitives
 
             obj.Position = xyz;
             obj.Text = text;
-            obj.Scale = scale;
             obj.Color = color;
             obj.MarginDirection = marginDirection;
             obj.Margin = margin;

@@ -56,8 +56,10 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear() => quivers?.Clear();
 
-        public void Plot(Vector3 xyz, Quaternion quaternion, float scale, float thickness)
+        public void Plot(Vector3 xyz, Quaternion quaternion, float scale)
         {
+            float thickness = PlotterSettings.AxesLineWidthInPixels; 
+            
             void AddQuiver(Vector3 axis, Color color)
             {
                 var quiverOffset = quaternion * axis * scale;

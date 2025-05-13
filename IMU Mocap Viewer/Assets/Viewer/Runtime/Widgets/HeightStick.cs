@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Viewer.Runtime.Primitives;
 
 namespace Viewer.Runtime.Widgets
@@ -21,13 +21,13 @@ namespace Viewer.Runtime.Widgets
 
             transform.position = head._x0z();
 
-            stick.LineWidthInPixels = lineWidthInPixels * PixelScaleUtility.DpiScaleFactor;
+            stick.LineWidthInPixels = lineWidthInPixels * PlotterSettings.UIScale;
             stick.SetPoints(Vector3.zero, Vector3.up * offset);
 
             handle.transform.position = head;
             handle.LineWidthInPixels = knobSizeInPixels;
 
-            disc.localScale = PixelScaleUtility.GetWorldScaleFromPixels(discSizeInPixels, disc.position) * PixelScaleUtility.DpiScaleFactor;
+            disc.localScale = PixelScaleUtility.GetWorldScaleFromPixels(discSizeInPixels, disc.position) * PlotterSettings.UIScale;
         }
 
         public void Hide() => gameObject.SetActive(false);

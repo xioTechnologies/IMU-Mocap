@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Viewer.Runtime.UI
@@ -32,11 +32,11 @@ namespace Viewer.Runtime.UI
 
         private void CheckAndUpdateScaleMode()
         {
-            canvasScaler.scaleFactor = PixelScaleUtility.DpiScaleFactor;
+            canvasScaler.scaleFactor = PlotterSettings.UIScale;
 
             float currentScreenWidth = Screen.width;
 
-            if (currentScreenWidth < minimumWidthInPixels * PixelScaleUtility.DpiScaleFactor)
+            if (currentScreenWidth < minimumWidthInPixels * canvasScaler.scaleFactor)
             {
                 if (mode == ScaleMode.TooSmallWidth) return;
 

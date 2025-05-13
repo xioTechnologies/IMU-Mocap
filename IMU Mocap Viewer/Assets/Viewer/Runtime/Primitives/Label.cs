@@ -6,7 +6,6 @@ namespace Viewer.Runtime.Primitives
     [RequireComponent(typeof(RectTransform))]
     public sealed class Label : MonoBehaviour
     {
-        [SerializeField, Range(1f, 200f)] private float scale = 20f;
         [SerializeField, Range(0f, 10f)] private float margin = 0.5f;
 
         [SerializeField] private TMP_Text text;
@@ -17,12 +16,6 @@ namespace Viewer.Runtime.Primitives
         {
             get => text.text;
             set => text.text = value;
-        }
-
-        public float Scale
-        {
-            get => scale;
-            set => scale = value;
         }
 
         public float Margin
@@ -71,7 +64,7 @@ namespace Viewer.Runtime.Primitives
 
             text.margin = marginParameters;
 
-            float worldSize = PixelScaleUtility.GetWorldSizeFromPixels(Scale * 10f, rect.position);
+            float worldSize = PixelScaleUtility.GetWorldSizeFromPixels(PlotterSettings.LabelSizeInPoints * 10f, rect.position);
             text.fontSize = worldSize;
 
             rect.localScale = Vector3.one;
