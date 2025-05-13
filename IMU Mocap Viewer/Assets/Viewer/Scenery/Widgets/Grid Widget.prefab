@@ -50,7 +50,7 @@ MonoBehaviour:
   fadeProportion: 0.125
   order: 1
   maxLineCount: 1024
-  lineMesh: {fileID: 4300000, guid: d0a3bddf1c177a9489777bd33b5ffe09, type: 2}
+  lineMesh: {fileID: 4300000, guid: 36b4a23abe5b1984cb854cbb6d39aef3, type: 2}
   material: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
   lineWidthPixels: 1
   darkColor: {r: 0.11764707, g: 0.11764707, b: 0.11764707, a: 1}
