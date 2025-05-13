@@ -12,15 +12,15 @@ public class PlotClient : IDisposable
 {
     private readonly UdpClient client;
     private bool disposed;
-    
+
     private bool isFirstPrimitive = true;
     private readonly ArrayBufferWriter<byte> writer;
-    
+
     public PlotClient(IPAddress ipAddress = null, int port = 6000)
     {
         client = new UdpClient();
         client.Connect(new IPEndPoint(ipAddress ?? IPAddress.Loopback, port));
-        
+
         writer = new ArrayBufferWriter<byte>();
         WriteArrayOpen();
     }
@@ -112,9 +112,9 @@ public class PlotClient : IDisposable
         try
         {
             WriteArrayClose();
-            
+
             byte[] data = writer.WrittenSpan.ToArray();
-            
+
             client.Send(data, data.Length);
         }
         catch (Exception e)

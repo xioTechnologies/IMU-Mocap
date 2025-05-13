@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace Viewer.Runtime.UI

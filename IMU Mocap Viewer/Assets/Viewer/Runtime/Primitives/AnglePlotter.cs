@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 using Viewer.Runtime.Primitives.Batching;
 
 namespace Viewer.Runtime.Primitives

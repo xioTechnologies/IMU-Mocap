@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Viewer.Runtime.Primitives;
 using Viewer.Runtime.Primitives.Batching;
 
 namespace Viewer.Runtime.Widgets
