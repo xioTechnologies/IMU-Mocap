@@ -9,6 +9,7 @@ namespace Viewer.Editor
         private static void GenerateAllMeshes()
         {
             StretchMeshes.GenerateBox("Assets/Viewer/Resources/Stretchable Meshes/Box.asset");
+            StretchMeshes.GenerateGridLine("Assets/Viewer/Resources/Stretchable Meshes/Grid Line.asset", 8);
             StretchMeshes.GenerateCylinder(6, "Assets/Viewer/Resources/Stretchable Meshes/Cylinder.asset");
             StretchMeshes.GenerateCylinderWithRoundedCaps(12, 4, "Assets/Viewer/Resources/Stretchable Meshes/Capsule.asset");
             StretchMeshes.GenerateCylinderWithOneRoundedCap(12, 4, "Assets/Viewer/Resources/Stretchable Meshes/Height Stick.asset");

@@ -43,6 +43,26 @@ namespace Viewer.Editor.Meshes
             MeshData.SaveMesh(exists, mesh, path);
         }
 
+        public static void GenerateGridLine(string path, int segments)
+        {
+            (Mesh mesh, bool exists) = MeshData.CreateOrLoadMesh(path, $"Grid Line ({segments})");
+
+            MeshData.Merge(mesh,
+                MeshData.CappedTube(
+                    Vector3.forward * 0.5f, MeshData.CapType.Flat,
+                    Vector3.forward * -0.5f, MeshData.CapType.Flat,
+                    segments, 4, 0,
+                    0.0f, 0.5f,
+                    Vector2.one, Vector2.zero,
+                    Mathf.PI * 0.25f
+                )
+            );
+
+            mesh.bounds = new Bounds(Vector3.zero, Vector3.one);
+
+            MeshData.SaveMesh(exists, mesh, path);
+        }
+
         public static void GenerateCylinderWithRoundedCaps(int segments, int capSubdivisions, string path)
         {
             (Mesh mesh, bool exists) = MeshData.CreateOrLoadMesh(path, $"Stretch Cylinder with Rounded Caps {segments}x{capSubdivisions}");

@@ -29,7 +29,6 @@ namespace Viewer.Runtime.Widgets
         private LineDrawBatch axisLines;
         private LineDrawBatch majorLines;
         private LineDrawBatch minorLines;
-        private Camera mainCamera;
 
         private void OnValidate() => AssignOrder();
 
@@ -51,8 +50,6 @@ namespace Viewer.Runtime.Widgets
             minorLines = new LineDrawBatch(maxLineCount, lineMesh, material, gameObject.layer);
 
             AssignOrder();
-
-            mainCamera = Camera.main;
         }
 
         private void OnDestroy()
@@ -102,7 +99,7 @@ namespace Viewer.Runtime.Widgets
                 var lineColor = Color.Lerp(darkColorLinear, isOrigin ? xLineColorLinear : isMajor ? majorLineColorLinear : minorLineColorLinear, line.Value.intensity);
                 var batch = isOrigin ? axisLines : isMajor ? majorLines : minorLines;
 
-                PlotFadedLine(line.Value, darkColorLinear, lineColor, mainCamera.transform.position, batch);
+                PlotFadedLine(line.Value, darkColorLinear, lineColor, batch);
             }
 
             for (int z = 0; z <= countZ + 1; z++)
@@ -118,7 +115,7 @@ namespace Viewer.Runtime.Widgets
                 var lineColor = Color.Lerp(darkColorLinear, isOrigin ? yLineColorLinear : isMajor ? majorLineColorLinear : minorLineColorLinear, line.Value.intensity);
                 var batch = isOrigin ? axisLines : isMajor ? majorLines : minorLines;
 
-                PlotFadedLine(line.Value, darkColorLinear, lineColor, mainCamera.transform.position, batch);
+                PlotFadedLine(line.Value, darkColorLinear, lineColor, batch);
             }
 
             axisLines.Draw();
@@ -126,72 +123,15 @@ namespace Viewer.Runtime.Widgets
             minorLines.Draw();
         }
 
-        private void PlotFadedLine((Vector3 min, Vector3 minFadeEnd, Vector3 maxFadeEnd, Vector3 max, float intensity) line, Color dark, Color color, Vector3 split, LineDrawBatch lines)
+        private void PlotFadedLine((Vector3 min, Vector3 minFadeEnd, Vector3 maxFadeEnd, Vector3 max, float intensity) line, Color dark, Color color, LineDrawBatch lines)
         {
             float lineWidth = lineWidthPixels * PlotterSettings.PrimitiveScale;
 
-            var normal = (line.max._x0z() - line.min._x0z()).normalized;
+            lines.Add(line.min._x0z(), line.minFadeEnd._x0z(), lineWidth, dark, color);
 
-            if (CrossesPlane(line.min._x0z(), line.minFadeEnd._x0z(), split, normal))
-            {
-                Vector3 intersection = GetIntersectionAndColor(
-                    line.min, line.minFadeEnd,
-                    dark, color,
-                    split, normal,
-                    out var intersectionColor
-                );
+            lines.Add(line.minFadeEnd._x0z(), line.maxFadeEnd._x0z(), lineWidth, color, color);
 
-                lines.Add(line.min._x0z(), intersection, lineWidth, dark, intersectionColor);
-                lines.Add(intersection, line.minFadeEnd._x0z(), lineWidth, intersectionColor, color);
-            }
-            else
-            {
-                lines.Add(line.min._x0z(), line.minFadeEnd._x0z(), lineWidth, dark, color);
-            }
-
-            if (CrossesPlane(line.minFadeEnd._x0z(), line.maxFadeEnd._x0z(), split, normal))
-            {
-                var intersection = GetIntersection(line.minFadeEnd._x0z(), line.maxFadeEnd._x0z(), split, normal);
-                lines.Add(line.minFadeEnd._x0z(), intersection, lineWidth, color, color);
-                lines.Add(intersection, line.maxFadeEnd._x0z(), lineWidth, color, color);
-            }
-            else
-            {
-                lines.Add(line.minFadeEnd._x0z(), line.maxFadeEnd._x0z(), lineWidth, color, color);
-            }
-
-            if (CrossesPlane(line.maxFadeEnd._x0z(), line.max._x0z(), split, normal))
-            {
-                Vector3 intersection = GetIntersectionAndColor(
-                    line.maxFadeEnd, line.max,
-                    color, dark,
-                    split, normal,
-                    out var intersectionColor
-                );
-
-                lines.Add(line.maxFadeEnd._x0z(), intersection, lineWidth, color, intersectionColor);
-                lines.Add(intersection, line.max._x0z(), lineWidth, intersectionColor, dark);
-            }
-            else
-            {
-                lines.Add(line.maxFadeEnd._x0z(), line.max._x0z(), lineWidth, color, dark);
-            }
-        }
-
-        private Vector3 GetIntersectionAndColor(Vector3 min, Vector3 max, Color minColor, Color maxColor, Vector3 split, Vector3 normal, out Color intersectionColor)
-        {
-            var intersection = GetIntersection(min._x0z(), max._x0z(), split, normal);
-            var t = (intersection - min._x0z()).magnitude / (max._x0z() - min._x0z()).magnitude;
-            intersectionColor = Color.Lerp(minColor, maxColor, t);
-            return intersection;
-        }
-
-        bool CrossesPlane(Vector3 a, Vector3 b, Vector3 split, Vector3 normal) => Vector3.Dot(a - split, normal) * Vector3.Dot(b - split, normal) < 0;
-
-        Vector3 GetIntersection(Vector3 a, Vector3 b, Vector3 split, Vector3 normal)
-        {
-            float t = Vector3.Dot(split - a, normal) / Vector3.Dot(b - a, normal);
-            return Vector3.Lerp(a, b, t);
+            lines.Add(line.maxFadeEnd._x0z(), line.max._x0z(), lineWidth, color, dark);
         }
 
         private Vector3 ClosestPointOnLine(Vector3 center, Vector3 pointOnLine, Vector3 lineNormal)
