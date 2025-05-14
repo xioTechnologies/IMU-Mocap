@@ -150,6 +150,80 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.ref_name }} IMU-Mocap-Viewer.dmg
+        
+  imu-mocap-viewer-macos-development:
+    runs-on: macos-latest
+    needs: create-release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v3
+        with:
+          path: "IMU Mocap Viewer/Library"
+          key: Library-macOS
+          restore-keys: Library-
+
+      - uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: "./IMU Mocap Viewer"
+          buildProfile: "Assets/Settings/Build Profiles/macOS - Development.asset"
+          targetPlatform: StandaloneOSX
+          allowDirtyBuild: true
+          buildsPath: "build/"
+          buildName: 'IMU Mocap Viewer'
+          versioning: Custom
+          version: '1.0.2'
+
+      - name: Install certificate # https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development#add-a-step-to-your-workflow
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ""
+        run: |
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH             
+
+      - name: Sign and notarize
+        run: |
+          chmod -R a+xr "build/StandaloneOSX/IMU Mocap Viewer.app"
+          codesign --deep --force --options runtime --timestamp --sign 29X883CFTW "build/StandaloneOSX/IMU Mocap Viewer.app"
+          brew install create-dmg
+          create-dmg \
+          --volname "IMU-Mocap-Viewer" \
+          --background "installer_background.png" \
+          --window-pos 200 120 \
+          --window-size 600 320 \
+          --icon-size 100 \
+          --icon "IMU Mocap Viewer.app" 140 130 \
+          --hide-extension "IMU Mocap Viewer.app" \
+          --app-drop-link 450 125 \
+          "IMU-Mocap-Viewer.dmg" \
+          "build/StandaloneOSX/IMU Mocap Viewer.app"
+          xcrun notarytool submit "IMU-Mocap-Viewer.dmg" --team-id 29X883CFTW --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --wait
+          xcrun stapler staple "IMU-Mocap-Viewer.dmg"       
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IMU-Mocap-Viewer-Development.dmg
+          path: IMU-Mocap-Viewer.dmg          
 
   imu-mocap-viewer-windows:
     runs-on: windows-latest
