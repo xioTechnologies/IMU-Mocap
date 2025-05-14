@@ -4,3 +4,16 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 # IMU-Mocap
+
+
+**⚠️ CI Warning Notice**
+
+You may see this warning in the GitHub Actions log:
+
+```
+You are trying to import an asset which contains a global game manager. This is not allowed.
+```
+
+This is a benign side-effect of how Game CI containers are built. It does not indicate a problem and can safely be ignored.
+
+This bug has been reported, however the maintance of Game CI is volantary.
