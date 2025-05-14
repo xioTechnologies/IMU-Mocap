@@ -121,15 +121,15 @@ namespace Viewer.Runtime
 
         private Vector3 SwizzleFromArray3(float[] array)
         {
-            if (array == null) return Vector3.zero; 
+            if (array == null) return Vector3.zero;
             if (array.Length != 3) return Vector3.zero;
 
             return new Vector3(array[0], array[1], array[2])._xzy();
         }
-        
+
         private Quaternion SwizzleFromArray4(float[] array)
         {
-            if (array == null) return Quaternion.identity; 
+            if (array == null) return Quaternion.identity;
             if (array.Length != 4) return Quaternion.identity;
 
             return Swizzle(new Quaternion(array[1], array[2], array[2], array[0]));

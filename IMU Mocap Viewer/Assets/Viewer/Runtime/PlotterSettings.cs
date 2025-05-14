@@ -11,7 +11,7 @@ namespace Viewer.Runtime
         public static Color LabelColor { get; private set; }
 
         public static float LabelSizeInPoints { get; private set; }
-        
+
         public static float PrimitiveScale { get; private set; }
 
         public static float LineWidthInPixels { get; private set; }
@@ -23,7 +23,7 @@ namespace Viewer.Runtime
         public static float AxesLineWidthInPixels { get; private set; }
 
         public static float AngleLineWidthInPixels { get; private set; }
-        
+
         public static void Update()
         {
             UIScale = PixelScaleUtility.DpiScaleFactor * instance.uiScale;
@@ -100,7 +100,7 @@ namespace Viewer.Runtime
             if (asset != null) return asset;
 
             asset = CreateInstance<PlotterSettings>();
-            
+
             UnityEditor.AssetDatabase.CreateAsset(asset, ResourcePath);
             UnityEditor.AssetDatabase.SaveAssets();
             UnityEditor.AssetDatabase.Refresh();

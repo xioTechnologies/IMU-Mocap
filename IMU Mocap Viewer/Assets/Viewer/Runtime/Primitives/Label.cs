@@ -11,6 +11,7 @@ namespace Viewer.Runtime.Primitives
         [SerializeField] private TMP_Text text;
 
         private RectTransform rectTransform;
+        private RectTransform parentTransform;
 
         public string Text
         {
@@ -32,43 +33,80 @@ namespace Viewer.Runtime.Primitives
 
         public Vector3? MarginDirection { get; set; }
 
-        public Vector3? Position { get; set; }
+        public Vector3 Position { get; set; }
 
-        private void Awake() => rectTransform = GetComponent<RectTransform>();
+        public int LastSiblingIndex { get; set; } = -1;
+
+        public float Depth { get; set; }
+
+        private void Awake()
+        {
+            rectTransform = GetComponent<RectTransform>();
+            parentTransform = rectTransform.parent.GetComponent<RectTransform>();
+        }
+
+        public void Hide() => gameObject.SetActive(false);
 
         public void AdjustForCamera()
         {
-            RectTransform rect = rectTransform;
+            gameObject.SetActive(true);
 
-            if (rect == null) return;
+            Vector3 viewportPosition = PixelScaleUtility.WorldToViewportPoint(Position);
 
-            var position = Position ?? rect.position;
-
-            float worldMargin = PixelScaleUtility.GetWorldSizeFromPixels(Margin * 10f, position);
-
-            var marginParameters = new Vector4(worldMargin, 0, 0, 0);
-
-            if (Position.HasValue)
+            if (viewportPosition.z < 0)
             {
-                transform.position = Position.Value;
+                text.enabled = false;
+                return;
             }
 
-            if (Position.HasValue && MarginDirection.HasValue)
+            Depth = viewportPosition.z;
+
+            text.enabled = true;
+            text.fontSize = PlotterSettings.LabelSizeInPoints;
+
+            var position = Position;
+
+            Vector2 baseScreenPoint = PixelScaleUtility.WorldToScreenPoint(position);
+            Vector3 calculatedMargin;
+
+            if (MarginDirection.HasValue)
             {
-                var projected = Vector3.ProjectOnPlane(MarginDirection.Value, PixelScaleUtility.CameraForward).normalized;
+                Vector3 offsetWorldPos = Position + MarginDirection.Value.normalized;
 
-                transform.position += (projected * worldMargin);
+                Vector2 offsetScreenPoint = PixelScaleUtility.WorldToScreenPoint(offsetWorldPos);
 
-                marginParameters = Vector4.zero;
+                Vector2 screenOffsetDir = (offsetScreenPoint - baseScreenPoint).normalized;
+
+                calculatedMargin = screenOffsetDir * Margin;
+            }
+            else
+            {
+                calculatedMargin = new Vector3(Margin, 0, 0);
             }
 
-            text.margin = marginParameters;
+            Vector3 screenPoint = PixelScaleUtility.WorldToScreenPoint(position) + calculatedMargin;
 
-            float worldSize = PixelScaleUtility.GetWorldSizeFromPixels(PlotterSettings.LabelSizeInPoints * 10f, rect.position);
-            text.fontSize = worldSize;
+            screenPoint.x = Mathf.Round(screenPoint.x);
+            screenPoint.y = Mathf.Round(screenPoint.y);
 
-            rect.localScale = Vector3.one;
-            rect.sizeDelta = new Vector2(text.preferredWidth, text.preferredHeight);
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    parentTransform,
+                    screenPoint,
+                    null,
+                    out var anchoredPosition))
+            {
+                rectTransform.anchoredPosition = anchoredPosition;
+            }
+
+            rectTransform.localScale = Vector3.one;
+
+            var preferred = text.GetPreferredValues();
+
+            if (Mathf.Abs(rectTransform.sizeDelta.x - preferred.x) > 0.1f ||
+                Mathf.Abs(rectTransform.sizeDelta.y - preferred.y) > 0.1f)
+            {
+                rectTransform.sizeDelta = preferred;
+            }
         }
     }
 }

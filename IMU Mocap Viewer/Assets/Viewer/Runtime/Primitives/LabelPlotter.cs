@@ -1,96 +1,59 @@
-﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
 
 namespace Viewer.Runtime.Primitives
 {
     public sealed class LabelPlotter : MonoBehaviour
     {
+        private ILabelGroup group;
+        [SerializeField] private LabelContainer container;
         [SerializeField] private Label prefab;
-
-        private readonly List<Label> objects = new();
-        private int currentIndex;
-
-        private ObjectPool<Label> objectPool;
 
         private void Awake()
         {
-            objectPool = new ObjectPool<Label>(
-                () => Instantiate(prefab, transform),
-                obj => obj.gameObject.SetActive(true),
-                obj => obj.gameObject.SetActive(false),
-                obj => Destroy(obj.gameObject),
-                false,
-                256,
-                1024 * 8
-            );
-
-            currentIndex = 0;
+            group = container.CreateGroup(prefab);
         }
 
-        private void Update()
+        private void OnEnable()
         {
-            for (int i = 0; i < currentIndex; i++)
-            {
-                objects[i].AdjustForCamera();
-            }
+            if (group == null) return;
 
-            if (currentIndex == objects.Count) return;
-
-            for (int i = currentIndex; i < objects.Count; i++)
-            {
-                objectPool.Release(objects[i]);
-            }
-
-            objects.RemoveRange(currentIndex, objects.Count - currentIndex);
+            group.Visible = true;
         }
 
-        public void Clear() => currentIndex = 0;
+        private void OnDisable()
+        {
+            if (group == null) return;
+
+            group.Visible = false;
+        }
+
+        private void OnDestroy()
+        {
+            container.DestroyGroup(group);
+
+            group = null;
+        }
+
+        public void Clear() => group.Clear();
 
         public void Plot(Vector3 xyz, string text, Color color)
         {
-            Label obj;
-
-            if (currentIndex < objects.Count)
-            {
-                obj = objects[currentIndex];
-            }
-            else
-            {
-                obj = objectPool.Get();
-
-                objects.Add(obj);
-            }
+            Label obj = group.Get();
 
             obj.Position = xyz;
             obj.Text = text;
             obj.Color = color;
-
-            currentIndex++;
         }
 
         public void Plot(Vector3 xyz, Color color, string text, Vector3 marginDirection, float margin)
         {
-            Label obj;
-
-            if (currentIndex < objects.Count)
-            {
-                obj = objects[currentIndex];
-            }
-            else
-            {
-                obj = objectPool.Get();
-
-                objects.Add(obj);
-            }
+            Label obj = group.Get();
 
             obj.Position = xyz;
             obj.Text = text;
             obj.Color = color;
             obj.MarginDirection = marginDirection;
             obj.Margin = margin;
-
-            currentIndex++;
         }
     }
 }

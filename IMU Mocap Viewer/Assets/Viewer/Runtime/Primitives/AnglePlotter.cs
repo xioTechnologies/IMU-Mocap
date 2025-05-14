@@ -107,21 +107,21 @@ namespace Viewer.Runtime.Primitives
         public void Plot(Vector3 xyz, Quaternion quaternion, AngleAndLimit? rotX, AngleAndLimit? rotY, AngleAndLimit? rotZ, float scale)
         {
             float thickness = PlotterSettings.AngleLineWidthInPixels;
-            
+
             var zRotation = Quaternion.AngleAxis(0, Vector3.up);
             var yRotation = Quaternion.AngleAxis(0, Vector3.right);
             var xRotation = Quaternion.AngleAxis(0, Vector3.forward);
 
             int inset = 6;
             float insetScale = 1f / inset * scale;
-            
+
             bool hasLabels = labels != null;
 
             if (rotZ != null)
             {
                 float angle = rotZ.Value.Angle;
 
-                var rotationOffset = Quaternion.Euler(0, 0, 90); 
+                var rotationOffset = Quaternion.Euler(0, 0, 90);
 
                 zRotation = Quaternion.AngleAxis(-angle, Vector3.up);
 
@@ -133,10 +133,9 @@ namespace Viewer.Runtime.Primitives
                     quaternion * labelOffsetRotation,
                     inset-- * insetScale,
                     twistColorLinear,
-                    twistAlphaLinear, 
+                    twistAlphaLinear,
                     twistColor
                 );
-                
             }
 
             if (rotY != null)
@@ -171,7 +170,7 @@ namespace Viewer.Runtime.Primitives
                 Quaternion rotationOffset = Quaternion.Euler(0, 90, 0) * Quaternion.Euler(-90, 0, 0);
 
                 var labelOffsetRotation = rotation * xRotation * rotationOffset;
-                
+
                 rotation *= rotationOffset;
 
                 Add(
