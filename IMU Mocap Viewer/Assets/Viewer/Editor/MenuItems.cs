@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEditor;
 using Viewer.Editor.Meshes;
 
 namespace Viewer.Editor

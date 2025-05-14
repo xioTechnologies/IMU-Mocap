@@ -1,8 +1,5 @@
-using System;
 using UnityEngine;
 using Unity.Mathematics;
-using UnityEngine.Serialization;
-using Viewer.Runtime.Primitives;
 using Viewer.Runtime.Primitives.Batching;
 
 namespace Viewer.Runtime.Widgets
