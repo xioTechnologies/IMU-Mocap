@@ -104,8 +104,10 @@ namespace Viewer.Runtime.Primitives
             values?.Clear();
         }
 
-        public void Plot(Vector3 xyz, Quaternion quaternion, AngleAndLimit? rotX, AngleAndLimit? rotY, AngleAndLimit? rotZ, float scale, float thickness, float labelScale)
+        public void Plot(Vector3 xyz, Quaternion quaternion, AngleAndLimit? rotX, AngleAndLimit? rotY, AngleAndLimit? rotZ, float scale)
         {
+            float thickness = PlotterSettings.AngleLineWidthInPixels;
+            
             var zRotation = Quaternion.AngleAxis(0, Vector3.up);
             var yRotation = Quaternion.AngleAxis(0, Vector3.right);
             var xRotation = Quaternion.AngleAxis(0, Vector3.forward);
@@ -201,7 +203,7 @@ namespace Viewer.Runtime.Primitives
 
                     Vector3 offset = direction * (angleScale * 0.5f);
 
-                    labels.Plot(xyz + offset, labelColor, labelScale, $"{angle:F1}°", direction, labelMargin);
+                    labels.Plot(xyz + offset, labelColor, $"{angle:F1}°", direction, labelMargin);
                 }
             }
         }

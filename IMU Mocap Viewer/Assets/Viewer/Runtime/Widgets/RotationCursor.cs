@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Viewer.Runtime.Widgets
 {
@@ -13,7 +13,7 @@ namespace Viewer.Runtime.Widgets
 
         private void Update()
         {
-            transform.localScale = PixelScaleUtility.GetWorldScaleFromPixels(objectSize, transform.position) * PixelScaleUtility.DpiScaleFactor;
+            transform.localScale = PixelScaleUtility.GetWorldScaleFromPixels(objectSize, transform.position) * PlotterSettings.UIScale;
 
             if (updateRotation) transform.LookAt(mainCamera.transform.position);
 

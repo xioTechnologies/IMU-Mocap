@@ -8,7 +8,7 @@ namespace Viewer.Runtime.Widgets
 
         private void Update()
         {
-            transform.localScale = PixelScaleUtility.GetWorldScaleFromPixels(objectSize, transform.position) * PixelScaleUtility.DpiScaleFactor;
+            transform.localScale = PixelScaleUtility.GetWorldScaleFromPixels(objectSize, transform.position) * PlotterSettings.UIScale;
         }
 
         public void Hide() => gameObject.SetActive(false);

@@ -162,20 +162,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b916a82ab8ba80542a27d82988bcbefd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  primitiveScale: 1
   line: {fileID: 9103106938384840973}
-  lineWidthInPixels: 3
   circle: {fileID: 8172447402289259747}
-  circleLineWidthScaleFactor: 1
   dot: {fileID: 6032289296727921469}
-  dotSizeInPixels: 10
   axes: {fileID: 7579436471719086320}
-  axesLineWidthInPixels: 2
   angle: {fileID: 7790124158063783717}
-  angleLineWidthInPixels: 1
   labels: {fileID: 19216609149736729}
-  labelColor: {r: 0.89411765, g: 0.89411765, b: 0.89411765, a: 1}
-  labelSizeInPoints: 14
 --- !u!1 &2614373540630034857
 GameObject:
   m_ObjectHideFlags: 0

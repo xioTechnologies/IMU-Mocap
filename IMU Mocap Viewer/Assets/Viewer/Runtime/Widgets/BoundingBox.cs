@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Viewer.Runtime.Primitives.Batching;
 
 namespace Viewer.Runtime.Widgets
@@ -31,7 +31,7 @@ namespace Viewer.Runtime.Widgets
             var min = Bounds.min;
             var max = Bounds.max;
 
-            float lineWidth = lineWidthPixels * PixelScaleUtility.DpiScaleFactor;
+            float lineWidth = lineWidthPixels * PlotterSettings.PrimitiveScale;
 
             var size = max - min;
 

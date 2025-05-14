@@ -128,7 +128,7 @@ namespace Viewer.Runtime.Widgets
 
         private void PlotFadedLine((Vector3 min, Vector3 minFadeEnd, Vector3 maxFadeEnd, Vector3 max, float intensity) line, Color dark, Color color, Vector3 split, LineDrawBatch lines)
         {
-            float lineWidth = lineWidthPixels * PixelScaleUtility.DpiScaleFactor;
+            float lineWidth = lineWidthPixels * PlotterSettings.PrimitiveScale;
 
             var normal = (line.max._x0z() - line.min._x0z()).normalized;
 
