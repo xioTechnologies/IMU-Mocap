@@ -125,10 +125,10 @@ class Model(ABC):
         self.left_forth_metacarpal = Link("Left Forth Metacarpal", Matrix(y=FORTH_LENGTH * METACARPAL_RATIO)).connect(self.left_forth_proximal)
 
         # Left fifth phalangeal and metacarpal
-        self.left_fifth_distal = Link("Left Fith Distal", Matrix(y=FIFTH_LENGTH * DISTAL_RATIO))
-        self.left_fifth_middle = Link("Left Fith Middle", Matrix(y=FIFTH_LENGTH * MIDDLE_RATIO)).connect(self.left_fifth_distal)
-        self.left_fifth_proximal = Link("Left Fith Proximal", Matrix(y=FIFTH_LENGTH * PROXIMAL_RATIO)).connect(self.left_fifth_middle)
-        self.left_fifth_metacarpal = Link("Left Fith Metacarpal", Matrix(y=FIFTH_LENGTH * METACARPAL_RATIO)).connect(self.left_fifth_proximal)
+        self.left_fifth_distal = Link("Left Fifth Distal", Matrix(y=FIFTH_LENGTH * DISTAL_RATIO))
+        self.left_fifth_middle = Link("Left Fifth Middle", Matrix(y=FIFTH_LENGTH * MIDDLE_RATIO)).connect(self.left_fifth_distal)
+        self.left_fifth_proximal = Link("Left Fifth Proximal", Matrix(y=FIFTH_LENGTH * PROXIMAL_RATIO)).connect(self.left_fifth_middle)
+        self.left_fifth_metacarpal = Link("Left Fifth Metacarpal", Matrix(y=FIFTH_LENGTH * METACARPAL_RATIO)).connect(self.left_fifth_proximal)
 
         # Left carpus
         self.left_carpus = Link("Left Carpus", Matrix(y=CARPUS_LENGTH))
@@ -162,10 +162,10 @@ class Model(ABC):
         self.right_forth_metacarpal = Link("Right Forth Metacarpal", Matrix(y=-FORTH_LENGTH * METACARPAL_RATIO)).connect(self.right_forth_proximal)
 
         # Right fifth phalangeal and metacarpal
-        self.right_fifth_distal = Link("Right Fith Distal", Matrix(y=-FIFTH_LENGTH * DISTAL_RATIO))
-        self.right_fifth_middle = Link("Right Fith Middle", Matrix(y=-FIFTH_LENGTH * MIDDLE_RATIO)).connect(self.right_fifth_distal)
+        self.right_fifth_distal = Link("Right Fifth Distal", Matrix(y=-FIFTH_LENGTH * DISTAL_RATIO))
+        self.right_fifth_middle = Link("Right Fifth Middle", Matrix(y=-FIFTH_LENGTH * MIDDLE_RATIO)).connect(self.right_fifth_distal)
         self.right_fifth_proximal = Link("Right Fith Proximal", Matrix(y=-FIFTH_LENGTH * PROXIMAL_RATIO)).connect(self.right_fifth_middle)
-        self.right_fifth_metacarpal = Link("Right Fith Metacarpal", Matrix(y=-FIFTH_LENGTH * METACARPAL_RATIO)).connect(self.right_fifth_proximal)
+        self.right_fifth_metacarpal = Link("Right Fifth Metacarpal", Matrix(y=-FIFTH_LENGTH * METACARPAL_RATIO)).connect(self.right_fifth_proximal)
 
         # Right carpus
         self.right_carpus = Link("Right Carpus", Matrix(y=-CARPUS_LENGTH))
