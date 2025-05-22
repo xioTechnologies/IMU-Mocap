@@ -52,6 +52,8 @@ namespace Viewer.Runtime.Primitives
             PrivateContainer.anchorMax = Vector2.one;
             PrivateContainer.offsetMin = Vector2.zero;
             PrivateContainer.offsetMax = Vector2.zero;
+
+            ConfigureHierarchyFlags();
         }
 
         private void OnDestroy()
@@ -69,8 +71,7 @@ namespace Viewer.Runtime.Primitives
         private void Update()
         {
 #if UNITY_EDITOR
-            var flags = visibleChildren ? HideFlags.None : HideFlags.HideInHierarchy;
-            if (PrivateContainer.gameObject.hideFlags != flags) PrivateContainer.gameObject.hideFlags = flags;
+            ConfigureHierarchyFlags();
 #endif
 
             bool recache = false;
@@ -104,6 +105,12 @@ namespace Viewer.Runtime.Primitives
 
                 label.LastSiblingIndex = i;
             }
+        }
+
+        private void ConfigureHierarchyFlags() 
+        {
+            var flags = visibleChildren ? HideFlags.None : HideFlags.HideInHierarchy;
+            if (PrivateContainer.gameObject.hideFlags != flags) PrivateContainer.gameObject.hideFlags = flags;
         }
 
         private class DepthComparer : IComparer<Label>
