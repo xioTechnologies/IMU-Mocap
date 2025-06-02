@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
-
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
@@ -48,7 +46,7 @@ class Link:
         self.__imu = Matrix(x=self.__imu.x, y=self.__imu.y, z=self.__imu.z, rotation=imu.rotation)  # ignore imu.xyz
 
     @property
-    def links(self) -> List[Tuple[Link, Matrix]]:
+    def links(self) -> list[tuple[Link, Matrix]]:
         return self.__links
 
     @property
@@ -59,7 +57,7 @@ class Link:
     def is_root(self) -> bool:
         return self.__is_root
 
-    def __update(self, origin: Optional[Matrix] = None) -> None:
+    def __update(self, origin: Matrix | None = None) -> None:
         if origin is not None:
             self.__origin = origin
 
@@ -93,7 +91,7 @@ class Link:
     def get_wheel_axis_global(self) -> Matrix:
         return Matrix(rotation=(self.__origin * self.__joint).rotation) * self.__wheel_axis
 
-    def flatten(self) -> List[Link]:
+    def flatten(self) -> list[Link]:
         links = [self]
 
         for link, _ in self.__links:
@@ -101,20 +99,20 @@ class Link:
 
         return links
 
-    def dictionary(self) -> Dict[str, Link]:
+    def dictionary(self) -> dict[str, Link]:
         return {l.name: l for l in self.flatten()}
 
     def plot(
         self,
-        frames: Optional[Dict[str, Matrix]] = None,  # each frame is a dictionary of joint matrices created by {l.name: l.joint for l in root.flatten()}
+        frames: dict[str, Matrix] | None = None,  # each frame is a dictionary of joint matrices created by {l.name: l.joint for l in root.flatten()}
         fps: float = 30,  # animation frames per second
         file_name: str = "",  # must be .gif
-        elev: Optional[float] = None,  # see mpl_toolkits.mplot3d.axes3d.Axes3D.view_init
-        azim: Optional[float] = None,  # see mpl_toolkits.mplot3d.axes3d.Axes3D.view_init
-        figsize: Optional[Tuple[float, float]] = None,  # see matplotlib.pyplot.figure
-        dpi: Optional[float] = None,  # see matplotlib.pyplot.figure
+        elev: float | None = None,  # see mpl_toolkits.mplot3d.axes3d.Axes3D.view_init
+        azim: float | None = None,  # see mpl_toolkits.mplot3d.axes3d.Axes3D.view_init
+        figsize: tuple[float, float] | None = None,  # see matplotlib.pyplot.figure
+        dpi: float | None = None,  # see matplotlib.pyplot.figure
         hide_tick_labels: bool = True,  # hides the tick labels
-        block: Optional[bool] = None,  # see matplotlib.pyplot.show
+        block: bool | None = None,  # see matplotlib.pyplot.show
     ) -> None:
         links = self.flatten()
 
@@ -154,7 +152,7 @@ class Link:
         axes.view_init(elev=elev, azim=azim)
 
         # Update plot
-        def update(index: Optional[int] = None) -> None:
+        def update(index: int | None = None) -> None:
             # Set joints
             if index is not None:
                 for name, joint in frames[index].items():

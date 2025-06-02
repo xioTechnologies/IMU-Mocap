@@ -1,5 +1,3 @@
-from typing import List
-
 from ..link import Link
 from ..matrix import Matrix
 
@@ -7,7 +5,7 @@ from ..matrix import Matrix
 # contagious chain.
 
 
-def interpolate(links: List[Link]) -> None:
+def interpolate(links: list[Link]) -> None:
     if len(links) < 3:
         raise ValueError(f"The number of links {len(links)} is less than 3.")
 

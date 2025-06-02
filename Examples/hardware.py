@@ -1,5 +1,3 @@
-from typing import List
-
 import colorama
 import numpy as np
 import ximu3
@@ -71,7 +69,7 @@ class Imu:
         return button_pressed
 
 
-def setup(names: List[str]) -> dict[str, Imu]:
+def setup(names: list[str]) -> dict[str, Imu]:
     while True:
         messages = ximu3.NetworkAnnouncement().get_messages_after_short_delay()
 
@@ -91,7 +89,7 @@ def setup(names: List[str]) -> dict[str, Imu]:
     return {m.device_name: Imu(m.to_udp_connection_info()) for m in messages}
 
 
-def _verify(names: List[str], messages: List[ximu3.NetworkAnnouncementMessage]) -> bool:
+def _verify(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) -> bool:
     colorama.init()
 
     # Map names to network announcement messages
@@ -108,7 +106,7 @@ def _verify(names: List[str], messages: List[ximu3.NetworkAnnouncementMessage]) 
 
     unassigned = [m for m in messages if m not in names_map.values()]
 
-    def print_devices(prefix: str, messages: List[ximu3.NetworkAnnouncementMessage]) -> None:
+    def print_devices(prefix: str, messages: list[ximu3.NetworkAnnouncementMessage]) -> None:
         print(f"{prefix} ({len(messages)}):")
 
         for message in messages:
@@ -153,7 +151,7 @@ def _yes_or_no(question: str) -> bool:
             return False
 
 
-def _assign(names: List[str], messages: List[ximu3.NetworkAnnouncementMessage]) -> None:
+def _assign(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) -> None:
     imus = [Imu(m.to_udp_connection_info()) for m in messages]
 
     for imu in imus:
