@@ -1,22 +1,20 @@
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
-
 import numpy as np
 
 
 class Matrix:
     def __init__(
         self,
-        matrix: Optional[np.matrix] = None,
-        xyz: Optional[np.ndarray] = None,
+        matrix: np.matrix | None = None,
+        xyz: np.ndarray | None = None,
         x: float = 0,
         y: float = 0,
         z: float = 0,
-        rotation: Optional[np.ndarray] = None,
-        quaternion: Optional[np.ndarray] = None,
-        axis_angle: Optional[Tuple[np.ndarray, float]] = None,
-        rot_xyz: Optional[np.ndarray] = None,
+        rotation: np.ndarray | None = None,
+        quaternion: np.ndarray | None = None,
+        axis_angle: tuple[np.ndarray, float] | None = None,
+        rot_xyz: np.ndarray | None = None,
         rot_x: float = 0,
         rot_y: float = 0,
         rot_z: float = 0,
@@ -185,7 +183,7 @@ class Matrix:
         return str(self.__matrix)
 
     @staticmethod
-    def slerp(m0: Matrix, m1: Matrix, n: int) -> List[Matrix]:
+    def slerp(m0: Matrix, m1: Matrix, n: int) -> list[Matrix]:
         # https://en.wikipedia.org/wiki/Slerp
 
         q0 = Matrix(rotation=m0.rotation).quaternion

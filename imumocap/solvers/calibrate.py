@@ -8,14 +8,14 @@ from ..matrix import Matrix
 def calibrate(
     root: Link,
     imus: dict[str, Matrix],  # {<link name>: <IMU measurment>, ...}
-    calibraiton_pose: dict[str, Matrix] = {},  # {<link name>: <joint matrix>, ...}
+    pose: dict[str, Matrix] = {},  # {<link name>: <joint matrix>, ...}
 ) -> None:
     links = {l.name: l for l in root.flatten()}
 
     for link in links.values():
         link.joint = Matrix()
 
-    for name, matrix in calibraiton_pose.items():
+    for name, matrix in pose.items():
         links[name].joint = matrix
 
     for name, matrix in imus.items():

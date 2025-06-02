@@ -1,6 +1,5 @@
 import socket
 from abc import ABC
-from typing import List
 
 import numpy as np
 
@@ -66,7 +65,7 @@ class Label(Primitive):
         self._json = f'{{"type":"label","xyz":{Primitive._xyz(xyz)},"text":"{text}"}}'
 
 
-def link_to_primitives(root: Link) -> List[Primitive]:
+def link_to_primitives(root: Link) -> list[Primitive]:
     primitives = []
 
     for link in root.flatten():
@@ -110,7 +109,7 @@ class Connection:
     def __del__(self) -> None:
         self.__socket.close()
 
-    def send(self, primitives: List[Primitive]) -> None:
+    def send(self, primitives: list[Primitive]) -> None:
         json = "[" + ",".join([str(p) for p in primitives]) + "]"
 
         data = json.encode("ascii")
