@@ -132,7 +132,7 @@ namespace Viewer.Runtime
             if (array == null) return Quaternion.identity;
             if (array.Length != 4) return Quaternion.identity;
 
-            return Swizzle(new Quaternion(array[1], array[2], array[2], array[0]));
+            return Swizzle(new Quaternion(array[1], array[2], array[3], array[0]));
         }
 
         private Quaternion Swizzle(Quaternion wxyz) => new(-wxyz.x, -wxyz.z, -wxyz.y, wxyz.w);
