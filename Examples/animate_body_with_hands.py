@@ -5,7 +5,6 @@ import imumocap
 import imumocap.solvers
 import models
 import numpy as np
-from imumocap import Matrix
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
@@ -15,74 +14,76 @@ model = models.BodyWithHands()
 # Create animation frames
 frames = []
 
-for y in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
-    model.head.joint = Matrix(rot_y=y * 15)
-    model.neck.joint = Matrix(rot_y=y * 15)
+for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
+    model.joints["Head"].set(a * 15)
+    model.joints["Neck"].set(a * 15)
 
-    model.left_forearm.joint = Matrix(rot_y=y * -90, rot_z=y * -60)
-    model.left_upper_arm.joint = Matrix(rot_x=y * 10, rot_z=y * -60)
-    model.left_shoulder.joint = Matrix(rot_x=y * -10)
+    model.joints["Left Carpus"].set(a * -45)
+    model.joints["Left Elbow"].set(bend=a * 60, twist=a * -120)
+    model.joints["Left Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
+    model.joints["Left Clavicle"].set(a * -15)
 
-    model.right_forearm.joint = Matrix(rot_y=y * -90, rot_z=y * 60)
-    model.right_upper_arm.joint = Matrix(rot_x=y * -10, rot_z=y * 60)
-    model.right_shoulder.joint = Matrix(rot_x=y * -10)
+    model.joints["Right Carpus"].set(a * -45)
+    model.joints["Right Elbow"].set(bend=a * 60, twist=a * -120)
+    model.joints["Right Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
+    model.joints["Right Clavicle"].set(a * -15)
 
-    model.upper_torso.joint = Matrix(rot_y=y * 15)
-    model.lower_torso.joint = Matrix(rot_y=y * 15)
-    model.upper_lumbar.joint = Matrix(rot_y=y * 15)
-    model.lower_lumbar.joint = Matrix(rot_y=y * 15)
+    model.joints["Upper Torso"].set(a * 15)
+    model.joints["Lower Torso"].set(a * 15)
+    model.joints["Upper Lumbar"].set(a * 15)
+    model.joints["Lower Lumbar"].set(a * 15)
 
-    model.left_toe.joint = Matrix(rot_y=y * -45)
-    model.left_foot.joint = Matrix(rot_y=y * -45)
-    model.left_lower_leg.joint = Matrix(rot_y=y * 160)
-    model.left_upper_leg.joint = Matrix(rot_y=y * -45)
+    model.joints["Left Toe"].set(a * -45)
+    model.joints["Left Ankle"].set(a * 45)
+    model.joints["Left Knee"].set(a * 160)
+    model.joints["Left Hip"].set(bend=a * 45, tilt=a * 20, twist=a * -30)
 
-    model.right_toe.joint = Matrix(rot_y=y * -45)
-    model.right_foot.joint = Matrix(rot_y=y * -45)
-    model.right_lower_leg.joint = Matrix(rot_y=y * 160)
-    model.right_upper_leg.joint = Matrix(rot_y=y * -45)
+    model.joints["Right Toe"].set(a * -45)
+    model.joints["Right Ankle"].set(a * 45)
+    model.joints["Right Knee"].set(a * 160)
+    model.joints["Right Hip"].set(bend=a * 45, tilt=a * 20, twist=a * -30)
 
-    model.pelvis.joint = Matrix(rot_y=y * -25)  # root joint connects the model to the world
+    model.joints["Pelvis"].set(a * -25)  # root joint connects the model to the world
 
-    model.left_i_distal.joint = Matrix(rot_x=-45 * y)
-    model.left_i_proximal.joint = Matrix(rot_x=-45 * y)
-    model.left_i_metacarpal.joint = Matrix(rot_x=-45 * y)
+    model.joints["Left I Distal"].set(-45 * a)
+    model.joints["Left I Proximal"].set(-45 * a)
+    model.joints["Left I Metacarpal"].set(-45 * a)
 
-    model.left_ii_distal.joint = Matrix(rot_x=-90 * y)
-    model.left_ii_middle.joint = Matrix(rot_x=-90 * y)
-    model.left_ii_proximal.joint = Matrix(rot_x=-90 * y)
+    model.joints["Left II Distal"].set(-90 * a)
+    model.joints["Left II Middle"].set(-90 * a)
+    model.joints["Left II Proximal"].set(-90 * a)
 
-    model.left_iii_distal.joint = Matrix(rot_x=-90 * y)
-    model.left_iii_middle.joint = Matrix(rot_x=-90 * y)
-    model.left_iii_proximal.joint = Matrix(rot_x=-90 * y)
+    model.joints["Left III Distal"].set(-90 * a)
+    model.joints["Left III Middle"].set(-90 * a)
+    model.joints["Left III Proximal"].set(-90 * a)
 
-    model.left_iv_distal.joint = Matrix(rot_x=-90 * y)
-    model.left_iv_middle.joint = Matrix(rot_x=-90 * y)
-    model.left_iv_proximal.joint = Matrix(rot_x=-90 * y)
+    model.joints["Left IV Distal"].set(-90 * a)
+    model.joints["Left IV Middle"].set(-90 * a)
+    model.joints["Left IV Proximal"].set(-90 * a)
 
-    model.left_v_distal.joint = Matrix(rot_x=-90 * y)
-    model.left_v_middle.joint = Matrix(rot_x=-90 * y)
-    model.left_v_proximal.joint = Matrix(rot_x=-90 * y)
+    model.joints["Left V Distal"].set(-90 * a)
+    model.joints["Left V Middle"].set(-90 * a)
+    model.joints["Left V Proximal"].set(-90 * a)
 
-    model.right_i_distal.joint = Matrix(rot_x=45 * y)
-    model.right_i_proximal.joint = Matrix(rot_x=45 * y)
-    model.right_i_metacarpal.joint = Matrix(rot_x=45 * y)
+    model.joints["Right I Distal"].set(45 * a)
+    model.joints["Right I Proximal"].set(45 * a)
+    model.joints["Right I Metacarpal"].set(45 * a)
 
-    model.right_ii_distal.joint = Matrix(rot_x=90 * y)
-    model.right_ii_middle.joint = Matrix(rot_x=90 * y)
-    model.right_ii_proximal.joint = Matrix(rot_x=90 * y)
+    model.joints["Right II Distal"].set(90 * a)
+    model.joints["Right II Middle"].set(90 * a)
+    model.joints["Right II Proximal"].set(90 * a)
 
-    model.right_iii_distal.joint = Matrix(rot_x=90 * y)
-    model.right_iii_middle.joint = Matrix(rot_x=90 * y)
-    model.right_iii_proximal.joint = Matrix(rot_x=90 * y)
+    model.joints["Right III Distal"].set(90 * a)
+    model.joints["Right III Middle"].set(90 * a)
+    model.joints["Right III Proximal"].set(90 * a)
 
-    model.right_iv_distal.joint = Matrix(rot_x=90 * y)
-    model.right_iv_middle.joint = Matrix(rot_x=90 * y)
-    model.right_iv_proximal.joint = Matrix(rot_x=90 * y)
+    model.joints["Right IV Distal"].set(90 * a)
+    model.joints["Right IV Middle"].set(90 * a)
+    model.joints["Right IV Proximal"].set(90 * a)
 
-    model.right_v_distal.joint = Matrix(rot_x=90 * y)
-    model.right_v_middle.joint = Matrix(rot_x=90 * y)
-    model.right_v_proximal.joint = Matrix(rot_x=90 * y)
+    model.joints["Right V Distal"].set(90 * a)
+    model.joints["Right V Middle"].set(90 * a)
+    model.joints["Right V Proximal"].set(90 * a)
 
     imumocap.solvers.floor(model.root)
 
