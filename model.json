@@ -1,0 +1,72 @@
+{
+    "root": {
+        "name": "Pelvis",
+        "end": [
+            0
+        ],
+        "links": [
+            [
+                {
+                    "name": "Left Leg",
+                    "end": [
+                        0
+                    ],
+                    "links": []
+                },
+                [
+                    0
+                ]
+            ],
+            [
+                {
+                    "name": "Right Leg",
+                    "end": [
+                        0
+                    ],
+                    "links": []
+                },
+                [
+                    0
+                ]
+            ]
+        ]
+    },
+    "joints": {
+        "Left Hip": {
+            "link": "Left Leg",
+            "alignment": [
+                0
+            ],
+            "bend_limit": [
+                -1,
+                1
+            ],
+            "tilt_limit": [
+                -1,
+                1
+            ],
+            "twist_limit": [
+                -1,
+                1
+            ]
+        },
+        "Right Hip": {
+            "link": "Right Leg",
+            "alignment": [
+                0
+            ]
+        }
+    },
+    "pose": {
+        "Left Hip": {
+            "bend": 0,
+            "tilt": 0,
+            "twist": 0
+        },
+        "Right Hip": {
+            "bend": 0,
+            "tilt": 0,
+            "twist": 0
+        }
+    }
+}
