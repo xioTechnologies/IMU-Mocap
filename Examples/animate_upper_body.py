@@ -14,24 +14,21 @@ model = models.UpperBody()
 # Create animation frames
 frames = []
 
-for angle in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
-    model.head.joint = Matrix(rot_y=angle * 15)
-    model.neck.joint = Matrix(rot_y=angle * 15)
+for y in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
+    model.head.joint = Matrix(rot_y=y * 15)
+    model.neck.joint = Matrix(rot_y=y * 15)
 
-    model.left_hand.joint = Matrix(rot_x=angle * -45)
-    model.left_forearm.joint = Matrix(rot_y=angle * -90, rot_z=angle * -60)
-    model.left_upper_arm.joint = Matrix(rot_x=angle * 10, rot_z=angle * -60)
-    model.left_shoulder.joint = Matrix(rot_x=angle * -10)
+    model.left_hand.joint = Matrix(rot_x=y * -45)
+    model.left_forearm.joint = Matrix(rot_y=y * -90, rot_z=y * -60)
+    model.left_upper_arm.joint = Matrix(rot_x=y * 10, rot_z=y * -60)
+    model.left_shoulder.joint = Matrix(rot_x=y * -10)
 
-    model.right_hand.joint = Matrix(rot_x=angle * 45)
-    model.right_forearm.joint = Matrix(rot_y=angle * -90, rot_z=angle * 60)
-    model.right_upper_arm.joint = Matrix(rot_x=angle * -10, rot_z=angle * 60)
-    model.right_shoulder.joint = Matrix(rot_x=angle * 10)
+    model.right_hand.joint = Matrix(rot_x=y * 45)
+    model.right_forearm.joint = Matrix(rot_y=y * -90, rot_z=y * 60)
+    model.right_upper_arm.joint = Matrix(rot_x=y * -10, rot_z=y * 60)
+    model.right_shoulder.joint = Matrix(rot_x=y * 10)
 
-    model.upper_torso.joint = Matrix(rot_y=angle * 15)
-    model.lower_torso.joint = Matrix(rot_y=angle * 15)
-    model.upper_lumbar.joint = Matrix(rot_y=angle * 15)
-    model.lower_lumbar.joint = Matrix(rot_y=angle * 15)
+    model.upper_torso.joint = Matrix(rot_y=y * 15)  # root joint connects the model to the world
 
     frames.append({l.name: l.joint for l in model.root.flatten()})  # each frame is a dictionary of joint matrices
 

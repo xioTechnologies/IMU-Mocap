@@ -14,26 +14,26 @@ model = models.RightHand()
 # Create animation frames
 frames = []
 
-for angle in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
-    model.right_first_distal.joint = model.right_first_transformation(Matrix(rot_x=45 * angle))
-    model.right_first_proximal.joint = model.right_first_transformation(Matrix(rot_x=45 * angle))
-    model.right_first_metacarpal.joint = model.right_first_transformation(Matrix(rot_x=45 * angle))
+for y in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
+    model.right_first_distal.joint = model.right_first_transformation(Matrix(rot_x=45 * y))
+    model.right_first_proximal.joint = model.right_first_transformation(Matrix(rot_x=45 * y))
+    model.right_first_metacarpal.joint = model.right_first_transformation(Matrix(rot_x=45 * y))
 
-    model.right_second_distal.joint = Matrix(rot_x=90 * angle)
-    model.right_second_middle.joint = Matrix(rot_x=90 * angle)
-    model.right_second_proximal.joint = Matrix(rot_x=90 * angle)
+    model.right_second_distal.joint = Matrix(rot_x=90 * y)
+    model.right_second_middle.joint = Matrix(rot_x=90 * y)
+    model.right_second_proximal.joint = Matrix(rot_x=90 * y)
 
-    model.right_third_distal.joint = Matrix(rot_x=90 * angle)
-    model.right_third_middle.joint = Matrix(rot_x=90 * angle)
-    model.right_third_proximal.joint = Matrix(rot_x=90 * angle)
+    model.right_third_distal.joint = Matrix(rot_x=90 * y)
+    model.right_third_middle.joint = Matrix(rot_x=90 * y)
+    model.right_third_proximal.joint = Matrix(rot_x=90 * y)
 
-    model.right_forth_distal.joint = Matrix(rot_x=90 * angle)
-    model.right_forth_middle.joint = Matrix(rot_x=90 * angle)
-    model.right_forth_proximal.joint = Matrix(rot_x=90 * angle)
+    model.right_forth_distal.joint = Matrix(rot_x=90 * y)
+    model.right_forth_middle.joint = Matrix(rot_x=90 * y)
+    model.right_forth_proximal.joint = Matrix(rot_x=90 * y)
 
-    model.right_fifth_distal.joint = Matrix(rot_x=90 * angle)
-    model.right_fifth_middle.joint = Matrix(rot_x=90 * angle)
-    model.right_fifth_proximal.joint = Matrix(rot_x=90 * angle)
+    model.right_fifth_distal.joint = Matrix(rot_x=90 * y)
+    model.right_fifth_middle.joint = Matrix(rot_x=90 * y)
+    model.right_fifth_proximal.joint = Matrix(rot_x=90 * y)
 
     frames.append({l.name: l.joint for l in model.root.flatten()})  # each frame is a dictionary of joint matrices
 

@@ -179,7 +179,7 @@ class Matrix:
     def __mul__(self, other: Matrix) -> Matrix:
         return Matrix(matrix=self.__matrix * other.__matrix)
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return str(self.__matrix)
 
     @staticmethod
