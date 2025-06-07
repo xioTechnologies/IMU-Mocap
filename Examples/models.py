@@ -56,13 +56,13 @@ class Model(ABC):
 
         # Left arm
         self.left_hand = Link("Left Hand", Matrix(y=HAND_LENGTH))
-        self.left_forearm = Link("Left Forearm", Matrix(y=FOREARM_LENGTH))  # left hand not connected
+        self.left_forearm = Link("Left Forearm", Matrix(y=FOREARM_LENGTH))  # left hand/carpus connected in class constructor
         self.left_upper_arm = Link("Left Upper Arm", Matrix(y=UPPER_ARM_LENGTH)).connect(self.left_forearm)
         self.left_shoulder = Link("Left Shoulder", Matrix(y=SHOULDER_LENGTH)).connect(self.left_upper_arm)
 
         # Right arm
         self.right_hand = Link("Right Hand", Matrix(y=-HAND_LENGTH))
-        self.right_forearm = Link("Right Forearm", Matrix(y=-FOREARM_LENGTH))  # right hand not connected
+        self.right_forearm = Link("Right Forearm", Matrix(y=-FOREARM_LENGTH))  # right hand/carpus connected in class constructor
         self.right_upper_arm = Link("Right Upper Arm", Matrix(y=-UPPER_ARM_LENGTH)).connect(self.right_forearm)
         self.right_shoulder = Link("Right Shoulder", Matrix(y=-SHOULDER_LENGTH)).connect(self.right_upper_arm)
 
@@ -73,7 +73,7 @@ class Model(ABC):
         self.upper_torso.connect(self.right_shoulder, Matrix(y=-TORSO_WIDTH / 2, z=-SHOULDER_OFFSET))
 
         # Lower torso and lumbar
-        self.lower_torso = Link("Lower Torso", Matrix(z=TORSO_LENGTH / 2))  # upper torso not connected
+        self.lower_torso = Link("Lower Torso", Matrix(z=TORSO_LENGTH / 2))  # upper torso connected in class constructor
         self.upper_lumbar = Link("Upper Lumbar", Matrix(z=LUMBAR_LENGTH / 2)).connect(self.lower_torso)
         self.lower_lumbar = Link("Lower Lumbar", Matrix(z=LUMBAR_LENGTH / 2)).connect(self.upper_lumbar)
 
@@ -97,7 +97,7 @@ class Model(ABC):
         # Wheelchair
         self.left_wheel = Link("Left Wheel", Matrix(z=WHEEL_RADIUS), Matrix(y=1))
         self.right_wheel = Link("Right Wheel", Matrix(z=WHEEL_RADIUS), Matrix(y=1))
-        self.seat = Link("Seat", Matrix(z=SEAT_HEIGHT))  # pelvis not connected
+        self.seat = Link("Seat", Matrix(z=SEAT_HEIGHT))  # pelvis connected in class constructor
         self.seat.connect(self.left_wheel, Matrix(y=-SEAT_WIDTH / 2, z=-SEAT_HEIGHT))
         self.seat.connect(self.right_wheel, Matrix(y=SEAT_WIDTH / 2, z=-SEAT_HEIGHT))
 
