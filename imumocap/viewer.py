@@ -3,6 +3,7 @@ from abc import ABC
 
 import numpy as np
 
+from .joint import Joint
 from .link import Link
 from .matrix import Matrix
 
@@ -58,6 +59,43 @@ class Axes(Primitive):
         self._json = f'{{"type":"axes","xyz":{Primitive._xyz(xyz)},"quaternion":{Primitive._quaternion(quaternion)},"scale":{Primitive._number(scale)}}}'
 
 
+class Angles(Primitive):
+    def __init__(
+        self,
+        matrix: Matrix,
+        rot_x: float | None = None,
+        rot_y: float | None = None,
+        rot_z: float | None = None,
+        limit_x: tuple[float, float] | None = None,
+        limit_y: tuple[float, float] | None = None,
+        limit_z: tuple[float, float] | None = None,
+        scale: float = 1,
+    ) -> None:
+        super().__init__()
+
+        xyz = matrix.xyz
+        quaternion = matrix.quaternion
+
+        self._json = (
+            "{"
+            + ",".join(
+                (
+                    '"type":"angles"',
+                    f'"xyz":{Primitive._xyz(xyz)}',
+                    f'"quaternion":{Primitive._quaternion(quaternion)}',
+                    f'"rot_x":{"null" if rot_x is None else Primitive._number(rot_x)}',
+                    f'"rot_y":{"null" if rot_y is None else Primitive._number(rot_y)}',
+                    f'"rot_z":{"null" if rot_z is None else Primitive._number(rot_z)}',
+                    f'"limit_x":{"null" if limit_x is None else Primitive._number(limit_x)}',
+                    f'"limit_y":{"null" if limit_y is None else Primitive._number(limit_y)}',
+                    f'"limit_z":{"null" if limit_z is None else Primitive._number(limit_z)}',
+                    f'"scale":{scale}',
+                )
+            )
+            + "}"
+        )
+
+
 class Label(Primitive):
     def __init__(self, xyz: np.ndarray, text: str) -> None:
         super().__init__()
@@ -92,6 +130,17 @@ def link_to_primitives(root: Link) -> list[Primitive]:
 
         if any(wheel_axis.xyz != 0):
             primitives.append(Circle(joint.xyz, wheel_axis.xyz, link.length))
+
+    return primitives
+
+
+def joints_to_primitives(joints: dict[str, Joint]) -> list[Primitive]:
+    primitives = []
+
+    for _, joint in joints.items():
+        primitives.append(
+            joint.alignment * joint.link.origin,
+        )
 
     return primitives
 
