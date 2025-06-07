@@ -38,12 +38,20 @@ class Link:
         self.__update()
 
     @property
+    def end(self) -> Matrix:
+        return self.__end.copy()
+
+    @property
     def imu(self) -> Matrix:
         return self.__imu.copy()
 
     @imu.setter
     def imu(self, imu: Matrix) -> None:
         self.__imu = Matrix(xyz=self.__imu.xyz, rotation=imu.rotation)  # ignore imu.xyz
+
+    @property
+    def wheel_axis(self) -> Matrix | None:
+        return self.__wheel_axis.copy() if self.__wheel_axis else None
 
     @property
     def links(self) -> list[tuple[Link, Matrix]]:
