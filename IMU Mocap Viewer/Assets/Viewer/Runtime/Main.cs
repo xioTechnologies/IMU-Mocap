@@ -10,60 +10,19 @@ namespace Viewer.Runtime
         public static event Action OnIngestData;
         public static event Action OnProcessDataFrame;
 
-        private static bool FindPlayerLoopSystemIndex(PlayerLoopSystem playerLoop, Type systemType, out int index)
-        {
-            index = -1;
-
-            if (playerLoop.subSystemList == null) return false;
-
-            for (int i = 0; i < playerLoop.subSystemList.Length; i++)
-            {
-                if (playerLoop.subSystemList[i].type != systemType) continue;
-
-                index = i;
-
-                return true;
-            }
-
-            return false;
-        }
+        private static MainUpdater updater;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Initialize()
         {
-            PlayerLoopSystem playerLoop = PlayerLoop.GetCurrentPlayerLoop();
+            GameObject updaterObject = new GameObject("[Main Updater]");
+            UnityEngine.Object.DontDestroyOnLoad(updaterObject);
 
-            if (FindPlayerLoopSystemIndex(playerLoop, typeof(PreUpdate), out int index))
-            {
-                InsertUpdateFunction(ref playerLoop.subSystemList[index], OnProcessDataFrameHandler);
-            }
-
-            if (FindPlayerLoopSystemIndex(playerLoop, typeof(EarlyUpdate), out index))
-            {
-                InsertUpdateFunction(ref playerLoop.subSystemList[index], OnIngestDataHandler);
-            }
-
-            PlayerLoop.SetPlayerLoop(playerLoop);
+            updater = updaterObject.AddComponent<MainUpdater>();
+            updater.Initialize(Update);
         }
 
-        private static void InsertUpdateFunction(ref PlayerLoopSystem playerLoopSystem, PlayerLoopSystem.UpdateFunction updateFunction)
-        {
-            PlayerLoopSystem[] subSystems = playerLoopSystem.subSystemList ?? new PlayerLoopSystem[0];
-
-            var newSubSystems = new PlayerLoopSystem[subSystems.Length + 1];
-
-            Array.Copy(subSystems, newSubSystems, subSystems.Length);
-
-            newSubSystems[subSystems.Length] = new PlayerLoopSystem
-            {
-                type = typeof(Main),
-                updateDelegate = updateFunction
-            };
-
-            playerLoopSystem.subSystemList = newSubSystems;
-        }
-
-        private static void OnIngestDataHandler()
+        private static void Update()
         {
             try
             {
@@ -73,10 +32,7 @@ namespace Viewer.Runtime
             {
                 Debug.LogException(ex);
             }
-        }
 
-        private static void OnProcessDataFrameHandler()
-        {
             try
             {
                 OnProcessDataFrame?.Invoke();
@@ -86,5 +42,17 @@ namespace Viewer.Runtime
                 Debug.LogException(ex);
             }
         }
+    }
+
+    [DefaultExecutionOrder(-1000)]
+    internal class MainUpdater : MonoBehaviour
+    {
+        private Action update;
+
+        public void Initialize(Action update) => this.update = update;
+
+        private void Update() => update?.Invoke();
+
+        private void OnDestroy() => update = null;
     }
 }
