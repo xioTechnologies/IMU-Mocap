@@ -170,6 +170,19 @@ class Matrix:
             )
 
     @property
+    def rot_xyz(self) -> tuple[float, float, float]:
+        # Quaternions and Rotation Sequence by Jack B. Kuipers, ISBN 0-691-10298-8, Page 168
+        # (cross-reference with matrix elements on page 167)
+
+        rot_x = np.degrees(np.arctan2(self.__matrix[2, 1], self.__matrix[2, 2]))
+
+        rot_y = np.degrees(-1 * np.arcsin(np.clip(self.__matrix[2, 0], -1, 1)))
+
+        rot_z = np.degrees(np.arctan2(self.__matrix[1, 0], self.__matrix[0, 0]))
+
+        return rot_x, rot_y, rot_z
+
+    @property
     def T(self) -> Matrix:
         return Matrix(matrix=self.__matrix.T)
 
