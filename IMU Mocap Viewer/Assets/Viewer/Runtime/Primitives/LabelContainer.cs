@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.InputSystem;
 using UnityEngine.Pool;
 using Object = UnityEngine.Object;
-
 
 namespace Viewer.Runtime.Primitives
 {
@@ -15,7 +12,7 @@ namespace Viewer.Runtime.Primitives
         private static readonly DepthComparer Comparer = new();
 
         private readonly List<LabelGroup> groups = new();
-        private readonly List<Label> allLabelsSorted = new();
+        private readonly List<Label> sorted = new();
         private int count;
 
         [InfoBox("Visible children in the hierarchy has performance implications while in the editor")] [SerializeField]
@@ -65,7 +62,7 @@ namespace Viewer.Runtime.Primitives
 
         private void AddToSorted(Label label)
         {
-            allLabelsSorted.Add(label);
+            sorted.Add(label);
         }
 
         private void Update()
@@ -78,26 +75,30 @@ namespace Viewer.Runtime.Primitives
 
             count = 0;
 
-            foreach (var set in groups)
+            foreach (var group in groups)
             {
-                recache |= set.Update();
-                count += set.VisibleCount;
+                recache |= group.Update();
+                count += group.VisibleCount;
             }
+
+            recache |= sorted.Count != count;
 
             if (recache == true)
             {
-                allLabelsSorted.Clear();
+                sorted.Clear();
 
-                if (allLabelsSorted.Capacity < count) allLabelsSorted.Capacity = count;
+                if (sorted.Capacity < count) sorted.Capacity = count;
 
-                foreach (var set in groups) set.AddVisibleLabels(allLabelsSorted);
+                foreach (var group in groups) group.AppendLabels(sorted);
             }
 
-            allLabelsSorted.Sort(0, count, Comparer);
+            Assert.AreEqual(count, sorted.Count);
+
+            sorted.Sort(0, count, Comparer);
 
             for (int i = 0; i < count; i++)
             {
-                var label = allLabelsSorted[i];
+                var label = sorted[i];
 
                 if (label.LastSiblingIndex == i) continue;
 
@@ -107,7 +108,7 @@ namespace Viewer.Runtime.Primitives
             }
         }
 
-        private void ConfigureHierarchyFlags() 
+        private void ConfigureHierarchyFlags()
         {
             var flags = visibleChildren ? HideFlags.None : HideFlags.HideInHierarchy;
             if (PrivateContainer.gameObject.hideFlags != flags) PrivateContainer.gameObject.hideFlags = flags;
@@ -129,9 +130,9 @@ namespace Viewer.Runtime.Primitives
             private readonly LabelContainer container;
             private readonly ObjectPool<Label> labelPool;
             private readonly List<Label> labels = new();
-            private int index;
+            private int count;
 
-            public int VisibleCount => Visible ? index : 0;
+            public int VisibleCount => Visible ? count : 0;
 
             public bool Visible { get; set; } = true;
 
@@ -149,18 +150,18 @@ namespace Viewer.Runtime.Primitives
                     1024 * 8
                 );
 
-                index = 0;
+                count = 0;
             }
 
-            void ILabelGroup.Clear() => index = 0;
+            void ILabelGroup.Clear() => count = 0;
 
             Label ILabelGroup.Get()
             {
                 Label obj;
 
-                if (index < labels.Count)
+                if (count < labels.Count)
                 {
-                    obj = labels[index];
+                    obj = labels[count];
                 }
                 else
                 {
@@ -171,15 +172,13 @@ namespace Viewer.Runtime.Primitives
                     container.AddToSorted(obj);
                 }
 
-                index++;
+                count++;
 
                 return obj;
             }
 
             public bool Update()
             {
-                int count = index;
-
                 for (int i = 0; i < count; i++)
                 {
                     if (Visible) labels[i].AdjustForCamera();
@@ -206,7 +205,7 @@ namespace Viewer.Runtime.Primitives
                 labelPool.Clear();
             }
 
-            public void AddVisibleLabels(List<Label> list)
+            public void AppendLabels(List<Label> list)
             {
                 for (int i = 0, e = VisibleCount; i < e; i++) list.Add(labels[i]);
             }
