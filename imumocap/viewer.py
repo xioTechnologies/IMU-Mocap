@@ -1,5 +1,6 @@
 import socket
-from abc import ABC
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -8,61 +9,69 @@ from .matrix import Matrix
 
 
 class Primitive(ABC):
-    def __init__(self) -> None:
-        self._json = ""
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+
+@dataclass(frozen=True)
+class Line(Primitive):
+    start: np.ndarray
+    end: np.ndarray
 
     def __str__(self) -> str:
-        return self._json
-
-    @staticmethod
-    def _number(number: float) -> str:
-        return f"{number:.6f}"
-
-    @staticmethod
-    def _xyz(xyz: np.ndarray) -> str:
-        return f"[{Primitive._number(xyz[0])},{Primitive._number(xyz[1])},{Primitive._number(xyz[2])}]"
-
-    @staticmethod
-    def _quaternion(quaternion: np.ndarray) -> str:
-        return f"[{Primitive._number(quaternion[0])},{Primitive._number(quaternion[1])},{Primitive._number(quaternion[2])},{Primitive._number(quaternion[3])}]"
+        return f'{{"type":"line","start":{_xyz(self.start)},"end":{_xyz(self.end)}}}'
 
 
-class Line(Primitive):
-    def __init__(self, start: np.ndarray, end: np.ndarray) -> None:
-        super().__init__()
-
-        self._json = f'{{"type":"line","start":{Primitive._xyz(start)},"end":{Primitive._xyz(end)}}}'
-
-
+@dataclass(frozen=True)
 class Circle(Primitive):
-    def __init__(self, xyz: np.ndarray, axis: np.ndarray, radius: float) -> None:
-        super().__init__()
+    xyz: np.ndarray
+    axis: np.ndarray
+    radius: float
 
-        self._json = f'{{"type":"circle","xyz":{Primitive._xyz(xyz)},"axis":{Primitive._xyz(axis)},"radius":{Primitive._number(radius)}}}'
+    def __str__(self) -> str:
+        return f'{{"type":"circle","xyz":{_xyz(self.xyz)},"axis":{_xyz(self.axis)},"radius":{_number(self.radius)}}}'
 
 
+@dataclass(frozen=True)
 class Dot(Primitive):
-    def __init__(self, xyz: np.ndarray, size: float = 1.0) -> None:
-        super().__init__()
+    xyz: np.ndarray
+    size: float = 1.0
 
-        self._json = f'{{"type":"dot","xyz":{Primitive._xyz(xyz)},"size":{Primitive._number(size)}}}'
+    def __str__(self) -> str:
+        return f'{{"type":"dot","xyz":{_xyz(self.xyz)},"size":{_number(self.size)}}}'
 
 
+@dataclass(frozen=True)
 class Axes(Primitive):
-    def __init__(self, matrix: Matrix, scale: float = 1.0) -> None:
-        super().__init__()
+    matrix: Matrix
+    scale: float = 1.0
 
-        xyz = matrix.xyz
-        quaternion = matrix.quaternion
-
-        self._json = f'{{"type":"axes","xyz":{Primitive._xyz(xyz)},"quaternion":{Primitive._quaternion(quaternion)},"scale":{Primitive._number(scale)}}}'
+    def __str__(self) -> str:
+        return f'{{"type":"axes","xyz":{_xyz(self.matrix.xyz)},"quaternion":{_quaternion(self.matrix.quaternion)},"scale":{_number(self.scale)}}}'
 
 
+@dataclass(frozen=True)
 class Label(Primitive):
-    def __init__(self, xyz: np.ndarray, text: str) -> None:
-        super().__init__()
+    xyz: np.ndarray
+    text: str
 
-        self._json = f'{{"type":"label","xyz":{Primitive._xyz(xyz)},"text":"{text}"}}'
+    def __str__(self) -> str:
+        return f'{{"type":"label","xyz":{_xyz(self.xyz)},"text":"{self.text}"}}'
+
+
+def _number(value: float) -> str:
+    string = f"{value:.6f}".rstrip("0").rstrip(".")
+
+    return "0" if string == "-0" else string
+
+
+def _xyz(xyz: np.ndarray) -> str:
+    return f"[{_number(xyz[0])},{_number(xyz[1])},{_number(xyz[2])}]"
+
+
+def _quaternion(quaternion: np.ndarray) -> str:
+    return f"[{_number(quaternion[0])},{_number(quaternion[1])},{_number(quaternion[2])},{_number(quaternion[3])}]"
 
 
 def link_to_primitives(root: Link) -> list[Primitive]:
