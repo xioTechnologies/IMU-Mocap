@@ -8,17 +8,17 @@ from .matrix import Matrix
 
 
 class Link:
-    def __init__(self, name, end: Matrix, wheel_axis: Matrix = Matrix()) -> None:
+    def __init__(self, name, end: Matrix, wheel_axis: Matrix | None = None) -> None:
         self.__name = str(name)
         self.__origin = Matrix()  # link origin in global frame
         self.__joint = Matrix()  # joint rotation relative to origin
         self.__end = end  # link end relative to origin
         self.__imu = Matrix(x=end.x / 2, y=end.y / 2, z=end.z / 2)  # IMU relative to origin
-        self.__wheel_axis = wheel_axis  # direction defined by wheel_axis.xyz
+        self.__wheel_axis = Matrix(xyz=wheel_axis.xyz) if wheel_axis else None  # direction defined by wheel_axis.xyz
         self.__links = []  # [(link, matrix), ...] where matrix is the origin of the next link relative to the end of this link
         self.__is_root = True
 
-        if not np.isclose(np.dot(self.__end.xyz, self.__wheel_axis.xyz), 0):
+        if wheel_axis and not np.isclose(np.dot(self.__end.xyz, self.__wheel_axis.xyz), 0):
             raise ValueError(f"Invalid values for {name}. Link end {self.__end.xyz} must be orthogonal to wheel_axis {self.__wheel_axis.xyz}.")
 
     @property
@@ -88,8 +88,8 @@ class Link:
     def set_joint_from_imu_global(self, imu_global: Matrix) -> None:
         self.joint = self.__origin.T * imu_global * self.__imu.T  # transpose can be used instead of inverse because joint.xyz ignored
 
-    def get_wheel_axis_global(self) -> Matrix:
-        return Matrix(rotation=(self.__origin * self.__joint).rotation) * self.__wheel_axis
+    def get_wheel_axis_global(self) -> Matrix | None:
+        return Matrix(rotation=(self.__origin * self.__joint).rotation) * self.__wheel_axis if self.__wheel_axis else None
 
     def flatten(self) -> list[Link]:
         links = [self]
@@ -170,7 +170,7 @@ class Link:
                     link_quiver_segments.append([tuple(end.xyz), tuple(next_joint.xyz)])
 
             for joint, end, wheel_axis in zip(joints, ends, [l.get_wheel_axis_global() for l in links]):
-                if any(wheel_axis.xyz != 0):
+                if wheel_axis:
                     chords = [joint.xyz + (Matrix(axis_angle=(wheel_axis.xyz, a)) * Matrix(xyz=end.xyz - joint.xyz)).xyz for a in np.linspace(0, 360, 36)]
 
                     for start, end in zip(chords, chords[1:]):

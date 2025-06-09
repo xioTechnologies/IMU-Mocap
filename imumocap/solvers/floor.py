@@ -17,7 +17,7 @@ def floor(root: Link) -> None:
 
     ends_z = np.array([l.get_end_global().z for l in links])
 
-    wheels_z = np.array([_wheel_lowest_point(l)[2] for l in links if any(l.get_wheel_axis_global().xyz != 0)])
+    wheels_z = np.array([_wheel_lowest_point(l)[2] for l in links if l.get_wheel_axis_global()])
 
     min_z = np.min(np.concatenate((joints_z, ends_z, wheels_z)))
 
