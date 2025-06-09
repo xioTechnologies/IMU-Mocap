@@ -9,8 +9,8 @@
     }
     SubShader
     {
-        Tags 
-        { 
+        Tags
+        {
             "RenderType" = "Transparent"
             "RenderPipeline" = "UniversalPipeline"
             "Queue" = "Transparent"
@@ -61,15 +61,15 @@
             float4 frag(Varyings input) : SV_Target
             {
                 float2 centeredUV = input.uv - 0.5;
-                
+
                 float dist = length(centeredUV);
-                
+
                 float t = smoothstep(_Radius - _Softness, _Radius, dist);
-                
-                float4 finalColor =  lerp(_CenterColor, _EdgeColor, t);
-                
+
+                float4 finalColor = lerp(_CenterColor, _EdgeColor, t);
+
                 finalColor.a *= 1.0 - smoothstep(_Radius, _Radius + _Softness, dist);
-                
+
                 return finalColor;
             }
             ENDHLSL
