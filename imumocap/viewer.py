@@ -90,7 +90,7 @@ def link_to_primitives(root: Link) -> list[Primitive]:
 
         wheel_axis = link.get_wheel_axis_global()
 
-        if any(wheel_axis.xyz != 0):
+        if wheel_axis:
             primitives.append(Circle(joint.xyz, wheel_axis.xyz, link.length))
 
     return primitives
