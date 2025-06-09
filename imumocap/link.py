@@ -13,7 +13,7 @@ class Link:
         self.__origin = Matrix()  # link origin in global frame
         self.__joint = Matrix()  # joint rotation relative to origin
         self.__end = end  # link end relative to origin
-        self.__imu = Matrix(x=end.x / 2, y=end.y / 2, z=end.z / 2)  # IMU relative to origin
+        self.__imu = Matrix(xyz=end.xyz / 2)  # IMU relative to origin
         self.__wheel_axis = Matrix(xyz=wheel_axis.xyz) if wheel_axis else None  # direction defined by wheel_axis.xyz
         self.__links = []  # [(link, matrix), ...] where matrix is the origin of the next link relative to the end of this link
         self.__is_root = True
@@ -34,7 +34,7 @@ class Link:
         if self.__is_root:
             self.__joint = joint
         else:
-            self.__joint = Matrix(x=self.__joint.x, y=self.__joint.y, z=self.__joint.z, rotation=joint.rotation)  # ignore joint.xyz
+            self.__joint = Matrix(xyz=self.__joint.xyz, rotation=joint.rotation)  # ignore joint.xyz
         self.__update()
 
     @property
@@ -43,7 +43,7 @@ class Link:
 
     @imu.setter
     def imu(self, imu: Matrix) -> None:
-        self.__imu = Matrix(x=self.__imu.x, y=self.__imu.y, z=self.__imu.z, rotation=imu.rotation)  # ignore imu.xyz
+        self.__imu = Matrix(xyz=self.__imu.xyz, rotation=imu.rotation)  # ignore imu.xyz
 
     @property
     def links(self) -> list[tuple[Link, Matrix]]:

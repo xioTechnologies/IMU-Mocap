@@ -21,7 +21,7 @@ def floor(root: Link) -> None:
 
     min_z = np.min(np.concatenate((joints_z, ends_z, wheels_z)))
 
-    root.joint = Matrix(x=root.joint.x, y=root.joint.y, z=root.joint.z - min_z, rotation=root.joint.rotation)
+    root.joint = Matrix(xyz=root.joint.xyz - [0, 0, min_z], rotation=root.joint.rotation)
 
 
 def _wheel_lowest_point(link: Link) -> np.ndarray:
