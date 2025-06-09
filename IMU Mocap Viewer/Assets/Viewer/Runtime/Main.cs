@@ -44,7 +44,7 @@ namespace Viewer.Runtime
         }
     }
 
-    [DefaultExecutionOrder(-1000)]
+    [DefaultExecutionOrder(int.MinValue)] // ensure the main updater runs before anything else 
     internal class MainUpdater : MonoBehaviour
     {
         private Action update;
