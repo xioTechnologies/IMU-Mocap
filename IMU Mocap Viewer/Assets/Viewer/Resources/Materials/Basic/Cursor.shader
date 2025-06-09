@@ -3,15 +3,15 @@ Shader "Plot/Cursor"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        
+
         _TipColor ("Tip Color", Color) = (1,1,1,1)
         _MiddleColor ("Middle Color", Color) = (1,1,1,1)
     }
-    
+
     SubShader
     {
-        Tags 
-        { 
+        Tags
+        {
             "RenderType" = "Transparent"
             "RenderPipeline" = "UniversalPipeline"
             "Queue" = "Transparent"
@@ -22,12 +22,12 @@ Shader "Plot/Cursor"
             Name "Forward"
             Blend SrcAlpha OneMinusSrcAlpha
             ZTest Always
-            Cull Off  
+            Cull Off
 
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            
+
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
@@ -45,7 +45,7 @@ Shader "Plot/Cursor"
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
-            
+
             CBUFFER_START(UnityPerMaterial)
                 float4 _MainTex_ST;
                 float4 _TipColor;
@@ -55,12 +55,12 @@ Shader "Plot/Cursor"
             Varyings vert(Attributes input)
             {
                 Varyings output;
-                
+
                 VertexPositionInputs posInputs = GetVertexPositionInputs(input.position.xyz);
                 output.position = posInputs.positionCS;
-                
+
                 output.uv = input.uv;
-                
+
                 return output;
             }
 
@@ -69,11 +69,11 @@ Shader "Plot/Cursor"
                 float4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
 
                 clip(texColor.a - 0.5);
-                
+
                 float4 finalColor = lerp(_TipColor, _MiddleColor, texColor.r);
 
                 finalColor.a = texColor.a;
-                
+
                 return finalColor;
             }
             ENDHLSL
