@@ -181,16 +181,16 @@ class Link:
             # Set XYZ quivers
             lengths = [0.5 * l.length for l in links]
 
-            x_quiver_segments = [[tuple(j.xyz), tuple(j.xyz + (l * j.rotation[:, 0].A1))] for j, l in zip(joints, lengths)]
-            y_quiver_segments = [[tuple(j.xyz), tuple(j.xyz + (l * j.rotation[:, 1].A1))] for j, l in zip(joints, lengths)]
-            z_quiver_segments = [[tuple(j.xyz), tuple(j.xyz + (l * j.rotation[:, 2].A1))] for j, l in zip(joints, lengths)]
+            x_quiver_segments = [[tuple(j.xyz), tuple(j.xyz + (l * j.rotation[:, 0]))] for j, l in zip(joints, lengths)]
+            y_quiver_segments = [[tuple(j.xyz), tuple(j.xyz + (l * j.rotation[:, 1]))] for j, l in zip(joints, lengths)]
+            z_quiver_segments = [[tuple(j.xyz), tuple(j.xyz + (l * j.rotation[:, 2]))] for j, l in zip(joints, lengths)]
 
             imus = np.array([l.get_imu_global() for l in links])
             lengths = [0.25 * l.length for l in links]
 
-            x_quiver_segments += [[tuple(i.xyz), tuple(i.xyz + (l * i.rotation[:, 0].A1))] for i, l in zip(imus, lengths)]
-            y_quiver_segments += [[tuple(i.xyz), tuple(i.xyz + (l * i.rotation[:, 1].A1))] for i, l in zip(imus, lengths)]
-            z_quiver_segments += [[tuple(i.xyz), tuple(i.xyz + (l * i.rotation[:, 2].A1))] for i, l in zip(imus, lengths)]
+            x_quiver_segments += [[tuple(i.xyz), tuple(i.xyz + (l * i.rotation[:, 0]))] for i, l in zip(imus, lengths)]
+            y_quiver_segments += [[tuple(i.xyz), tuple(i.xyz + (l * i.rotation[:, 1]))] for i, l in zip(imus, lengths)]
+            z_quiver_segments += [[tuple(i.xyz), tuple(i.xyz + (l * i.rotation[:, 2]))] for i, l in zip(imus, lengths)]
 
             x_quivers.set_segments(x_quiver_segments)
             y_quivers.set_segments(y_quiver_segments)

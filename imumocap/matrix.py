@@ -6,7 +6,7 @@ import numpy as np
 class Matrix:
     def __init__(
         self,
-        matrix: np.matrix | None = None,
+        matrix: np.ndarray | None = None,
         xyz: np.ndarray | None = None,
         x: float = 0,
         y: float = 0,
@@ -28,13 +28,14 @@ class Matrix:
         if matrix is not None:
             self.__matrix = matrix.copy()
         elif rotation is not None:
-            self.__matrix = np.matrix(
+            self.__matrix = np.array(
                 [
                     [rotation[0, 0], rotation[0, 1], rotation[0, 2], x],
                     [rotation[1, 0], rotation[1, 1], rotation[1, 2], y],
                     [rotation[2, 0], rotation[2, 1], rotation[2, 2], z],
                     [0, 0, 0, 1],
-                ]
+                ],
+                dtype=float,
             )
         elif quaternion is not None:
             # Quaternions and Rotation Sequence by Jack B. Kuipers, ISBN 0-691-10298-8, Page 168
@@ -46,13 +47,14 @@ class Matrix:
             qy = quaternion[2]
             qz = quaternion[3]
 
-            self.__matrix = np.matrix(
+            self.__matrix = np.array(
                 [
                     [2 * (qw * qw - 0.5 + qx * qx), 2 * (qx * qy - qw * qz), 2 * (qx * qz + qw * qy), x],
                     [2 * (qx * qy + qw * qz), 2 * (qw * qw - 0.5 + qy * qy), 2 * (qy * qz - qw * qx), y],
                     [2 * (qx * qz - qw * qy), 2 * (qy * qz + qw * qx), 2 * (qw * qw - 0.5 + qz * qz), z],
                     [0, 0, 0, 1],
-                ]
+                ],
+                dtype=float,
             )
         elif axis_angle is not None:
             # https://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
@@ -83,13 +85,14 @@ class Matrix:
             sz = np.sin(np.radians(rot_z))
             cz = np.cos(np.radians(rot_z))
 
-            self.__matrix = np.matrix(
+            self.__matrix = np.array(
                 [
                     [cz * cy, cz * sy * sx - sz * cx, cz * sy * cx + sz * sx, x],
                     [sz * cy, sz * sy * sx + cz * cx, sz * sy * cx - cz * sx, y],
                     [-sy, cy * sx, cy * cx, z],
                     [0, 0, 0, 1],
-                ]
+                ],
+                dtype=float,
             )
 
     @property
@@ -109,7 +112,7 @@ class Matrix:
         return self.__matrix[2, 3]
 
     @property
-    def rotation(self) -> np.matrix:
+    def rotation(self) -> np.ndarray:
         return self.__matrix[0:3, 0:3]
 
     @property
@@ -177,7 +180,7 @@ class Matrix:
         return Matrix(matrix=self.__matrix)
 
     def __mul__(self, other: Matrix) -> Matrix:
-        return Matrix(matrix=self.__matrix * other.__matrix)
+        return Matrix(matrix=self.__matrix @ other.__matrix)
 
     def __repr__(self) -> str:
         return str(self.__matrix)
