@@ -181,40 +181,40 @@ class Model(ABC):
             "Head": Joint(self.head, Matrix(rot_y=90, rot_z=90)),
             "Neck": Joint(self.neck, Matrix(rot_y=90, rot_z=90)),
             # Left arm
-            "Left Wrist": Joint(self.left_hand, Matrix(rot_x=90, rot_z=90)),
-            "Left Elbow": Joint(self.left_forearm, Matrix(rot_y=180, rot_z=-90)),
-            "Left Shoulder": Joint(self.left_upper_arm, Matrix(rot_y=90)),
-            "Left Clavicle": Joint(self.left_shoulder, Matrix(rot_y=90)),
+            "Left Wrist": Joint(self.left_hand, Matrix(rot_x=90, rot_z=90), twist_limit=(0, 0), flipped=True),
+            "Left Elbow": Joint(self.left_forearm, Matrix(rot_y=180, rot_z=-90), tilt_limit=(0, 0), flipped=True),
+            "Left Shoulder": Joint(self.left_upper_arm, Matrix(rot_y=90), flipped=True),
+            "Left Clavicle": Joint(self.left_shoulder, Matrix(rot_y=90), tilt_limit=(0, 0), flipped=True),
             # Right arm
-            "Right Wrist": Joint(self.right_hand, Matrix(rot_x=-90, rot_z=90)),
-            "Right Elbow": Joint(self.right_forearm, Matrix(rot_z=90)),
+            "Right Wrist": Joint(self.right_hand, Matrix(rot_x=-90, rot_z=90), twist_limit=(0, 0)),
+            "Right Elbow": Joint(self.right_forearm, Matrix(rot_z=90), tilt_limit=(0, 0)),
             "Right Shoulder": Joint(self.right_upper_arm, Matrix(rot_y=-90)),
-            "Right Clavicle": Joint(self.right_shoulder, Matrix(rot_y=-90)),
+            "Right Clavicle": Joint(self.right_shoulder, Matrix(rot_y=-90), tilt_limit=(0, 0)),
             # Torso
             "Upper Torso": Joint(self.upper_torso, Matrix(rot_x=-90, rot_y=90)),
             "Lower Torso": Joint(self.lower_torso, Matrix(rot_x=-90, rot_y=90)),
             "Upper Lumbar": Joint(self.upper_lumbar, Matrix(rot_x=-90, rot_y=90)),
             "Lower Lumbar": Joint(self.lower_lumbar, Matrix(rot_x=-90, rot_y=90)),
             # Left leg
-            "Left Toe": Joint(self.left_toe, Matrix(rot_x=-90)),
-            "Left Ankle": Joint(self.left_foot, Matrix(rot_x=90, rot_y=90)),
-            "Left Knee": Joint(self.left_lower_leg, Matrix(rot_x=-90, rot_y=90)),
-            "Left Hip": Joint(self.left_upper_leg, Matrix(rot_x=90, rot_y=90)),
+            "Left Toe": Joint(self.left_toe, Matrix(rot_x=-90), tilt_limit=(0,0), twist_limit=(0,0), flipped=True),
+            "Left Ankle": Joint(self.left_foot, Matrix(rot_x=90, rot_y=90), twist_limit=(0, 0), flipped=True),
+            "Left Knee": Joint(self.left_lower_leg, Matrix(rot_x=-90, rot_y=90), tilt_limit=(0, 0), twist_limit=(0, 0), flipped=True),
+            "Left Hip": Joint(self.left_upper_leg, Matrix(rot_x=90, rot_y=90), flipped=True),
             # Right leg
-            "Right Toe": Joint(self.right_toe, Matrix(rot_x=90, rot_z=180)),
-            "Right Ankle": Joint(self.right_foot, Matrix(rot_x=90, rot_y=-90)),
-            "Right Knee": Joint(self.right_lower_leg, Matrix(rot_x=-90, rot_y=-90)),
+            "Right Toe": Joint(self.right_toe, Matrix(rot_x=90, rot_z=180), tilt_limit=(0,0), twist_limit=(0,0)),
+            "Right Ankle": Joint(self.right_foot, Matrix(rot_x=90, rot_y=-90), twist_limit=(0, 0)),
+            "Right Knee": Joint(self.right_lower_leg, Matrix(rot_x=-90, rot_y=-90), tilt_limit=(0, 0), twist_limit=(0, 0)),
             "Right Hip": Joint(self.right_upper_leg, Matrix(rot_x=90, rot_y=-90)),
             # Pelvis
             "Pelvis": Joint(self.pelvis, Matrix(rot_y=90, rot_z=90)),
             # Wheelchair
-            "Left Wheel": Joint(self.left_wheel, Matrix(rot_x=-90, rot_y=90)),
+            "Left Wheel": Joint(self.left_wheel, Matrix(rot_x=-90, rot_y=90), flipped=True),
             "Right Wheel": Joint(self.right_wheel, Matrix(rot_x=-90, rot_y=-90)),
             "Seat": Joint(self.seat, Matrix(rot_y=90, rot_z=90)),
             # Left hand
-            "Left Carpus": Joint(self.left_carpus, Matrix(rot_x=90, rot_z=90)),
+            "Left Carpus": Joint(self.left_carpus, Matrix(rot_x=90, rot_z=90), twist_limit=(0, 0), flipped=True),
             # Right hand
-            "Right Carpus": Joint(self.right_carpus, Matrix(rot_x=-90, rot_z=90)),
+            "Right Carpus": Joint(self.right_carpus, Matrix(rot_x=-90, rot_z=90), twist_limit=(0, 0)),
         }
 
     @property

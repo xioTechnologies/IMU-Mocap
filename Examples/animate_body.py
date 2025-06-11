@@ -62,7 +62,12 @@ while True:
         for name, joint in frame.items():
             model.root.dictionary()[name].joint = joint
 
-        connection.send(imumocap.viewer.link_to_primitives(model.root))
+        connection.send(
+            [
+                *imumocap.viewer.link_to_primitives(model.root),
+                *imumocap.viewer.joints_to_primitives(model.joints),
+            ]
+        )
 
     if dont_block:
         break

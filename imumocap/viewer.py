@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .joint import Joint
 from .link import Link
 from .matrix import Matrix
 
@@ -49,6 +50,56 @@ class Axes(Primitive):
 
     def __str__(self) -> str:
         return f'{{"type":"axes","xyz":{_xyz(self.matrix.xyz)},"quaternion":{_quaternion(self.matrix.quaternion)},"scale":{_number(self.scale)}}}'
+
+
+@dataclass(frozen=True)
+class Angle(Primitive):
+    matrix: Matrix
+    angle: float
+    limit: tuple[float, float] | None = None
+    scale: float = 1.0
+
+    def __str__(self) -> str:
+        key_values = [
+            '"type":"angle"',
+            f'"xyz":{_xyz(self.matrix.xyz)}',
+            f'"quaternion":{_quaternion(self.matrix.quaternion)}',
+            f'"angle":{_number(self.angle)}',
+            f'"limit":[{_number(self.limit[0])},{_number(self.limit[1])}]' if self.limit else None,
+            f'"scale":{_number(self.scale)}',
+        ]
+
+        return "{" + ",".join([k for k in key_values if k]) + "}"
+
+
+@dataclass(frozen=True)
+class Euler(Primitive):
+    matrix: Matrix
+    rot_x: float | None = None
+    rot_y: float | None = None
+    rot_z: float | None = None
+    limit_x: tuple[float, float] | None = None
+    limit_y: tuple[float, float] | None = None
+    limit_z: tuple[float, float] | None = None
+    scale: float = 1.0
+    flipped: bool = False
+
+    def __str__(self) -> str:
+        key_values = [
+            '"type":"euler"',
+            f'"xyz":{_xyz(self.matrix.xyz)}',
+            f'"quaternion":{_quaternion(self.matrix.quaternion)}',
+            f'"rot_x":{_number(self.rot_x)}' if self.rot_x is not None else None,
+            f'"rot_y":{_number(self.rot_y)}' if self.rot_y is not None else None,
+            f'"rot_z":{_number(self.rot_z)}' if self.rot_z is not None else None,
+            f'"limit_x":[{_number(self.limit_x[0])},{_number(self.limit_x[1])}]' if self.limit_x else None,
+            f'"limit_y":[{_number(self.limit_y[0])},{_number(self.limit_y[1])}]' if self.limit_y else None,
+            f'"limit_z":[{_number(self.limit_z[0])},{_number(self.limit_z[1])}]' if self.limit_z else None,
+            f'"scale":{_number(self.scale)}',
+            '"flipped":true' if self.flipped else None,
+        ]
+
+        return "{" + ",".join([k for k in key_values if k]) + "}"
 
 
 @dataclass(frozen=True)
@@ -101,6 +152,43 @@ def link_to_primitives(root: Link) -> list[Primitive]:
 
         if wheel_axis:
             primitives.append(Circle(joint.xyz, wheel_axis.xyz, link.length))
+
+    return primitives
+
+
+def joints_to_primitives(joints: dict[str, Joint], labels: bool = True) -> list[Primitive]:
+    def conform_arguments(rotation: float, limit: tuple[float, float] | None = None) -> tuple[float | None, tuple[float, float] | None]:
+        if rotation is None or (limit and limit[0] == 0 and limit[1] == 0):
+            return None, None
+        return rotation, limit if limit else None
+
+    primitives = []
+
+    for name, joint in joints.items():
+        bend, tilt, twist = joint.get()
+
+        rot_x, limit_x = conform_arguments(twist, joint.twist_limit)
+        rot_y, limit_y = conform_arguments(tilt, joint.tilt_limit)
+        rot_z, limit_z = conform_arguments(bend, joint.bend_limit)
+
+        joint_global = joint.link.get_joint_global()
+
+        primitives.append(
+            Euler(
+                joint_global * joint.alignment,
+                rot_x=rot_x,
+                rot_y=rot_y,
+                rot_z=rot_z,
+                limit_x=limit_x,
+                limit_y=limit_y,
+                limit_z=limit_z,
+                scale=joint.link.length / 3,
+                flipped=joint.flipped,
+            )
+        )
+
+        if labels:
+            primitives.append(Label(joint_global.xyz, name))
 
     return primitives
 

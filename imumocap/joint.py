@@ -18,12 +18,14 @@ class Joint:
         bend_limit: tuple[float, float] | None = None,  # (<min>, <max>) or None if unlimited
         tilt_limit: tuple[float, float] | None = None,  # (<min>, <max>) or None if unlimited
         twist_limit: tuple[float, float] | None = None,  # (<min>, <max>) or None if unlimited
+        flipped: bool = False,
     ) -> None:
         self.__link = link
         self.__alignment = alignment
         self.__bend_limit = bend_limit
         self.__tilt_limit = tilt_limit
         self.__twist_limit = twist_limit
+        self.__flipped = flipped
 
     @property
     def link(self) -> Link:
@@ -44,6 +46,10 @@ class Joint:
     @property
     def twist_limit(self) -> tuple[float, float] | None:
         return self.__twist_limit
+
+    @property
+    def flipped(self) -> bool:
+        return self.__flipped
 
     def get(self) -> tuple[float, float, float]:
         twist, tilt, bend = (self.__alignment.T * self.__link.joint * self.__alignment).rot_xyz
