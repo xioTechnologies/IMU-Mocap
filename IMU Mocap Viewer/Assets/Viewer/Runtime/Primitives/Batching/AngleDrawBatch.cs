@@ -26,9 +26,11 @@ namespace Viewer.Runtime.Primitives.Batching
 
         public AngleDrawBatch(int max, Mesh mesh, Material material, int layer) : base(max, mesh, material, layer) { }
 
-        public void Add(Vector3 position, Quaternion rotation, float radius, float thickness, Color color, float startAngle, float endAngle)
+        public void Add(Vector3 position, Quaternion rotation, float radius, float thickness, Color color, float startAngle, float endAngle, bool flipped)
         {
             const float angleScale = 1f / 360f;
+
+            if (flipped == true) rotation *= Quaternion.Euler(180, 0, 0);
 
             InstanceData instance = new InstanceData
             {

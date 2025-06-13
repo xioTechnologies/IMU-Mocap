@@ -8,10 +8,7 @@ namespace Viewer.Runtime.Primitives
         [SerializeField] private LabelContainer container;
         [SerializeField] private Label prefab;
 
-        private void Awake()
-        {
-            group = container.CreateGroup(prefab);
-        }
+        private void Awake() => group = container.CreateGroup(prefab);
 
         private void OnEnable()
         {

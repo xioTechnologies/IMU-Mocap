@@ -5,55 +5,63 @@ namespace Viewer.Runtime.Primitives
 {
     public sealed class AnglePlotter : MonoBehaviour
     {
-        [SerializeField] private LabelPlotter labels;
+        private static readonly Quaternion ZAlignment = Quaternion.identity;
+        private static readonly Quaternion YAlignment = Quaternion.Euler(new(90, 0, 0)); // re-aligned to match the viewer's coordinate system
+        private static readonly Quaternion XAlignment = Quaternion.Euler(new(0, -90, 0)) * Quaternion.Euler(new(-90, 0, 0)); // re-aligned to match the viewer's coordinate system
 
-        [SerializeField] private int maxCount = 1000;
-
-        [SerializeField] private Mesh rangeMesh;
-        [SerializeField] private Mesh needleMesh;
-        [SerializeField] private Mesh valueMesh;
-
-        [SerializeField] private Material material;
-
-        [SerializeField, Range(0, 1)] private float valueAlpha = 0.2f;
-
-        [SerializeField, Range(0, 255)] private int lineOrder = 2;
-        [SerializeField, Range(0, 255)] private int valueOrder = 1;
-
-        [SerializeField, Range(0f, 5f)] private float needleScale = 1;
-
-        [SerializeField] private Color bendColor = Utils.ColorFromHex("FF9CAA");
-        [SerializeField] private Color tiltColor = Utils.ColorFromHex("FFFF00");
-        [SerializeField] private Color twistColor = Utils.ColorFromHex("5AFBF1");
-
+        [Header("Labels")] [SerializeField] private LabelPlotter labels;
         [SerializeField] private float labelMargin = 10f;
 
+        [Header("Meshes")] [SerializeField] private int maxCount = 1000;
+        [SerializeField] private Mesh rangeMesh;
+        [SerializeField] private Mesh needleMesh;
+        [SerializeField, Range(0f, 5f)] private float needleScale = 1;
+        [SerializeField] private Mesh valueMesh;
+        [SerializeField] private Material material;
+
+        [Header("Order")] [SerializeField, Range(0, 255)]
+        private int lineOrder = 2;
+
+        [SerializeField, Range(0, 255)] private int valueOrder = 1;
+
+        [Header("Colors")] [SerializeField] private Color xColor = Utils.ColorFromHex("FF9CAA");
+        [SerializeField] private Color yColor = Utils.ColorFromHex("FFFF00");
+        [SerializeField] private Color zColor = Utils.ColorFromHex("5AFBF1");
+        [SerializeField] private Color genericColor = Utils.ColorFromHex("FFFFFF");
+        [SerializeField, Range(0, 1)] private float valueAlpha = 0.2f;
+        
         private AngleDrawBatch ranges;
         private AngleDrawBatch needles;
         private AngleDrawBatch values;
 
-        private Color bendColorLinear;
-        private Color tiltColorLinear;
-        private Color twistColorLinear;
+        private Color xColorLinear;
+        private Color yColorLinear;
+        private Color zColorLinear;
+        private Color genericColorLinear;
 
-        private Color bendAlphaLinear;
-        private Color tiltAlphaLinear;
-        private Color twistAlphaLinear;
+        private Color xAlphaLinear;
+        private Color yAlphaLinear;
+        private Color zAlphaLinear;
+        private Color genericAlphaLinear;
 
         void CacheColors()
         {
-            bendColorLinear = bendColor.linear;
-            tiltColorLinear = tiltColor.linear;
-            twistColorLinear = twistColor.linear;
+            xColorLinear = xColor.linear;
+            yColorLinear = yColor.linear;
+            zColorLinear = zColor.linear;
+            genericColorLinear = genericColor.linear;
 
-            bendAlphaLinear = bendColorLinear;
-            bendAlphaLinear.a = valueAlpha;
+            xAlphaLinear = xColorLinear;
+            xAlphaLinear.a = valueAlpha;
 
-            tiltAlphaLinear = tiltColorLinear;
-            tiltAlphaLinear.a = valueAlpha;
+            yAlphaLinear = yColorLinear;
+            yAlphaLinear.a = valueAlpha;
 
-            twistAlphaLinear = twistColorLinear;
-            twistAlphaLinear.a = valueAlpha;
+            zAlphaLinear = zColorLinear;
+            zAlphaLinear.a = valueAlpha;
+
+            genericAlphaLinear = genericColorLinear;
+            genericAlphaLinear.a = valueAlpha;
         }
 
         private void AssignOrder()
@@ -97,113 +105,40 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear()
         {
-            if (labels != null) labels.Clear();
+            labels.Clear();
 
             ranges?.Clear();
             needles?.Clear();
             values?.Clear();
         }
 
-        public void Plot(Vector3 xyz, Quaternion quaternion, AngleAndLimit? rotX, AngleAndLimit? rotY, AngleAndLimit? rotZ, float scale)
+        public void PlotAngle(Vector3 xyz, Quaternion quaternion, float angle, float scale)
         {
-            float thickness = PlotterSettings.AngleLineWidthInPixels;
+            Plot(xyz, quaternion, angle, null, scale * 2f, genericColorLinear, genericAlphaLinear, false);
+        }
 
-            var zRotation = Quaternion.AngleAxis(0, Vector3.up);
-            var yRotation = Quaternion.AngleAxis(0, Vector3.right);
-            var xRotation = Quaternion.AngleAxis(0, Vector3.forward);
-
+        public void PlotEuler(Vector3 xyz, Quaternion quaternion, AngleAndLimit? angleX, AngleAndLimit? angleY, AngleAndLimit? angleZ, float scale, bool flipped)
+        {
             int inset = 6;
-            float insetScale = 1f / inset * scale;
+            float insetScale = 1f / inset * scale * 2f;
 
-            bool hasLabels = labels != null;
+            var rotZ = angleZ.HasValue ? angleZ.Value.Angle : 0;
+            var rotY = angleY.HasValue ? angleY.Value.Angle : 0;
 
-            if (rotZ != null)
+            // Re-aligned to match the viewer's coordinate system
+            var identity = Quaternion.identity; 
+            var zRotation = Quaternion.Euler(new(0, -rotZ, 0));
+            var yRotation = zRotation * Quaternion.Euler(new(0, 0, -rotY));
+
+            PlotNext(xyz, quaternion * identity * ZAlignment, angleZ, ref inset, zColorLinear, zAlphaLinear);
+            PlotNext(xyz, quaternion * zRotation * YAlignment, angleY, ref inset, yColorLinear, yAlphaLinear);
+            PlotNext(xyz, quaternion * yRotation * XAlignment, angleX, ref inset, xColorLinear, xAlphaLinear);
+
+            void PlotNext(Vector3 position, Quaternion rotation, AngleAndLimit? value, ref int ring, Color color, Color alphaColor)
             {
-                float angle = rotZ.Value.Angle;
+                if (value == null) return;
 
-                var rotationOffset = Quaternion.Euler(0, 0, 90);
-
-                zRotation = Quaternion.AngleAxis(-angle, Vector3.up);
-
-                var labelOffsetRotation = zRotation * rotationOffset;
-
-                Add(
-                    rotZ.Value,
-                    quaternion * rotationOffset,
-                    quaternion * labelOffsetRotation,
-                    inset-- * insetScale,
-                    twistColorLinear,
-                    twistAlphaLinear,
-                    twistColor
-                );
-            }
-
-            if (rotY != null)
-            {
-                float angle = rotY.Value.Angle;
-
-                var rotation = zRotation;
-
-                yRotation = Quaternion.AngleAxis(-angle, Vector3.right);
-
-                var labelOffsetRotation = rotation * yRotation;
-
-                Add(
-                    rotY.Value,
-                    quaternion * rotation,
-                    quaternion * labelOffsetRotation,
-                    inset-- * insetScale,
-                    tiltColorLinear,
-                    tiltAlphaLinear,
-                    tiltColor
-                );
-            }
-
-            if (rotX != null)
-            {
-                float angle = rotX.Value.Angle;
-
-                var rotation = zRotation * yRotation;
-
-                xRotation = Quaternion.AngleAxis(angle, Vector3.forward); // why does this one need to be positive?! 
-
-                Quaternion rotationOffset = Quaternion.Euler(0, 90, 0) * Quaternion.Euler(-90, 0, 0);
-
-                var labelOffsetRotation = rotation * xRotation * rotationOffset;
-
-                rotation *= rotationOffset;
-
-                Add(
-                    rotX.Value,
-                    quaternion * rotation,
-                    quaternion * labelOffsetRotation,
-                    inset * insetScale,
-                    bendColorLinear,
-                    bendAlphaLinear,
-                    bendColor
-                );
-            }
-
-            void Add(AngleAndLimit data, Quaternion rotation, Quaternion labelOffsetRotation, float angleScale, Color color, Color alphaColor, Color labelColor)
-            {
-                float angle = data.Angle;
-
-                values.Add(xyz, rotation, angleScale, thickness, alphaColor, Mathf.Min(angle, 0), Mathf.Max(angle, 0));
-
-                needles.Add(xyz, rotation, angleScale, thickness * needleScale, color, angle, angle);
-
-                float[] range = data.Limit;
-
-                if (range is { Length: 2 }) ranges.Add(xyz, rotation, angleScale, thickness, color, range[0], range[1]);
-
-                if (hasLabels)
-                {
-                    Vector3 direction = labelOffsetRotation * Vector3.forward;
-
-                    Vector3 offset = direction * (angleScale * 0.5f);
-
-                    labels.Plot(xyz + offset, labelColor, $"{angle:F1}°", direction, labelMargin);
-                }
+                Plot(position, rotation, value.Value.Angle, value.Value.Limit, ring-- * insetScale, color, alphaColor, flipped);
             }
         }
 
@@ -212,6 +147,28 @@ namespace Viewer.Runtime.Primitives
             ranges?.Draw();
             needles?.Draw();
             values?.Draw();
+        }
+
+        private void Plot(Vector3 xyz, Quaternion quaternion, float angle, (float min, float max)? range, float scale, Color color, Color alphaColor, bool flip)
+        {
+            float angleScale = scale;
+            float thickness = PlotterSettings.AngleLineWidthInPixels;
+
+            var widgetRotation = quaternion * Quaternion.Euler(0, 90, 0) * Quaternion.Euler(0, 0, 90);
+            var valueRotation = quaternion * Quaternion.Euler(0, 90 - angle, 0);
+
+            values.Add(xyz, widgetRotation, angleScale, thickness, alphaColor, Mathf.Min(angle, 0), Mathf.Max(angle, 0), flip);
+            needles.Add(xyz, widgetRotation, angleScale, thickness * needleScale, color, angle, angle, flip);
+
+            if (range.HasValue) ranges.Add(xyz, widgetRotation, angleScale, thickness, color, range.Value.min, range.Value.max, flip);
+
+            if (flip == true) valueRotation *= Quaternion.Euler(180, 0, 0);
+
+            Vector3 direction = valueRotation * Vector3.forward;
+
+            Vector3 offset = direction * (angleScale * 0.5f);
+
+            labels.Plot(xyz + offset, color, $"{angle:F1}°", direction, labelMargin);
         }
     }
 }

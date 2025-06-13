@@ -99,13 +99,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1fa02ff9a1147329b0a988cb5c07a19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
+  Material: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
   lineWidthInPixels: 5
   nearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
   farColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 1}
-  drawType: 0
-  order: 0
-  stencilMode: 1
+  DrawType: 0
+  Order: 0
+  StencilMode: 1
 --- !u!1 &1744586347375665136
 GameObject:
   m_ObjectHideFlags: 0
@@ -238,13 +238,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0228df92d04c604096f716ff9c5ae02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
+  Material: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
   lineWidthInPixels: 4
   nearColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.011764706}
   farColor: {r: 0.8941177, g: 0.8941177, b: 0.8941177, a: 0.11372549}
-  drawType: 1
-  order: 255
-  stencilMode: 1
+  DrawType: 1
+  Order: 255
+  StencilMode: 1
   startPoint: {x: 0, y: 0, z: 0}
   endPoint: {x: 0, y: 0, z: 1}
 --- !u!33 &1064378142464897215

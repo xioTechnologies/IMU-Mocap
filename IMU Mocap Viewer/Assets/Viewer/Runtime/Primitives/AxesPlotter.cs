@@ -1,16 +1,13 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 using Viewer.Runtime.Primitives.Batching;
 
 namespace Viewer.Runtime.Primitives
 {
     public sealed class AxesPlotter : MonoBehaviour
     {
-        [FormerlySerializedAs("maxBoxCount"), SerializeField]
-        private int maxCount = 1000;
+        [SerializeField] private int maxCount = 1000;
 
-        [FormerlySerializedAs("boxMesh"), SerializeField]
-        private Mesh capsuleMesh;
+        [SerializeField] private Mesh capsuleMesh;
 
         [SerializeField] private Material instanceMaterial;
         [SerializeField, Range(0, 255)] private int order = 1;

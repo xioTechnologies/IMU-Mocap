@@ -57,9 +57,10 @@ MonoBehaviour:
   lineOrder: 7
   valueOrder: 7
   needleScale: 2
-  bendColor: {r: 1, g: 0.6117647, b: 0.6666667, a: 1}
-  tiltColor: {r: 1, g: 1, b: 0, a: 1}
-  twistColor: {r: 0.3529412, g: 0.9843137, b: 0.94509804, a: 1}
+  xColor: {r: 1, g: 0.6117647, b: 0.6666667, a: 1}
+  yColor: {r: 1, g: 1, b: 0, a: 1}
+  zColor: {r: 0.3529412, g: 0.9843137, b: 0.94509804, a: 1}
+  genericColor: {r: 0.89411765, g: 0.89411765, b: 0.89411765, a: 1}
   labelMargin: 20
 --- !u!114 &1381233583315264217
 MonoBehaviour:
@@ -237,6 +238,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96581d17390642b2884db13d9197e73a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scale: 20
   margin: 0
   text: {fileID: 4151851974180940948}

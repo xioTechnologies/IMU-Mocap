@@ -104,13 +104,22 @@ namespace Viewer.Runtime
                             plotter.Label(SwizzleFromArray3(obj.Xyz), obj.Text);
                             break;
 
-                        case "angles":
-                            AngleAndLimit? rotX = obj.RotX.HasValue ? new AngleAndLimit() { Angle = obj.RotX.Value, Limit = obj.LimitX } : null;
-                            AngleAndLimit? rotY = obj.RotY.HasValue ? new AngleAndLimit() { Angle = obj.RotY.Value, Limit = obj.LimitY } : null;
-                            AngleAndLimit? rotZ = obj.RotZ.HasValue ? new AngleAndLimit() { Angle = obj.RotZ.Value, Limit = obj.LimitZ } : null;
-                            plotter.Angle(SwizzleFromArray3(obj.Xyz), SwizzleFromArray4(obj.Quaternion), obj.Scale, rotX, rotY, rotZ);
+                        case "euler":
+                            plotter.Euler(
+                                SwizzleFromArray3(obj.Xyz),
+                                SwizzleFromArray4(obj.Quaternion),
+                                AngleAndLimit(obj.RotX, obj.LimitX),
+                                AngleAndLimit(obj.RotY, obj.LimitY),
+                                AngleAndLimit(obj.RotZ, obj.LimitZ),
+                                obj.Scale,
+                                obj.Flipped
+                            );
                             break;
 
+                        case "angle":
+                            plotter.Angle(SwizzleFromArray3(obj.Xyz), SwizzleFromArray4(obj.Quaternion), obj.Angle, obj.Scale);
+                            break;
+                        
                         default:
                             Debug.LogError("Unknown primitive type: " + obj.Type);
                             break;
@@ -119,7 +128,9 @@ namespace Viewer.Runtime
             }
         }
 
-        private Vector3 SwizzleFromArray3(float[] array)
+        private static AngleAndLimit? AngleAndLimit(float? angle, float[] limit) => angle.HasValue ? new AngleAndLimit(angle.Value, limit) : null;
+
+        private static Vector3 SwizzleFromArray3(float[] array)
         {
             if (array == null) return Vector3.zero;
             if (array.Length != 3) return Vector3.zero;
@@ -127,7 +138,7 @@ namespace Viewer.Runtime
             return new Vector3(array[0], array[1], array[2])._xzy();
         }
 
-        private Quaternion SwizzleFromArray4(float[] array)
+        private static Quaternion SwizzleFromArray4(float[] array)
         {
             if (array == null) return Quaternion.identity;
             if (array.Length != 4) return Quaternion.identity;
@@ -135,7 +146,7 @@ namespace Viewer.Runtime
             return Swizzle(new Quaternion(array[1], array[2], array[3], array[0]));
         }
 
-        private Quaternion Swizzle(Quaternion wxyz) => new(-wxyz.x, -wxyz.z, -wxyz.y, wxyz.w);
+        private static Quaternion Swizzle(Quaternion wxyz) => new Quaternion(-wxyz.x, -wxyz.z, -wxyz.y, wxyz.w).normalized;
 
         private struct PlotObject
         {
@@ -162,7 +173,11 @@ namespace Viewer.Runtime
             [JsonProperty(PropertyName = "limit_z")]
             public float[] LimitZ;
 
+            public bool Flipped;
+
             public string Text;
+
+            public float Angle;
         }
     }
 }

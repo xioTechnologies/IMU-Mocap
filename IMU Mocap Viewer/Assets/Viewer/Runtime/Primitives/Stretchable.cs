@@ -6,23 +6,17 @@ namespace Viewer.Runtime.Primitives
     [ExecuteAlways]
     public class Stretchable : MonoBehaviour
     {
-        // private static readonly int ThicknessProperty = Shader.PropertyToID("_Thickness");
-        // private static readonly int NearColorProperty = Shader.PropertyToID("_NearColor");
-        // private static readonly int FarColorProperty = Shader.PropertyToID("_FarColor");
-        // private static readonly int PixelScaleFactorProperty = Shader.PropertyToID("_PixelScaleFactor");
-        // private static readonly int StencilValueProperty = Shader.PropertyToID("_StencilValue");
+        [SerializeField] protected Material Material;
+ 
+        [SerializeField, Range(0f, 50f)] private float lineWidthInPixels = 1f;
 
-        [SerializeField] protected Material material;
+        [SerializeField] private Color nearColor = Color.white;
 
-        [SerializeField, Range(0f, 50f)] protected float lineWidthInPixels = 1f;
+        [SerializeField] private Color farColor = Color.gray;
 
-        [SerializeField] protected Color nearColor = Color.white;
-
-        [SerializeField] protected Color farColor = Color.gray;
-
-        [SerializeField] protected DrawType drawType = DrawType.Opaque;
-        [SerializeField, Range(0, 255)] protected int order = 1;
-        [SerializeField] protected StencilMode stencilMode = StencilMode.Stencil;
+        [SerializeField] protected DrawType DrawType = DrawType.Opaque;
+        [SerializeField, Range(0, 255)] protected int Order = 1;
+        [SerializeField] protected StencilMode StencilMode = StencilMode.Stencil;
 
         private Material materialInstance;
         private MeshRenderer meshRenderer;
@@ -82,7 +76,7 @@ namespace Viewer.Runtime.Primitives
             if (!enabled) return;
 
             // In editor, we need to check for material changes
-            if (Application.isPlaying == false && (materialInstance == null || materialInstance.shader != material.shader))
+            if (Application.isPlaying == false && (materialInstance == null || materialInstance.shader != Material.shader))
             {
                 Initialize();
             }
@@ -119,13 +113,13 @@ namespace Viewer.Runtime.Primitives
                 meshRenderer = GetComponent<MeshRenderer>();
             }
 
-            if (material == null)
+            if (Material == null)
             {
                 // Debug.LogError($"Material not assigned on {gameObject.name}", gameObject);
                 return;
             }
 
-            if (materialInstance != null && materialInstance.shader == material.shader)
+            if (materialInstance != null && materialInstance.shader == Material.shader)
             {
                 return;
             }
@@ -136,7 +130,7 @@ namespace Viewer.Runtime.Primitives
                 else DestroyImmediate(materialInstance);
             }
 
-            materialInstance = new Material(material);
+            materialInstance = new Material(Material);
             meshRenderer.sharedMaterial = materialInstance;
         }
 
@@ -148,9 +142,9 @@ namespace Viewer.Runtime.Primitives
             materialInstance.SetColor(StretchableMaterial.NearColorProperty, GetNearColor());
             materialInstance.SetColor(StretchableMaterial.FarColorProperty, GetFarColor());
 
-            materialInstance.SetRenderOrder(drawType, order);
-            materialInstance.SetBlendMode(drawType);
-            materialInstance.ConfigureStencil(stencilMode, order);
+            materialInstance.SetRenderOrder(DrawType, Order);
+            materialInstance.SetBlendMode(DrawType);
+            materialInstance.ConfigureStencil(StencilMode, Order);
 
             UpdateProperties(materialInstance);
         }

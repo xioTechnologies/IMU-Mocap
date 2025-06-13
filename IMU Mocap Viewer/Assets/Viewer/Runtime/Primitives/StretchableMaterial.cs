@@ -29,10 +29,8 @@ namespace Viewer.Runtime.Primitives
         {
             if (material.IsKeywordEnabled("ANGLES_ENABLED") == enabled) return;
 
-            if (enabled)
-                material.EnableKeyword("ANGLES_ENABLED");
-            else
-                material.DisableKeyword("ANGLES_ENABLED");
+            if (enabled) material.EnableKeyword("ANGLES_ENABLED");
+            else material.DisableKeyword("ANGLES_ENABLED");
         }
 
         public static int GetRenderQueueIndex(DrawType type)
