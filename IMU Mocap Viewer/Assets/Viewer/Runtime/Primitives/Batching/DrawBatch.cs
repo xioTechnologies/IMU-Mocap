@@ -6,14 +6,6 @@ namespace Viewer.Runtime.Primitives.Batching
 {
     public abstract class DrawBatch<TInstance> : IDisposable where TInstance : struct
     {
-        // private static readonly int InstancesProperty = Shader.PropertyToID("_Instances");
-        // private static readonly int PixelScaleFactor = Shader.PropertyToID("_PixelScaleFactor");
-        // private static readonly int StencilValue = Shader.PropertyToID("_StencilValue");
-        // private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
-        // private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
-        // private static readonly int StencilComp = Shader.PropertyToID("_StencilComp");
-        // private static readonly int StencilPass = Shader.PropertyToID("_StencilPass");
-
         private readonly int maxCount;
 
         private readonly Mesh mesh;
@@ -27,13 +19,13 @@ namespace Viewer.Runtime.Primitives.Batching
         private StencilMode stencilMode = StencilMode.Stencil;
 
         private int order;
-        private int layer;
+        private readonly int layer;
 
         private Bounds? bounds;
         private int activeCount;
         private bool isDirty;
 
-        public DrawBatch(int max, Mesh mesh, Material material, int layer)
+        protected DrawBatch(int max, Mesh mesh, Material material, int layer)
         {
             maxCount = max;
             this.mesh = mesh ?? throw new ArgumentNullException(nameof(mesh));

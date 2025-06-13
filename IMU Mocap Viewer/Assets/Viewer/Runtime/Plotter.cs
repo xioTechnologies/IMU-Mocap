@@ -64,11 +64,18 @@ namespace Viewer.Runtime
             axes.Plot(xyz, quaternion, scale);
         }
 
-        public void Angle(Vector3 xyz, Quaternion quaternion, float scale, AngleAndLimit? rotX, AngleAndLimit? rotY, AngleAndLimit? rotZ)
+        public void Euler(Vector3 xyz, Quaternion quaternion, AngleAndLimit? rotX, AngleAndLimit? rotY, AngleAndLimit? rotZ, float scale, bool flipped)
         {
             bounds.Encapsulate(new Bounds(xyz, Vector3.one * scale));
 
-            angle.Plot(xyz, quaternion, rotX, rotY, rotZ, scale);
+            angle.PlotEuler(xyz, quaternion, rotX, rotY, rotZ, scale, flipped);
+        }
+
+        public void Angle(Vector3 xyz, Quaternion quaternion, float angleValue, float scale)
+        {
+            bounds.Encapsulate(new Bounds(xyz, Vector3.one * scale));
+
+            angle.PlotAngle(xyz, quaternion, angleValue, scale);
         }
 
         public void Label(Vector3 xyz, string text)
@@ -82,6 +89,15 @@ namespace Viewer.Runtime
     public struct AngleAndLimit
     {
         public float Angle;
-        public float[] Limit;
+
+        public (float min, float max)? Limit;
+
+        public AngleAndLimit(float angle, float[] limit = null)
+        {
+            Angle = angle;
+
+            if (limit is { Length: 2 }) Limit = (limit[0], limit[1]);
+            else Limit = null;
+        }
     }
 }
