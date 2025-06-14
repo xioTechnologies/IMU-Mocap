@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from imumocap import Link, Matrix
+from imumocap import Joint, Link, Matrix
 
 # Head
 HEAD_LENGTH = 0.20
@@ -175,6 +175,48 @@ class Model(ABC):
         self.right_carpus.connect(self.right_forth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25))
         self.right_carpus.connect(self.right_fifth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.5))
 
+        # Joints
+        self.__joints = {
+            # Head
+            "Head": Joint(self.head, Matrix(rot_y=90, rot_z=90)),
+            "Neck": Joint(self.neck, Matrix(rot_y=90, rot_z=90)),
+            # Left arm
+            "Left Wrist": Joint(self.left_hand, Matrix(rot_x=90, rot_z=90), twist_limit=(0, 0), flipped=True),
+            "Left Elbow": Joint(self.left_forearm, Matrix(rot_y=180, rot_z=-90), tilt_limit=(0, 0), flipped=True),
+            "Left Shoulder": Joint(self.left_upper_arm, Matrix(rot_y=90), flipped=True),
+            "Left Clavicle": Joint(self.left_shoulder, Matrix(rot_y=90), tilt_limit=(0, 0), flipped=True),
+            # Right arm
+            "Right Wrist": Joint(self.right_hand, Matrix(rot_x=-90, rot_z=90), twist_limit=(0, 0)),
+            "Right Elbow": Joint(self.right_forearm, Matrix(rot_z=90), tilt_limit=(0, 0)),
+            "Right Shoulder": Joint(self.right_upper_arm, Matrix(rot_y=-90)),
+            "Right Clavicle": Joint(self.right_shoulder, Matrix(rot_y=-90), tilt_limit=(0, 0)),
+            # Torso
+            "Upper Torso": Joint(self.upper_torso, Matrix(rot_x=-90, rot_y=90)),
+            "Lower Torso": Joint(self.lower_torso, Matrix(rot_x=-90, rot_y=90)),
+            "Upper Lumbar": Joint(self.upper_lumbar, Matrix(rot_x=-90, rot_y=90)),
+            "Lower Lumbar": Joint(self.lower_lumbar, Matrix(rot_x=-90, rot_y=90)),
+            # Left leg
+            "Left Toe": Joint(self.left_toe, Matrix(rot_x=-90), tilt_limit=(0,0), twist_limit=(0,0), flipped=True),
+            "Left Ankle": Joint(self.left_foot, Matrix(rot_x=90, rot_y=90), twist_limit=(0, 0), flipped=True),
+            "Left Knee": Joint(self.left_lower_leg, Matrix(rot_x=-90, rot_y=90), tilt_limit=(0, 0), twist_limit=(0, 0), flipped=True),
+            "Left Hip": Joint(self.left_upper_leg, Matrix(rot_x=90, rot_y=90), flipped=True),
+            # Right leg
+            "Right Toe": Joint(self.right_toe, Matrix(rot_x=90, rot_z=180), tilt_limit=(0,0), twist_limit=(0,0)),
+            "Right Ankle": Joint(self.right_foot, Matrix(rot_x=90, rot_y=-90), twist_limit=(0, 0)),
+            "Right Knee": Joint(self.right_lower_leg, Matrix(rot_x=-90, rot_y=-90), tilt_limit=(0, 0), twist_limit=(0, 0)),
+            "Right Hip": Joint(self.right_upper_leg, Matrix(rot_x=90, rot_y=-90)),
+            # Pelvis
+            "Pelvis": Joint(self.pelvis, Matrix(rot_y=90, rot_z=90)),
+            # Wheelchair
+            "Left Wheel": Joint(self.left_wheel, Matrix(rot_x=-90, rot_y=90), flipped=True),
+            "Right Wheel": Joint(self.right_wheel, Matrix(rot_x=-90, rot_y=-90)),
+            "Seat": Joint(self.seat, Matrix(rot_y=90, rot_z=90)),
+            # Left hand
+            "Left Carpus": Joint(self.left_carpus, Matrix(rot_x=90, rot_z=90), twist_limit=(0, 0), flipped=True),
+            # Right hand
+            "Right Carpus": Joint(self.right_carpus, Matrix(rot_x=-90, rot_z=90), twist_limit=(0, 0)),
+        }
+
     @property
     @abstractmethod
     def root(self) -> Link:
@@ -189,6 +231,9 @@ class Model(ABC):
         alignment = Matrix(rot_y=30, rot_z=40)
 
         return alignment * end * alignment.T
+
+    def _remove_unused_joints(self) -> None:
+        self.__joints = {n: j for n, j in self.joints.items() if j.link.name in self.root.dictionary()}
 
     def _connect_hands_to_arms(self) -> None:
         self.left_forearm.connect(self.left_hand)
@@ -207,12 +252,17 @@ class Model(ABC):
         self.left_forearm.connect(self.left_carpus)
         self.right_forearm.connect(self.right_carpus)
 
+    @property
+    def joints(self) -> dict[str, Joint]:
+        return self.__joints
+
 
 class UpperBody(Model):
     def __init__(self) -> None:
         super().__init__()
 
         self._connect_hands_to_arms()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -222,6 +272,8 @@ class UpperBody(Model):
 class LowerBody(Model):
     def __init__(self) -> None:
         super().__init__()
+
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -235,6 +287,7 @@ class Body(Model):
         self._connect_hands_to_arms()
         self._connect_torso()
         self._connect_lumbar_to_pelvis()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -244,6 +297,8 @@ class Body(Model):
 class Wheelchair(Model):
     def __init__(self) -> None:
         super().__init__()
+
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -258,6 +313,7 @@ class BodyWithWheelchair(Model):
         self._connect_torso()
         self._connect_lumbar_to_pelvis()
         self._connect_pelvis_to_seat()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -268,6 +324,8 @@ class LeftHand(Model):
     def __init__(self) -> None:
         super().__init__()
 
+        self._remove_unused_joints()
+
     @property
     def root(self) -> Link:
         return self.left_carpus
@@ -276,6 +334,8 @@ class LeftHand(Model):
 class RightHand(Model):
     def __init__(self) -> None:
         super().__init__()
+
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -287,6 +347,7 @@ class UpperBodyWithHands(Model):
         super().__init__()
 
         self._connect_carpi_to_arms()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -300,6 +361,7 @@ class BodyWithHands(Model):
         self._connect_carpi_to_arms()
         self._connect_torso()
         self._connect_lumbar_to_pelvis()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -314,6 +376,7 @@ class BodyWithWheelchairAndHands(Model):
         self._connect_torso()
         self._connect_lumbar_to_pelvis()
         self._connect_pelvis_to_seat()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
