@@ -39,7 +39,7 @@ while True:
         calibrate()
 
     for name, imu in imus.items():
-        model.root.dictionary()[name].set_joint_from_imu_global(imu.matrix)
+        model.root.dictionary()[name].set_joint_from_imu_world(imu.matrix)
 
     imumocap.solvers.floor(model.root)
 
