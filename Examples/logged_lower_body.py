@@ -32,7 +32,7 @@ frames = []
 for index in range(number_of_samples):
     for link in model.root.flatten():
         if link.name in imus:
-            link.set_joint_from_imu_global(Matrix(quaternion=imus[link.name][index, :]))
+            link.set_joint_from_imu_world(Matrix(quaternion=imus[link.name][index, :]))
 
     imumocap.solvers.floor(model.root)
 

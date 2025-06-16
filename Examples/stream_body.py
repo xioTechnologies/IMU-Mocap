@@ -47,7 +47,7 @@ while True:
         calibrate()
 
     for name, imu in imus.items():
-        model.root.dictionary()[name].set_joint_from_imu_global(imu.matrix)
+        model.root.dictionary()[name].set_joint_from_imu_world(imu.matrix)
 
     imumocap.solvers.interpolate([model.pelvis, model.lower_lumbar, model.upper_lumbar, model.lower_torso, model.upper_torso])
     imumocap.solvers.interpolate([model.upper_torso, model.neck, model.head])

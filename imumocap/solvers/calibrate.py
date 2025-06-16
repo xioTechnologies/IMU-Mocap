@@ -19,4 +19,4 @@ def calibrate(
         links[name].joint = matrix
 
     for name, matrix in imus.items():
-        links[name].set_imu_global(matrix)
+        links[name].set_imu_world(matrix)

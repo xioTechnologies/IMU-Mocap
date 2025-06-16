@@ -78,26 +78,26 @@ def link_to_primitives(root: Link) -> list[Primitive]:
     primitives = []
 
     for link in root.flatten():
-        joint = link.get_joint_global()
-        end = link.get_end_global()
+        joint = link.get_joint_world()
+        end = link.get_end_world()
 
         primitives.append(Line(joint.xyz, end.xyz))
         primitives.append(Dot(joint.xyz))
         primitives.append(Axes(joint, 0.5 * link.length))
 
-        imu = link.get_imu_global()
+        imu = link.get_imu_world()
 
         primitives.append(Dot(imu.xyz, 0.5))
         primitives.append(Axes(imu, 0.25 * link.length))
         primitives.append(Label(imu.xyz, link.name))
 
         for next_link, _ in link.links:
-            next_joint = next_link.get_joint_global()
+            next_joint = next_link.get_joint_world()
 
             primitives.append(Line(joint.xyz, next_joint.xyz))
             primitives.append(Line(end.xyz, next_joint.xyz))
 
-        wheel_axis = link.get_wheel_axis_global()
+        wheel_axis = link.get_wheel_axis_world()
 
         if wheel_axis:
             primitives.append(Circle(joint.xyz, wheel_axis.xyz, link.length))

@@ -10,7 +10,7 @@ from .matrix import Matrix
 class Link:
     def __init__(self, name, end: Matrix, wheel_axis: Matrix | None = None) -> None:
         self.__name = str(name)
-        self.__origin = Matrix()  # link origin in global frame
+        self.__origin = Matrix()  # link origin relative to the world
         self.__joint = Matrix()  # joint rotation relative to origin
         self.__end = end  # link end relative to origin
         self.__imu = Matrix(xyz=end.xyz / 2)  # IMU relative to origin
@@ -70,25 +70,25 @@ class Link:
         self.__update()
         return self
 
-    def get_joint_global(self) -> Matrix:
+    def get_joint_world(self) -> Matrix:
         return self.__origin * self.__joint
 
-    def set_joint_global(self, joint_global: Matrix) -> None:
-        self.joint = self.__origin.T * joint_global  # transpose can be used instead of inverse because joint.xyz ignored
+    def set_joint_world(self, joint_world: Matrix) -> None:
+        self.joint = self.__origin.T * joint_world  # transpose can be used instead of inverse because joint.xyz ignored
 
-    def get_end_global(self) -> Matrix:
+    def get_end_world(self) -> Matrix:
         return self.__origin * self.__joint * self.__end
 
-    def get_imu_global(self) -> Matrix:
+    def get_imu_world(self) -> Matrix:
         return self.__origin * self.__joint * self.__imu
 
-    def set_imu_global(self, imu_global: Matrix) -> None:
-        self.imu = self.__joint.T * self.__origin.T * imu_global  # transpose can be used instead of inverse because imu.xyz ignored
+    def set_imu_world(self, imu_world: Matrix) -> None:
+        self.imu = self.__joint.T * self.__origin.T * imu_world  # transpose can be used instead of inverse because imu.xyz ignored
 
-    def set_joint_from_imu_global(self, imu_global: Matrix) -> None:
-        self.joint = self.__origin.T * imu_global * self.__imu.T  # transpose can be used instead of inverse because joint.xyz ignored
+    def set_joint_from_imu_world(self, imu_world: Matrix) -> None:
+        self.joint = self.__origin.T * imu_world * self.__imu.T  # transpose can be used instead of inverse because joint.xyz ignored
 
-    def get_wheel_axis_global(self) -> Matrix | None:
+    def get_wheel_axis_world(self) -> Matrix | None:
         return Matrix(rotation=(self.__origin * self.__joint).rotation) * self.__wheel_axis if self.__wheel_axis else None
 
     def flatten(self) -> list[Link]:
@@ -139,7 +139,7 @@ class Link:
 
         (imu_markers,) = axes.plot([], [], [], "ko", markersize=2, zorder=np.inf, label="IMU")
 
-        labels = [axes.text(*l.get_imu_global().xyz, l.name, zorder=np.inf) for l in links]
+        labels = [axes.text(*l.get_imu_world().xyz, l.name, zorder=np.inf) for l in links]
 
         # Create index text
         if frames is not None:
@@ -159,17 +159,17 @@ class Link:
                     self.dictionary()[name].joint = joint
 
             # Set link quivers
-            joints = np.array([l.get_joint_global() for l in links])
-            ends = np.array([l.get_end_global() for l in links])
+            joints = np.array([l.get_joint_world() for l in links])
+            ends = np.array([l.get_end_world() for l in links])
 
             link_quiver_segments = [[tuple(j.xyz), tuple(e.xyz)] for j, e in zip(joints, ends)]
 
             for joint, end, next_links in zip(joints, ends, [l.links for l in links]):
-                for next_joint in [n.get_joint_global() for n, _ in next_links]:
+                for next_joint in [n.get_joint_world() for n, _ in next_links]:
                     link_quiver_segments.append([tuple(joint.xyz), tuple(next_joint.xyz)])
                     link_quiver_segments.append([tuple(end.xyz), tuple(next_joint.xyz)])
 
-            for joint, end, wheel_axis in zip(joints, ends, [l.get_wheel_axis_global() for l in links]):
+            for joint, end, wheel_axis in zip(joints, ends, [l.get_wheel_axis_world() for l in links]):
                 if wheel_axis:
                     chords = [joint.xyz + (Matrix(axis_angle=(wheel_axis.xyz, a)) * Matrix(xyz=end.xyz - joint.xyz)).xyz for a in np.linspace(0, 360, 36)]
 
@@ -185,7 +185,7 @@ class Link:
             y_quiver_segments = [[tuple(j.xyz), tuple(j.xyz + (l * j.rotation[:, 1]))] for j, l in zip(joints, lengths)]
             z_quiver_segments = [[tuple(j.xyz), tuple(j.xyz + (l * j.rotation[:, 2]))] for j, l in zip(joints, lengths)]
 
-            imus = np.array([l.get_imu_global() for l in links])
+            imus = np.array([l.get_imu_world() for l in links])
             lengths = [0.25 * l.length for l in links]
 
             x_quiver_segments += [[tuple(i.xyz), tuple(i.xyz + (l * i.rotation[:, 0]))] for i, l in zip(imus, lengths)]
