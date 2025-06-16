@@ -1,9 +1,11 @@
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Viewer.Runtime
 {
@@ -18,14 +20,28 @@ namespace Viewer.Runtime
         private UdpClient listener;
 
         private Task<UdpReceiveResult> receiveTask;
+        
+        public UnityStringEvent OnMessage = new UnityStringEvent();
 
         public bool Paused { get; set; }
+        
+        private void Log(string message) => OnMessage.Invoke(message);
 
         private void Start()
         {
-            listener = new UdpClient(listenPort);
+            try
+            {
+                listener = new UdpClient(listenPort);
+            } 
+            catch (Exception e)
+            {
+                Log($"Failed to create UDP listener on port {listenPort}: {e.Message}");
+                return;
+            }
 
-            Main.OnIngestData += UpdatePlot;
+            Log("Started UDP listener on port " + listenPort);
+            
+            //Main.OnIngestData += UpdatePlot;
         }
 
         private void OnDestroy()
@@ -179,5 +195,8 @@ namespace Viewer.Runtime
 
             public float Angle;
         }
+
+        [Serializable]
+        public class UnityStringEvent : UnityEvent<string> { }
     }
 }

@@ -931,7 +931,8 @@ PlayerSettings:
   hmiLogStartupTiming: 0
   qnxGraphicConfPath: 
   apiCompatibilityLevel: 6
-  captureStartupLogs: {}
+  captureStartupLogs:
+    Standalone: 1
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
   cloudProjectId: 
