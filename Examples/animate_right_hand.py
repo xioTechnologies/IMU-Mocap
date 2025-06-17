@@ -15,25 +15,25 @@ model = models.RightHand()
 frames = []
 
 for y in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
-    model.right_first_distal.joint = Matrix(rot_x=45 * y)
-    model.right_first_proximal.joint = Matrix(rot_x=45 * y)
-    model.right_first_metacarpal.joint = Matrix(rot_x=45 * y)
+    model.right_i_distal.joint = Matrix(rot_x=45 * y)
+    model.right_i_proximal.joint = Matrix(rot_x=45 * y)
+    model.right_i_metacarpal.joint = Matrix(rot_x=45 * y)
 
-    model.right_second_distal.joint = Matrix(rot_x=90 * y)
-    model.right_second_middle.joint = Matrix(rot_x=90 * y)
-    model.right_second_proximal.joint = Matrix(rot_x=90 * y)
+    model.right_ii_distal.joint = Matrix(rot_x=90 * y)
+    model.right_ii_middle.joint = Matrix(rot_x=90 * y)
+    model.right_ii_proximal.joint = Matrix(rot_x=90 * y)
 
-    model.right_third_distal.joint = Matrix(rot_x=90 * y)
-    model.right_third_middle.joint = Matrix(rot_x=90 * y)
-    model.right_third_proximal.joint = Matrix(rot_x=90 * y)
+    model.right_iii_distal.joint = Matrix(rot_x=90 * y)
+    model.right_iii_middle.joint = Matrix(rot_x=90 * y)
+    model.right_iii_proximal.joint = Matrix(rot_x=90 * y)
 
-    model.right_forth_distal.joint = Matrix(rot_x=90 * y)
-    model.right_forth_middle.joint = Matrix(rot_x=90 * y)
-    model.right_forth_proximal.joint = Matrix(rot_x=90 * y)
+    model.right_iv_distal.joint = Matrix(rot_x=90 * y)
+    model.right_iv_middle.joint = Matrix(rot_x=90 * y)
+    model.right_iv_proximal.joint = Matrix(rot_x=90 * y)
 
-    model.right_fifth_distal.joint = Matrix(rot_x=90 * y)
-    model.right_fifth_middle.joint = Matrix(rot_x=90 * y)
-    model.right_fifth_proximal.joint = Matrix(rot_x=90 * y)
+    model.right_v_distal.joint = Matrix(rot_x=90 * y)
+    model.right_v_middle.joint = Matrix(rot_x=90 * y)
+    model.right_v_proximal.joint = Matrix(rot_x=90 * y)
 
     frames.append({l.name: l.joint for l in model.root.flatten()})  # each frame is a dictionary of joint matrices
 

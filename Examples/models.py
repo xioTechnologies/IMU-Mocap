@@ -35,11 +35,11 @@ SEAT_HEIGHT = 0.2
 SEAT_WIDTH = 0.8
 
 # Hands
-FIRST_LENGTH = 0.11
-SECOND_LENGTH = 0.17
-THIRD_LENGTH = 0.18
-FORTH_LENGTH = 0.17
-FIFTH_LENGTH = 0.14
+I_LENGTH = 0.11
+II_LENGTH = 0.17
+III_LENGTH = 0.18
+IV_LENGTH = 0.17
+V_LENGTH = 0.14
 METACARPAL_RATIO = 0.35
 PROXIMAL_RATIO = 0.3
 MIDDLE_RATIO = 0.2
@@ -101,79 +101,79 @@ class Model(ABC):
         self.seat.connect(self.left_wheel, Matrix(y=-SEAT_WIDTH / 2, z=-SEAT_HEIGHT))
         self.seat.connect(self.right_wheel, Matrix(y=SEAT_WIDTH / 2, z=-SEAT_HEIGHT))
 
-        # Left first phalangeal and metacarpal
-        self.left_first_distal = Link("Left First Distal", Matrix(y=FIRST_LENGTH * (MIDDLE_RATIO + DISTAL_RATIO)))
-        self.left_first_proximal = Link("Left First Proximal", Matrix(y=FIRST_LENGTH * PROXIMAL_RATIO)).connect(self.left_first_distal)
-        self.left_first_metacarpal = Link("Left First Metacarpal", Matrix(y=FIRST_LENGTH * METACARPAL_RATIO)).connect(self.left_first_proximal)
+        # Left I phalangeal and metacarpal
+        self.left_i_distal = Link("Left I Distal", Matrix(y=I_LENGTH * (MIDDLE_RATIO + DISTAL_RATIO)))
+        self.left_i_proximal = Link("Left I Proximal", Matrix(y=I_LENGTH * PROXIMAL_RATIO)).connect(self.left_i_distal)
+        self.left_i_metacarpal = Link("Left I Metacarpal", Matrix(y=I_LENGTH * METACARPAL_RATIO)).connect(self.left_i_proximal)
 
-        # Left second phalangeal and metacarpal
-        self.left_second_distal = Link("Left Second Distal", Matrix(y=SECOND_LENGTH * DISTAL_RATIO))
-        self.left_second_middle = Link("Left Second Middle", Matrix(y=SECOND_LENGTH * MIDDLE_RATIO)).connect(self.left_second_distal)
-        self.left_second_proximal = Link("Left Second Proximal", Matrix(y=SECOND_LENGTH * PROXIMAL_RATIO)).connect(self.left_second_middle)
-        self.left_second_metacarpal = Link("Left Second Metacarpal", Matrix(y=SECOND_LENGTH * METACARPAL_RATIO)).connect(self.left_second_proximal)
+        # Left II phalangeal and metacarpal
+        self.left_ii_distal = Link("Left II Distal", Matrix(y=II_LENGTH * DISTAL_RATIO))
+        self.left_ii_middle = Link("Left II Middle", Matrix(y=II_LENGTH * MIDDLE_RATIO)).connect(self.left_ii_distal)
+        self.left_ii_proximal = Link("Left II Proximal", Matrix(y=II_LENGTH * PROXIMAL_RATIO)).connect(self.left_ii_middle)
+        self.left_ii_metacarpal = Link("Left II Metacarpal", Matrix(y=II_LENGTH * METACARPAL_RATIO)).connect(self.left_ii_proximal)
 
-        # Left third phalangeal and metacarpal
-        self.left_third_distal = Link("Left Third Distal", Matrix(y=THIRD_LENGTH * DISTAL_RATIO))
-        self.left_third_middle = Link("Left Third Middle", Matrix(y=THIRD_LENGTH * MIDDLE_RATIO)).connect(self.left_third_distal)
-        self.left_third_proximal = Link("Left Third Proximal", Matrix(y=THIRD_LENGTH * PROXIMAL_RATIO)).connect(self.left_third_middle)
-        self.left_third_metacarpal = Link("Left Third Metacarpal", Matrix(y=THIRD_LENGTH * METACARPAL_RATIO)).connect(self.left_third_proximal)
+        # Left III phalangeal and metacarpal
+        self.left_iii_distal = Link("Left III Distal", Matrix(y=III_LENGTH * DISTAL_RATIO))
+        self.left_iii_middle = Link("Left III Middle", Matrix(y=III_LENGTH * MIDDLE_RATIO)).connect(self.left_iii_distal)
+        self.left_iii_proximal = Link("Left III Proximal", Matrix(y=III_LENGTH * PROXIMAL_RATIO)).connect(self.left_iii_middle)
+        self.left_iii_metacarpal = Link("Left III Metacarpal", Matrix(y=III_LENGTH * METACARPAL_RATIO)).connect(self.left_iii_proximal)
 
-        # Left forth phalangeal and metacarpal
-        self.left_forth_distal = Link("Left Forth Distal", Matrix(y=FORTH_LENGTH * DISTAL_RATIO))
-        self.left_forth_middle = Link("Left Forth Middle", Matrix(y=FORTH_LENGTH * MIDDLE_RATIO)).connect(self.left_forth_distal)
-        self.left_forth_proximal = Link("Left Forth Proximal", Matrix(y=FORTH_LENGTH * PROXIMAL_RATIO)).connect(self.left_forth_middle)
-        self.left_forth_metacarpal = Link("Left Forth Metacarpal", Matrix(y=FORTH_LENGTH * METACARPAL_RATIO)).connect(self.left_forth_proximal)
+        # Left IV phalangeal and metacarpal
+        self.left_iv_distal = Link("Left IV Distal", Matrix(y=IV_LENGTH * DISTAL_RATIO))
+        self.left_iv_middle = Link("Left IV Middle", Matrix(y=IV_LENGTH * MIDDLE_RATIO)).connect(self.left_iv_distal)
+        self.left_iv_proximal = Link("Left IV Proximal", Matrix(y=IV_LENGTH * PROXIMAL_RATIO)).connect(self.left_iv_middle)
+        self.left_iv_metacarpal = Link("Left IV Metacarpal", Matrix(y=IV_LENGTH * METACARPAL_RATIO)).connect(self.left_iv_proximal)
 
-        # Left fifth phalangeal and metacarpal
-        self.left_fifth_distal = Link("Left Fifth Distal", Matrix(y=FIFTH_LENGTH * DISTAL_RATIO))
-        self.left_fifth_middle = Link("Left Fifth Middle", Matrix(y=FIFTH_LENGTH * MIDDLE_RATIO)).connect(self.left_fifth_distal)
-        self.left_fifth_proximal = Link("Left Fifth Proximal", Matrix(y=FIFTH_LENGTH * PROXIMAL_RATIO)).connect(self.left_fifth_middle)
-        self.left_fifth_metacarpal = Link("Left Fifth Metacarpal", Matrix(y=FIFTH_LENGTH * METACARPAL_RATIO)).connect(self.left_fifth_proximal)
+        # Left V phalangeal and metacarpal
+        self.left_v_distal = Link("Left V Distal", Matrix(y=V_LENGTH * DISTAL_RATIO))
+        self.left_v_middle = Link("Left V Middle", Matrix(y=V_LENGTH * MIDDLE_RATIO)).connect(self.left_v_distal)
+        self.left_v_proximal = Link("Left V Proximal", Matrix(y=V_LENGTH * PROXIMAL_RATIO)).connect(self.left_v_middle)
+        self.left_v_metacarpal = Link("Left V Metacarpal", Matrix(y=V_LENGTH * METACARPAL_RATIO)).connect(self.left_v_proximal)
 
         # Left carpus
         self.left_carpus = Link("Left Carpus", Matrix(y=CARPUS_LENGTH))
-        self.left_carpus.connect(self.left_first_metacarpal, Matrix(x=CARPUS_WIDTH * 0.5, rot_z=-45))
-        self.left_carpus.connect(self.left_second_metacarpal, Matrix(x=CARPUS_WIDTH * 0.25))
-        self.left_carpus.connect(self.left_third_metacarpal)
-        self.left_carpus.connect(self.left_forth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25))
-        self.left_carpus.connect(self.left_fifth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.5))
+        self.left_carpus.connect(self.left_i_metacarpal, Matrix(x=CARPUS_WIDTH * 0.5, rot_z=-45))
+        self.left_carpus.connect(self.left_ii_metacarpal, Matrix(x=CARPUS_WIDTH * 0.25))
+        self.left_carpus.connect(self.left_iii_metacarpal)
+        self.left_carpus.connect(self.left_iv_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25))
+        self.left_carpus.connect(self.left_v_metacarpal, Matrix(x=CARPUS_WIDTH * -0.5))
 
-        # Right first phalangeal and metacarpal
-        self.right_first_distal = Link("Right First Distal", Matrix(y=-FIRST_LENGTH * (MIDDLE_RATIO + DISTAL_RATIO)))
-        self.right_first_proximal = Link("Right First Proximal", Matrix(y=-FIRST_LENGTH * PROXIMAL_RATIO)).connect(self.right_first_distal)
-        self.right_first_metacarpal = Link("Right First Metacarpal", Matrix(y=-FIRST_LENGTH * METACARPAL_RATIO)).connect(self.right_first_proximal)
+        # Right I phalangeal and metacarpal
+        self.right_i_distal = Link("Right I Distal", Matrix(y=-I_LENGTH * (MIDDLE_RATIO + DISTAL_RATIO)))
+        self.right_i_proximal = Link("Right I Proximal", Matrix(y=-I_LENGTH * PROXIMAL_RATIO)).connect(self.right_i_distal)
+        self.right_i_metacarpal = Link("Right I Metacarpal", Matrix(y=-I_LENGTH * METACARPAL_RATIO)).connect(self.right_i_proximal)
 
-        # Right second phalangeal and metacarpal
-        self.right_second_distal = Link("Right Second Distal", Matrix(y=-SECOND_LENGTH * DISTAL_RATIO))
-        self.right_second_middle = Link("Right Second Middle", Matrix(y=-SECOND_LENGTH * MIDDLE_RATIO)).connect(self.right_second_distal)
-        self.right_second_proximal = Link("Right Second Proximal", Matrix(y=-SECOND_LENGTH * PROXIMAL_RATIO)).connect(self.right_second_middle)
-        self.right_second_metacarpal = Link("Right Second Metacarpal", Matrix(y=-SECOND_LENGTH * METACARPAL_RATIO)).connect(self.right_second_proximal)
+        # Right II phalangeal and metacarpal
+        self.right_ii_distal = Link("Right II Distal", Matrix(y=-II_LENGTH * DISTAL_RATIO))
+        self.right_ii_middle = Link("Right II Middle", Matrix(y=-II_LENGTH * MIDDLE_RATIO)).connect(self.right_ii_distal)
+        self.right_ii_proximal = Link("Right II Proximal", Matrix(y=-II_LENGTH * PROXIMAL_RATIO)).connect(self.right_ii_middle)
+        self.right_ii_metacarpal = Link("Right II Metacarpal", Matrix(y=-II_LENGTH * METACARPAL_RATIO)).connect(self.right_ii_proximal)
 
-        # Right third phalangeal and metacarpal
-        self.right_third_distal = Link("Right Third Distal", Matrix(y=-THIRD_LENGTH * DISTAL_RATIO))
-        self.right_third_middle = Link("Right Third Middle", Matrix(y=-THIRD_LENGTH * MIDDLE_RATIO)).connect(self.right_third_distal)
-        self.right_third_proximal = Link("Right Third Proximal", Matrix(y=-THIRD_LENGTH * PROXIMAL_RATIO)).connect(self.right_third_middle)
-        self.right_third_metacarpal = Link("Right Third Metacarpal", Matrix(y=-THIRD_LENGTH * METACARPAL_RATIO)).connect(self.right_third_proximal)
+        # Right III phalangeal and metacarpal
+        self.right_iii_distal = Link("Right III Distal", Matrix(y=-III_LENGTH * DISTAL_RATIO))
+        self.right_iii_middle = Link("Right III Middle", Matrix(y=-III_LENGTH * MIDDLE_RATIO)).connect(self.right_iii_distal)
+        self.right_iii_proximal = Link("Right III Proximal", Matrix(y=-III_LENGTH * PROXIMAL_RATIO)).connect(self.right_iii_middle)
+        self.right_iii_metacarpal = Link("Right III Metacarpal", Matrix(y=-III_LENGTH * METACARPAL_RATIO)).connect(self.right_iii_proximal)
 
-        # Right forth phalangeal and metacarpal
-        self.right_forth_distal = Link("Right Forth Distal", Matrix(y=-FORTH_LENGTH * DISTAL_RATIO))
-        self.right_forth_middle = Link("Right Forth Middle", Matrix(y=-FORTH_LENGTH * MIDDLE_RATIO)).connect(self.right_forth_distal)
-        self.right_forth_proximal = Link("Right Forth Proximal", Matrix(y=-FORTH_LENGTH * PROXIMAL_RATIO)).connect(self.right_forth_middle)
-        self.right_forth_metacarpal = Link("Right Forth Metacarpal", Matrix(y=-FORTH_LENGTH * METACARPAL_RATIO)).connect(self.right_forth_proximal)
+        # Right IV phalangeal and metacarpal
+        self.right_iv_distal = Link("Right IV Distal", Matrix(y=-IV_LENGTH * DISTAL_RATIO))
+        self.right_iv_middle = Link("Right IV Middle", Matrix(y=-IV_LENGTH * MIDDLE_RATIO)).connect(self.right_iv_distal)
+        self.right_iv_proximal = Link("Right IV Proximal", Matrix(y=-IV_LENGTH * PROXIMAL_RATIO)).connect(self.right_iv_middle)
+        self.right_iv_metacarpal = Link("Right IV Metacarpal", Matrix(y=-IV_LENGTH * METACARPAL_RATIO)).connect(self.right_iv_proximal)
 
-        # Right fifth phalangeal and metacarpal
-        self.right_fifth_distal = Link("Right Fifth Distal", Matrix(y=-FIFTH_LENGTH * DISTAL_RATIO))
-        self.right_fifth_middle = Link("Right Fifth Middle", Matrix(y=-FIFTH_LENGTH * MIDDLE_RATIO)).connect(self.right_fifth_distal)
-        self.right_fifth_proximal = Link("Right Fifth Proximal", Matrix(y=-FIFTH_LENGTH * PROXIMAL_RATIO)).connect(self.right_fifth_middle)
-        self.right_fifth_metacarpal = Link("Right Fifth Metacarpal", Matrix(y=-FIFTH_LENGTH * METACARPAL_RATIO)).connect(self.right_fifth_proximal)
+        # Right V phalangeal and metacarpal
+        self.right_v_distal = Link("Right V Distal", Matrix(y=-V_LENGTH * DISTAL_RATIO))
+        self.right_v_middle = Link("Right V Middle", Matrix(y=-V_LENGTH * MIDDLE_RATIO)).connect(self.right_v_distal)
+        self.right_v_proximal = Link("Right V Proximal", Matrix(y=-V_LENGTH * PROXIMAL_RATIO)).connect(self.right_v_middle)
+        self.right_v_metacarpal = Link("Right V Metacarpal", Matrix(y=-V_LENGTH * METACARPAL_RATIO)).connect(self.right_v_proximal)
 
         # Right carpus
         self.right_carpus = Link("Right Carpus", Matrix(y=-CARPUS_LENGTH))
-        self.right_carpus.connect(self.right_first_metacarpal, Matrix(x=CARPUS_WIDTH * 0.5, rot_z=45))
-        self.right_carpus.connect(self.right_second_metacarpal, Matrix(x=CARPUS_WIDTH * 0.25))
-        self.right_carpus.connect(self.right_third_metacarpal)
-        self.right_carpus.connect(self.right_forth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25))
-        self.right_carpus.connect(self.right_fifth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.5))
+        self.right_carpus.connect(self.right_i_metacarpal, Matrix(x=CARPUS_WIDTH * 0.5, rot_z=45))
+        self.right_carpus.connect(self.right_ii_metacarpal, Matrix(x=CARPUS_WIDTH * 0.25))
+        self.right_carpus.connect(self.right_iii_metacarpal)
+        self.right_carpus.connect(self.right_iv_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25))
+        self.right_carpus.connect(self.right_v_metacarpal, Matrix(x=CARPUS_WIDTH * -0.5))
 
     @property
     @abstractmethod
