@@ -15,9 +15,9 @@ model = models.RightHand()
 frames = []
 
 for y in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
-    model.right_first_distal.joint = model.right_first_transformation(Matrix(rot_x=45 * y))
-    model.right_first_proximal.joint = model.right_first_transformation(Matrix(rot_x=45 * y))
-    model.right_first_metacarpal.joint = model.right_first_transformation(Matrix(rot_x=45 * y))
+    model.right_first_distal.joint = Matrix(rot_x=45 * y)
+    model.right_first_proximal.joint = Matrix(rot_x=45 * y)
+    model.right_first_metacarpal.joint = Matrix(rot_x=45 * y)
 
     model.right_second_distal.joint = Matrix(rot_x=90 * y)
     model.right_second_middle.joint = Matrix(rot_x=90 * y)

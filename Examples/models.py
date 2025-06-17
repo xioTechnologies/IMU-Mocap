@@ -102,9 +102,9 @@ class Model(ABC):
         self.seat.connect(self.right_wheel, Matrix(y=SEAT_WIDTH / 2, z=-SEAT_HEIGHT))
 
         # Left first phalangeal and metacarpal
-        self.left_first_distal = Link("Left First Distal", self.left_first_transformation(Matrix(y=FIRST_LENGTH * (MIDDLE_RATIO + DISTAL_RATIO))))
-        self.left_first_proximal = Link("Left First Proximal", self.left_first_transformation(Matrix(y=FIRST_LENGTH * PROXIMAL_RATIO))).connect(self.left_first_distal)
-        self.left_first_metacarpal = Link("Left First Metacarpal", self.left_first_transformation(Matrix(y=FIRST_LENGTH * METACARPAL_RATIO))).connect(self.left_first_proximal)
+        self.left_first_distal = Link("Left First Distal", Matrix(y=FIRST_LENGTH * (MIDDLE_RATIO + DISTAL_RATIO)))
+        self.left_first_proximal = Link("Left First Proximal", Matrix(y=FIRST_LENGTH * PROXIMAL_RATIO)).connect(self.left_first_distal)
+        self.left_first_metacarpal = Link("Left First Metacarpal", Matrix(y=FIRST_LENGTH * METACARPAL_RATIO)).connect(self.left_first_proximal)
 
         # Left second phalangeal and metacarpal
         self.left_second_distal = Link("Left Second Distal", Matrix(y=SECOND_LENGTH * DISTAL_RATIO))
@@ -132,16 +132,16 @@ class Model(ABC):
 
         # Left carpus
         self.left_carpus = Link("Left Carpus", Matrix(y=CARPUS_LENGTH))
-        self.left_carpus.connect(self.left_first_metacarpal, Matrix(x=CARPUS_WIDTH * 0.5))
+        self.left_carpus.connect(self.left_first_metacarpal, Matrix(x=CARPUS_WIDTH * 0.5, rot_z=-45))
         self.left_carpus.connect(self.left_second_metacarpal, Matrix(x=CARPUS_WIDTH * 0.25))
         self.left_carpus.connect(self.left_third_metacarpal)
         self.left_carpus.connect(self.left_forth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25))
         self.left_carpus.connect(self.left_fifth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.5))
 
         # Right first phalangeal and metacarpal
-        self.right_first_distal = Link("Right First Distal", self.right_first_transformation(Matrix(y=-FIRST_LENGTH * (MIDDLE_RATIO + DISTAL_RATIO))))
-        self.right_first_proximal = Link("Right First Proximal", self.right_first_transformation(Matrix(y=-FIRST_LENGTH * PROXIMAL_RATIO))).connect(self.right_first_distal)
-        self.right_first_metacarpal = Link("Right First Metacarpal", self.right_first_transformation(Matrix(y=-FIRST_LENGTH * METACARPAL_RATIO))).connect(self.right_first_proximal)
+        self.right_first_distal = Link("Right First Distal", Matrix(y=-FIRST_LENGTH * (MIDDLE_RATIO + DISTAL_RATIO)))
+        self.right_first_proximal = Link("Right First Proximal", Matrix(y=-FIRST_LENGTH * PROXIMAL_RATIO)).connect(self.right_first_distal)
+        self.right_first_metacarpal = Link("Right First Metacarpal", Matrix(y=-FIRST_LENGTH * METACARPAL_RATIO)).connect(self.right_first_proximal)
 
         # Right second phalangeal and metacarpal
         self.right_second_distal = Link("Right Second Distal", Matrix(y=-SECOND_LENGTH * DISTAL_RATIO))
@@ -164,12 +164,12 @@ class Model(ABC):
         # Right fifth phalangeal and metacarpal
         self.right_fifth_distal = Link("Right Fifth Distal", Matrix(y=-FIFTH_LENGTH * DISTAL_RATIO))
         self.right_fifth_middle = Link("Right Fifth Middle", Matrix(y=-FIFTH_LENGTH * MIDDLE_RATIO)).connect(self.right_fifth_distal)
-        self.right_fifth_proximal = Link("Right Fith Proximal", Matrix(y=-FIFTH_LENGTH * PROXIMAL_RATIO)).connect(self.right_fifth_middle)
+        self.right_fifth_proximal = Link("Right Fifth Proximal", Matrix(y=-FIFTH_LENGTH * PROXIMAL_RATIO)).connect(self.right_fifth_middle)
         self.right_fifth_metacarpal = Link("Right Fifth Metacarpal", Matrix(y=-FIFTH_LENGTH * METACARPAL_RATIO)).connect(self.right_fifth_proximal)
 
         # Right carpus
         self.right_carpus = Link("Right Carpus", Matrix(y=-CARPUS_LENGTH))
-        self.right_carpus.connect(self.right_first_metacarpal, Matrix(x=CARPUS_WIDTH * 0.5))
+        self.right_carpus.connect(self.right_first_metacarpal, Matrix(x=CARPUS_WIDTH * 0.5, rot_z=45))
         self.right_carpus.connect(self.right_second_metacarpal, Matrix(x=CARPUS_WIDTH * 0.25))
         self.right_carpus.connect(self.right_third_metacarpal)
         self.right_carpus.connect(self.right_forth_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25))
@@ -179,16 +179,6 @@ class Model(ABC):
     @abstractmethod
     def root(self) -> Link:
         pass
-
-    def left_first_transformation(self, end: Matrix) -> Matrix:
-        alignment = Matrix(rot_y=30, rot_z=-40)
-
-        return alignment * end * alignment.T
-
-    def right_first_transformation(self, end: Matrix) -> Matrix:
-        alignment = Matrix(rot_y=30, rot_z=40)
-
-        return alignment * end * alignment.T
 
     def _connect_hands_to_arms(self) -> None:
         self.left_forearm.connect(self.left_hand)
