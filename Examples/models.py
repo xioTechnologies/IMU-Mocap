@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from imumocap import Link, Matrix
+from imumocap import Joint, Link, Matrix
 
 # Head
 HEAD_LENGTH = 0.20
@@ -175,10 +175,93 @@ class Model(ABC):
         self.right_carpus.connect(self.right_iv_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25))
         self.right_carpus.connect(self.right_v_metacarpal, Matrix(x=CARPUS_WIDTH * -0.5))
 
+        # Joints
+        self.__joints = {
+            # Head
+            "Head": Joint(self.head, Matrix.align_nz_nx_py()),
+            "Neck": Joint(self.neck, Matrix.align_nz_nx_py()),
+            # Left arm
+            "Left Wrist": Joint(self.left_hand, Matrix.align_py_pz_px()),
+            "Left Elbow": Joint(self.left_forearm, Matrix.align_py_px_nz()),
+            "Left Shoulder": Joint(self.left_upper_arm, Matrix.align_nz_py_px()),
+            "Left Clavicle": Joint(self.left_shoulder, Matrix.align_nz_py_px()),
+            # Right arm
+            "Right Wrist": Joint(self.right_hand, Matrix.align_py_nz_nx()),
+            "Right Elbow": Joint(self.right_forearm, Matrix.align_py_nx_pz()),
+            "Right Shoulder": Joint(self.right_upper_arm, Matrix.align_pz_py_nx()),
+            "Right Clavicle": Joint(self.right_shoulder, Matrix.align_pz_py_nx()),
+            # Torso
+            "Upper Torso": Joint(self.upper_torso, Matrix.align_nz_nx_py()),
+            "Lower Torso": Joint(self.lower_torso, Matrix.align_nz_nx_py()),
+            "Upper Lumbar": Joint(self.upper_lumbar, Matrix.align_nz_nx_py()),
+            "Lower Lumbar": Joint(self.lower_lumbar, Matrix.align_nz_nx_py()),
+            # Left leg
+            "Left Toe": Joint(self.left_toe, Matrix.align_px_nz_py()),
+            "Left Ankle": Joint(self.left_foot, Matrix.align_nz_px_ny()),
+            "Left Knee": Joint(self.left_lower_leg, Matrix.align_nz_nx_py()),
+            "Left Hip": Joint(self.left_upper_leg, Matrix.align_nz_px_ny()),
+            # Right leg
+            "Right Toe": Joint(self.right_toe, Matrix.align_nx_pz_py()),
+            "Right Ankle": Joint(self.right_foot, Matrix.align_pz_nx_ny()),
+            "Right Knee": Joint(self.right_lower_leg, Matrix.align_pz_px_py()),
+            "Right Hip": Joint(self.right_upper_leg, Matrix.align_pz_nx_ny()),
+            # Pelvis
+            "Pelvis": Joint(self.pelvis, Matrix.align_nz_nx_py()),
+            # Wheelchair
+            "Left Wheel": Joint(self.left_wheel, Matrix.align_nz_nx_py()),
+            "Right Wheel": Joint(self.right_wheel, Matrix.align_pz_px_py()),
+            "Seat": Joint(self.seat, Matrix.align_nz_nx_py()),
+            # Left hand
+            "Left I Distal": Joint(self.left_i_distal, Matrix.align_py_nz_nx()),
+            "Left I Proximal": Joint(self.left_i_proximal, Matrix.align_py_nz_nx()),
+            "Left I Metacarpal": Joint(self.left_i_metacarpal, Matrix.align_py_nz_nx()),
+            "Left II Distal": Joint(self.left_ii_distal, Matrix.align_py_nz_nx()),
+            "Left II Middle": Joint(self.left_ii_middle, Matrix.align_py_nz_nx()),
+            "Left II Proximal": Joint(self.left_ii_proximal, Matrix.align_py_nz_nx()),
+            "Left II Metacarpal": Joint(self.left_ii_metacarpal, Matrix.align_py_nz_nx()),
+            "Left III Distal": Joint(self.left_iii_distal, Matrix.align_py_nz_nx()),
+            "Left III Middle": Joint(self.left_iii_middle, Matrix.align_py_nz_nx()),
+            "Left III Proximal": Joint(self.left_iii_proximal, Matrix.align_py_nz_nx()),
+            "Left III Metacarpal": Joint(self.left_iii_metacarpal, Matrix.align_py_nz_nx()),
+            "Left IV Distal": Joint(self.left_iv_distal, Matrix.align_py_nz_nx()),
+            "Left IV Middle": Joint(self.left_iv_middle, Matrix.align_py_nz_nx()),
+            "Left IV Proximal": Joint(self.left_iv_proximal, Matrix.align_py_nz_nx()),
+            "Left IV Metacarpal": Joint(self.left_iv_metacarpal, Matrix.align_py_nz_nx()),
+            "Left V Distal": Joint(self.left_v_distal, Matrix.align_py_nz_nx()),
+            "Left V Middle": Joint(self.left_v_middle, Matrix.align_py_nz_nx()),
+            "Left V Proximal": Joint(self.left_v_proximal, Matrix.align_py_nz_nx()),
+            "Left V Metacarpal": Joint(self.left_v_metacarpal, Matrix.align_py_nz_nx()),
+            "Left Carpus": Joint(self.left_carpus, Matrix.align_py_pz_px()),
+            # Right hand
+            "Right I Distal": Joint(self.right_i_distal, Matrix.align_py_pz_px()),
+            "Right I Proximal": Joint(self.right_i_proximal, Matrix.align_py_pz_px()),
+            "Right I Metacarpal": Joint(self.right_i_metacarpal, Matrix.align_py_pz_px()),
+            "Right II Distal": Joint(self.right_ii_distal, Matrix.align_py_pz_px()),
+            "Right II Middle": Joint(self.right_ii_middle, Matrix.align_py_pz_px()),
+            "Right II Proximal": Joint(self.right_ii_proximal, Matrix.align_py_pz_px()),
+            "Right II Metacarpal": Joint(self.right_ii_metacarpal, Matrix.align_py_pz_px()),
+            "Right III Distal": Joint(self.right_iii_distal, Matrix.align_py_pz_px()),
+            "Right III Middle": Joint(self.right_iii_middle, Matrix.align_py_pz_px()),
+            "Right III Proximal": Joint(self.right_iii_proximal, Matrix.align_py_pz_px()),
+            "Right III Metacarpal": Joint(self.right_iii_metacarpal, Matrix.align_py_pz_px()),
+            "Right IV Distal": Joint(self.right_iv_distal, Matrix.align_py_pz_px()),
+            "Right IV Middle": Joint(self.right_iv_middle, Matrix.align_py_pz_px()),
+            "Right IV Proximal": Joint(self.right_iv_proximal, Matrix.align_py_pz_px()),
+            "Right IV Metacarpal": Joint(self.right_iv_metacarpal, Matrix.align_py_pz_px()),
+            "Right V Distal": Joint(self.right_v_distal, Matrix.align_py_pz_px()),
+            "Right V Middle": Joint(self.right_v_middle, Matrix.align_py_pz_px()),
+            "Right V Proximal": Joint(self.right_v_proximal, Matrix.align_py_pz_px()),
+            "Right V Metacarpal": Joint(self.right_v_metacarpal, Matrix.align_py_pz_px()),
+            "Right Carpus": Joint(self.right_carpus, Matrix.align_py_nz_nx()),
+        }
+
     @property
     @abstractmethod
     def root(self) -> Link:
         pass
+
+    def _remove_unused_joints(self) -> None:
+        self.__joints = {n: j for n, j in self.joints.items() if j.link.name in self.root.dictionary()}
 
     def _connect_hands_to_arms(self) -> None:
         self.left_forearm.connect(self.left_hand)
@@ -197,12 +280,17 @@ class Model(ABC):
         self.left_forearm.connect(self.left_carpus)
         self.right_forearm.connect(self.right_carpus)
 
+    @property
+    def joints(self) -> dict[str, Joint]:
+        return self.__joints
+
 
 class UpperBody(Model):
     def __init__(self) -> None:
         super().__init__()
 
         self._connect_hands_to_arms()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -212,6 +300,8 @@ class UpperBody(Model):
 class LowerBody(Model):
     def __init__(self) -> None:
         super().__init__()
+
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -225,6 +315,7 @@ class Body(Model):
         self._connect_hands_to_arms()
         self._connect_torso()
         self._connect_lumbar_to_pelvis()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -234,6 +325,8 @@ class Body(Model):
 class Wheelchair(Model):
     def __init__(self) -> None:
         super().__init__()
+
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -248,6 +341,7 @@ class BodyWithWheelchair(Model):
         self._connect_torso()
         self._connect_lumbar_to_pelvis()
         self._connect_pelvis_to_seat()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -258,6 +352,8 @@ class LeftHand(Model):
     def __init__(self) -> None:
         super().__init__()
 
+        self._remove_unused_joints()
+
     @property
     def root(self) -> Link:
         return self.left_carpus
@@ -266,6 +362,8 @@ class LeftHand(Model):
 class RightHand(Model):
     def __init__(self) -> None:
         super().__init__()
+
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -277,6 +375,7 @@ class UpperBodyWithHands(Model):
         super().__init__()
 
         self._connect_carpi_to_arms()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -290,6 +389,7 @@ class BodyWithHands(Model):
         self._connect_carpi_to_arms()
         self._connect_torso()
         self._connect_lumbar_to_pelvis()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:
@@ -304,6 +404,7 @@ class BodyWithWheelchairAndHands(Model):
         self._connect_torso()
         self._connect_lumbar_to_pelvis()
         self._connect_pelvis_to_seat()
+        self._remove_unused_joints()
 
     @property
     def root(self) -> Link:

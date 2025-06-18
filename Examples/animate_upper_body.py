@@ -4,7 +4,6 @@ import time
 import imumocap
 import models
 import numpy as np
-from imumocap import Matrix
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
@@ -14,21 +13,21 @@ model = models.UpperBody()
 # Create animation frames
 frames = []
 
-for y in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
-    model.head.joint = Matrix(rot_y=y * 15)
-    model.neck.joint = Matrix(rot_y=y * 15)
+for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
+    model.joints["Head"].set(a * 15)
+    model.joints["Neck"].set(a * 15)
 
-    model.left_hand.joint = Matrix(rot_x=y * -45)
-    model.left_forearm.joint = Matrix(rot_y=y * -90, rot_z=y * -60)
-    model.left_upper_arm.joint = Matrix(rot_x=y * 10, rot_z=y * -60)
-    model.left_shoulder.joint = Matrix(rot_x=y * -10)
+    model.joints["Left Wrist"].set(a * -45)
+    model.joints["Left Elbow"].set(bend=a * 60, twist=a * -120)
+    model.joints["Left Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
+    model.joints["Left Clavicle"].set(a * -15)
 
-    model.right_hand.joint = Matrix(rot_x=y * 45)
-    model.right_forearm.joint = Matrix(rot_y=y * -90, rot_z=y * 60)
-    model.right_upper_arm.joint = Matrix(rot_x=y * -10, rot_z=y * 60)
-    model.right_shoulder.joint = Matrix(rot_x=y * 10)
+    model.joints["Right Wrist"].set(a * -45)
+    model.joints["Right Elbow"].set(bend=a * 60, twist=a * -120)
+    model.joints["Right Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
+    model.joints["Right Clavicle"].set(a * -15)
 
-    model.upper_torso.joint = Matrix(rot_y=y * 15)  # root joint connects the model to the world
+    model.joints["Upper Torso"].set(a * 15)  # root joint connects the model to the world
 
     frames.append({l.name: l.joint for l in model.root.flatten()})  # each frame is a dictionary of joint matrices
 

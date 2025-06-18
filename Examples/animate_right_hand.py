@@ -4,7 +4,6 @@ import time
 import imumocap
 import models
 import numpy as np
-from imumocap import Matrix
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
@@ -14,26 +13,26 @@ model = models.RightHand()
 # Create animation frames
 frames = []
 
-for y in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
-    model.right_i_distal.joint = Matrix(rot_x=45 * y)
-    model.right_i_proximal.joint = Matrix(rot_x=45 * y)
-    model.right_i_metacarpal.joint = Matrix(rot_x=45 * y)
+for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
+    model.joints["Right I Distal"].set(45 * a)
+    model.joints["Right I Proximal"].set(45 * a)
+    model.joints["Right I Metacarpal"].set(45 * a)
 
-    model.right_ii_distal.joint = Matrix(rot_x=90 * y)
-    model.right_ii_middle.joint = Matrix(rot_x=90 * y)
-    model.right_ii_proximal.joint = Matrix(rot_x=90 * y)
+    model.joints["Right II Distal"].set(90 * a)
+    model.joints["Right II Middle"].set(90 * a)
+    model.joints["Right II Proximal"].set(90 * a)
 
-    model.right_iii_distal.joint = Matrix(rot_x=90 * y)
-    model.right_iii_middle.joint = Matrix(rot_x=90 * y)
-    model.right_iii_proximal.joint = Matrix(rot_x=90 * y)
+    model.joints["Right III Distal"].set(90 * a)
+    model.joints["Right III Middle"].set(90 * a)
+    model.joints["Right III Proximal"].set(90 * a)
 
-    model.right_iv_distal.joint = Matrix(rot_x=90 * y)
-    model.right_iv_middle.joint = Matrix(rot_x=90 * y)
-    model.right_iv_proximal.joint = Matrix(rot_x=90 * y)
+    model.joints["Right IV Distal"].set(90 * a)
+    model.joints["Right IV Middle"].set(90 * a)
+    model.joints["Right IV Proximal"].set(90 * a)
 
-    model.right_v_distal.joint = Matrix(rot_x=90 * y)
-    model.right_v_middle.joint = Matrix(rot_x=90 * y)
-    model.right_v_proximal.joint = Matrix(rot_x=90 * y)
+    model.joints["Right V Distal"].set(90 * a)
+    model.joints["Right V Middle"].set(90 * a)
+    model.joints["Right V Proximal"].set(90 * a)
 
     frames.append({l.name: l.joint for l in model.root.flatten()})  # each frame is a dictionary of joint matrices
 

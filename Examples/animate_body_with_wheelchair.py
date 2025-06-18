@@ -5,7 +5,6 @@ import imumocap
 import imumocap.solvers
 import models
 import numpy as np
-from imumocap import Matrix
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
@@ -15,38 +14,37 @@ model = models.BodyWithWheelchair()
 # Create animation frames
 frames = []
 
-for y in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
-    model.head.joint = Matrix(rot_y=y * 15)
-    model.neck.joint = Matrix(rot_y=y * 15)
+for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
+    model.joints["Head"].set(a * 15)
+    model.joints["Neck"].set(a * 15)
 
-    model.left_hand.joint = Matrix(rot_x=y * -45)
-    model.left_forearm.joint = Matrix(rot_y=y * -90, rot_z=y * -60)
-    model.left_upper_arm.joint = Matrix(rot_x=y * 10, rot_z=y * -60)
-    model.left_shoulder.joint = Matrix(rot_x=y * -10)
+    model.joints["Left Wrist"].set(a * -45)
+    model.joints["Left Elbow"].set(bend=a * 60, twist=a * -120)
+    model.joints["Left Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
+    model.joints["Left Clavicle"].set(a * -15)
 
-    model.right_hand.joint = Matrix(rot_x=y * 45)
-    model.right_forearm.joint = Matrix(rot_y=y * -90, rot_z=y * 60)
-    model.right_upper_arm.joint = Matrix(rot_x=y * -10, rot_z=y * 60)
-    model.right_shoulder.joint = Matrix(rot_x=y * -10)
+    model.joints["Right Wrist"].set(a * -45)
+    model.joints["Right Elbow"].set(a * 60, twist=a * -120)
+    model.joints["Right Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
+    model.joints["Right Clavicle"].set(a * -15)
 
-    model.upper_torso.joint = Matrix(rot_y=y * 15)
-    model.lower_torso.joint = Matrix(rot_y=y * 15)
-    model.upper_lumbar.joint = Matrix(rot_y=y * 15)
-    model.lower_lumbar.joint = Matrix(rot_y=y * 15)
+    model.joints["Upper Torso"].set(a * 15)
+    model.joints["Lower Torso"].set(a * 15)
+    model.joints["Upper Lumbar"].set(a * 15)
+    model.joints["Lower Lumbar"].set(a * 15)
 
-    model.left_foot.joint = Matrix(rot_y=y * 60)
-    model.left_lower_leg.joint = Matrix(rot_y=(y * 45) + 90)
-    model.left_upper_leg.joint = Matrix(rot_y=(y * -15) - 90)
+    model.joints["Left Knee"].set(90)
+    model.joints["Left Hip"].set(90)
 
-    model.right_foot.joint = Matrix(rot_y=y * 60)
-    model.right_lower_leg.joint = Matrix(rot_y=(y * 45) + 90)
-    model.right_upper_leg.joint = Matrix(rot_y=(y * -15) - 90)
+    model.joints["Right Knee"].set(90)
+    model.joints["Right Hip"].set(90)
 
-    model.pelvis.joint = Matrix(rot_y=y * -25)
+    model.joints["Left Wheel"].set(a * 360)
+    model.joints["Right Wheel"].set(a * 360)
 
-    model.left_wheel.joint = Matrix(rot_y=y * 360)
-    model.right_wheel.joint = Matrix(rot_y=y * 360)
-    model.seat.joint = Matrix(x=y * 2 * np.pi * model.left_wheel.length, rot_x=y * 30)  # root joint connects the model to the world
+    model.joints["Seat"].set(tilt=a * 30)  # root joint connects the model to the world
+
+    imumocap.solvers.translate(model.root, [a * 2 * np.pi * model.left_wheel.length, 0, 0])
 
     imumocap.solvers.floor(model.root)
 

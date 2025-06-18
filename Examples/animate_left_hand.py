@@ -4,7 +4,6 @@ import time
 import imumocap
 import models
 import numpy as np
-from imumocap import Matrix
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
@@ -14,26 +13,26 @@ model = models.LeftHand()
 # Create animation frames
 frames = []
 
-for y in [np.sin(x) for x in np.linspace(0, np.pi, 100)]:
-    model.left_i_distal.joint = Matrix(rot_x=-45 * y)
-    model.left_i_proximal.joint = Matrix(rot_x=-45 * y)
-    model.left_i_metacarpal.joint = Matrix(rot_x=-45 * y)
+for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
+    model.joints["Left I Distal"].set(45 * a)
+    model.joints["Left I Proximal"].set(45 * a)
+    model.joints["Left I Metacarpal"].set(45 * a)
 
-    model.left_ii_distal.joint = Matrix(rot_x=-90 * y)
-    model.left_ii_middle.joint = Matrix(rot_x=-90 * y)
-    model.left_ii_proximal.joint = Matrix(rot_x=-90 * y)
+    model.joints["Left II Distal"].set(90 * a)
+    model.joints["Left II Middle"].set(90 * a)
+    model.joints["Left II Proximal"].set(90 * a)
 
-    model.left_iii_distal.joint = Matrix(rot_x=-90 * y)
-    model.left_iii_middle.joint = Matrix(rot_x=-90 * y)
-    model.left_iii_proximal.joint = Matrix(rot_x=-90 * y)
+    model.joints["Left III Distal"].set(90 * a)
+    model.joints["Left III Middle"].set(90 * a)
+    model.joints["Left III Proximal"].set(90 * a)
 
-    model.left_iv_distal.joint = Matrix(rot_x=-90 * y)
-    model.left_iv_middle.joint = Matrix(rot_x=-90 * y)
-    model.left_iv_proximal.joint = Matrix(rot_x=-90 * y)
+    model.joints["Left IV Distal"].set(90 * a)
+    model.joints["Left IV Middle"].set(90 * a)
+    model.joints["Left IV Proximal"].set(90 * a)
 
-    model.left_v_distal.joint = Matrix(rot_x=-90 * y)
-    model.left_v_middle.joint = Matrix(rot_x=-90 * y)
-    model.left_v_proximal.joint = Matrix(rot_x=-90 * y)
+    model.joints["Left V Distal"].set(90 * a)
+    model.joints["Left V Middle"].set(90 * a)
+    model.joints["Left V Proximal"].set(90 * a)
 
     frames.append({l.name: l.joint for l in model.root.flatten()})  # each frame is a dictionary of joint matrices
 

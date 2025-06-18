@@ -178,6 +178,19 @@ class Matrix:
             )
 
     @property
+    def rot_xyz(self) -> tuple[float, float, float]:
+        # Quaternions and Rotation Sequence by Jack B. Kuipers, ISBN 0-691-10298-8, Page 168
+        # (cross-reference with matrix elements on page 167)
+
+        rot_x = np.degrees(np.arctan2(self.__matrix[2, 1], self.__matrix[2, 2]))
+
+        rot_y = np.degrees(-1 * np.arcsin(np.clip(self.__matrix[2, 0], -1, 1)))
+
+        rot_z = np.degrees(np.arctan2(self.__matrix[1, 0], self.__matrix[0, 0]))
+
+        return rot_x, rot_y, rot_z
+
+    @property
     def T(self) -> Matrix:
         return Matrix(matrix=self.__matrix.T)
 
@@ -217,3 +230,267 @@ class Matrix:
             )
             for t in np.linspace(0, 1, n)
         ]
+
+    @staticmethod
+    def align_px_py_pz() -> Matrix:
+        return Matrix(
+            [
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_px_nz_py() -> Matrix:
+        return Matrix(
+            [
+                [1, 0, 0, 0],
+                [0, 0, 1, 0],
+                [0, -1, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_px_ny_nz() -> Matrix:
+        return Matrix(
+            [
+                [1, 0, 0, 0],
+                [0, -1, 0, 0],
+                [0, 0, -1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_px_pz_ny() -> Matrix:
+        return Matrix(
+            [
+                [1, 0, 0, 0],
+                [0, 0, -1, 0],
+                [0, 1, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_nx_py_nz() -> Matrix:
+        return Matrix(
+            [
+                [-1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, -1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_nx_pz_py() -> Matrix:
+        return Matrix(
+            [
+                [-1, 0, 0, 0],
+                [0, 0, 1, 0],
+                [0, 1, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_nx_ny_pz() -> Matrix:
+        return Matrix(
+            [
+                [-1, 0, 0, 0],
+                [0, -1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_nx_nz_ny() -> Matrix:
+        return Matrix(
+            [
+                [-1, 0, 0, 0],
+                [0, 0, -1, 0],
+                [0, -1, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_py_nx_pz() -> Matrix:
+        return Matrix(
+            [
+                [0, -1, 0, 0],
+                [1, 0, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_py_nz_nx() -> Matrix:
+        return Matrix(
+            [
+                [0, 0, -1, 0],
+                [1, 0, 0, 0],
+                [0, -1, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_py_px_nz() -> Matrix:
+        return Matrix(
+            [
+                [0, 1, 0, 0],
+                [1, 0, 0, 0],
+                [0, 0, -1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_py_pz_px() -> Matrix:
+        return Matrix(
+            [
+                [0, 0, 1, 0],
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_ny_px_pz() -> Matrix:
+        return Matrix(
+            [
+                [0, 1, 0, 0],
+                [-1, 0, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_ny_nz_px() -> Matrix:
+        return Matrix(
+            [
+                [0, 0, 1, 0],
+                [-1, 0, 0, 0],
+                [0, -1, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_ny_nx_nz() -> Matrix:
+        return Matrix(
+            [
+                [0, -1, 0, 0],
+                [-1, 0, 0, 0],
+                [0, 0, -1, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_ny_pz_nx() -> Matrix:
+        return Matrix(
+            [
+                [0, 0, -1, 0],
+                [-1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_pz_py_nx() -> Matrix:
+        return Matrix(
+            [
+                [0, 0, -1, 0],
+                [0, 1, 0, 0],
+                [1, 0, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_pz_px_py() -> Matrix:
+        return Matrix(
+            [
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [1, 0, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_pz_ny_px() -> Matrix:
+        return Matrix(
+            [
+                [0, 0, 1, 0],
+                [0, -1, 0, 0],
+                [1, 0, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_pz_nx_ny() -> Matrix:
+        return Matrix(
+            [
+                [0, -1, 0, 0],
+                [0, 0, -1, 0],
+                [1, 0, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_nz_py_px() -> Matrix:
+        return Matrix(
+            [
+                [0, 0, 1, 0],
+                [0, 1, 0, 0],
+                [-1, 0, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_nz_nx_py() -> Matrix:
+        return Matrix(
+            [
+                [0, -1, 0, 0],
+                [0, 0, 1, 0],
+                [-1, 0, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_nz_ny_nx() -> Matrix:
+        return Matrix(
+            [
+                [0, 0, -1, 0],
+                [0, -1, 0, 0],
+                [-1, 0, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
+
+    @staticmethod
+    def align_nz_px_ny() -> Matrix:
+        return Matrix(
+            [
+                [0, 1, 0, 0],
+                [0, 0, -1, 0],
+                [-1, 0, 0, 0],
+                [0, 0, 0, 1],
+            ]
+        )
