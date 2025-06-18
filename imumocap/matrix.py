@@ -29,7 +29,7 @@ class Matrix:
             matrix = np.array(matrix)
 
             if matrix.shape != (4, 4):
-                raise ValueError(f"Matrix shape {self.__matrix.shape} is not (4, 4)")
+                raise ValueError(f"Matrix shape {matrix.shape} is not (4, 4)")
 
             self.__matrix = matrix
         elif rotation is not None:
@@ -45,7 +45,7 @@ class Matrix:
         elif quaternion is not None:
             # Quaternions and Rotation Sequence by Jack B. Kuipers, ISBN 0-691-10298-8, Page 168
 
-            quaternion /= np.linalg.norm(quaternion)
+            quaternion = quaternion / np.linalg.norm(quaternion)
 
             qw = quaternion[0]
             qx = quaternion[1]
@@ -66,7 +66,7 @@ class Matrix:
 
             axis, angle = axis_angle
 
-            axis /= np.linalg.norm(axis)
+            axis = axis / np.linalg.norm(axis)
             half_angle = np.radians(angle) / 2
 
             self.__matrix = Matrix(
