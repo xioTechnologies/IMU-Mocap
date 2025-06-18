@@ -10,7 +10,7 @@ from .matrix import Matrix
 class Link:
     def __init__(self, name, end: Matrix, wheel_axis: Matrix | None = None) -> None:
         self.__name = str(name)
-        self.__origin = Matrix()  # link origin relative to the world
+        self.__origin = Matrix()  # link origin relative to the world (root origin is always coincident with world origin)
         self.__joint = Matrix()  # joint rotation relative to origin
         self.__end = end  # link end relative to origin
         self.__imu = Matrix(xyz=end.xyz / 2)  # IMU relative to origin
