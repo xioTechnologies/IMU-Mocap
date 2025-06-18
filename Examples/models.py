@@ -261,7 +261,9 @@ class Model(ABC):
         pass
 
     def _remove_unused_joints(self) -> None:
-        self.__joints = {n: j for n, j in self.joints.items() if j.link.name in self.root.dictionary()}
+        links = [l.name for l in self.root.flatten()]
+
+        self.__joints = {n: j for n, j in self.joints.items() if j.link.name in links}
 
     def _connect_hands_to_arms(self) -> None:
         self.left_forearm.connect(self.left_hand)

@@ -31,13 +31,11 @@ imumocap.solvers.calibrate(model.root, {n: Matrix(quaternion=q[0, :]) for n, q i
 frames = []
 
 for index in range(number_of_samples):
-    for link in model.root.flatten():
-        if link.name in imus:
-            link.set_joint_from_imu_world(Matrix(quaternion=imus[link.name][index, :]))
+    imumocap.set_pose_from_imus(model.root, {n: Matrix(quaternion=q[index, :]) for n, q in imus.items()})
 
     imumocap.solvers.floor(model.root)
 
-    frames.append({l.name: l.joint for l in model.root.flatten()})  # each frame is a dictionary of joint matrices
+    frames.append(imumocap.get_pose(model.root))
 
 # Plot
 model.root.plot(frames, block=not dont_block)
@@ -49,8 +47,7 @@ while True:
     for frame in frames:
         time.sleep(1 / FPS)
 
-        for name, joint in frame.items():
-            model.root.dictionary()[name].joint = joint
+        imumocap.set_pose(model.root, frame)
 
         connection.send(imumocap.viewer.link_to_primitives(model.root))
 

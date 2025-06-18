@@ -107,12 +107,9 @@ class Link:
 
         return links
 
-    def dictionary(self) -> dict[str, Link]:
-        return {l.name: l for l in self.flatten()}
-
     def plot(
         self,
-        frames: dict[str, Matrix] | None = None,  # each frame is a dictionary of joint matrices created by {l.name: l.joint for l in root.flatten()}
+        frames: list[dict[str, Matrix]] | None = None,  # each frame is a dictionary of joint matrices created by imumocap.get_pose(root)
         fps: float = 30,  # animation frames per second
         file_name: str = "",  # must be .gif
         elev: float | None = None,  # see mpl_toolkits.mplot3d.axes3d.Axes3D.view_init
@@ -163,8 +160,10 @@ class Link:
         def update(index: int | None = None) -> None:
             # Set joints
             if index is not None:
-                for name, joint in frames[index].items():
-                    self.dictionary()[name].joint = joint
+                dictionary = {l.name: l for l in self.flatten()}  # TODO: replace this with set_pose
+
+                for name, matrix in frames[index].items():
+                    dictionary[name].joint = matrix
 
             # Set link quivers
             joints = np.array([l.get_joint_world() for l in links])
