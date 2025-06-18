@@ -26,7 +26,12 @@ class Matrix:
             rot_x, rot_y, rot_z = tuple(rot_xyz)
 
         if matrix is not None:
-            self.__matrix = matrix.copy()
+            matrix = np.array(matrix)
+
+            if matrix.shape != (4, 4):
+                raise ValueError(f"Matrix shape {self.__matrix.shape} is not (4, 4)")
+
+            self.__matrix = matrix
         elif rotation is not None:
             self.__matrix = np.array(
                 [

@@ -8,7 +8,7 @@ from ..matrix import Matrix
 def calibrate(
     root: Link,
     imus: dict[str, Matrix],  # {<link name>: <IMU measurment>, ...}
-    pose: dict[str, Matrix] = {},  # {<link name>: <joint matrix>, ...}
+    pose: dict[str, Matrix] = {},  # {<link name>: <link joint matrix>, ...}
 ) -> None:
     links = {l.name: l for l in root.flatten()}
 
