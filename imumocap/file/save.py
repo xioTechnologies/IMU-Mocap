@@ -1,8 +1,8 @@
 import json
 
-from .joint import Joint
-from .link import Link
-from .matrix import Matrix
+from ..joint import Joint
+from ..link import Link
+from ..matrix import Matrix
 
 
 def save_model(path: str, root: Link, joints: dict[str, Joint] | None = None) -> None:

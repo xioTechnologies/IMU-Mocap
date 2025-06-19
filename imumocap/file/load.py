@@ -3,9 +3,9 @@ from typing import Any
 
 import numpy as np
 
-from .joint import Joint
-from .link import Link
-from .matrix import Matrix
+from ..joint import Joint
+from ..link import Link
+from ..matrix import Matrix
 
 
 def load_model(path: str) -> tuple[Link, dict[str, Joint] | None]:
