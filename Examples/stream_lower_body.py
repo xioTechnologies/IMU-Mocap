@@ -19,25 +19,17 @@ imus = hardware.setup([l.name for l in model.root.flatten() if l.name not in ign
 # Stream to IMU Mocap Viewer
 connection = imumocap.viewer.Connection()
 
-
-def calibrate() -> None:
-    print("Calibrating in...")
-
-    for countdown in [3, 2, 1]:
-        print(countdown)
-
-        time.sleep(0.5)
-
-    imumocap.solvers.calibrate(model.root, {n: i.matrix for n, i in imus.items()})
-
-    print("Calibrated")
-
-
 while True:
     time.sleep(1 / 30)  # 30 fps
 
     if any([i.button_pressed for i in imus.values()]):
-        calibrate()
+        print("Please hold the calibration pose")
+
+        time.sleep(2)
+
+        imumocap.solvers.calibrate(model.root, {n: i.matrix for n, i in imus.items()})
+
+        print("Calibrated")
 
     imumocap.set_pose_from_imus(model.root, {n: i.matrix for n, i in imus.items()})
 
