@@ -197,6 +197,9 @@ class Matrix:
     def copy(self) -> Matrix:
         return Matrix(matrix=self.__matrix)
 
+    def __getitem__(self, key):
+        return self.__matrix[key]
+
     def __mul__(self, other: Matrix) -> Matrix:
         return Matrix(matrix=self.__matrix @ other.__matrix)
 
