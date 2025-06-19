@@ -1,6 +1,7 @@
 import time
 
 import hardware
+import imumocap
 import imumocap.solvers
 import models
 
