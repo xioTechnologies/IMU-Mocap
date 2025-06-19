@@ -37,7 +37,7 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     frames.append(imumocap.get_pose(model.root))
 
 # Plot
-model.root.plot(frames, block=not dont_block)
+imumocap.plot(model.root, frames, block=not dont_block)
 
 # Stream to IMU Mocap Viewer
 connection = imumocap.viewer.Connection()

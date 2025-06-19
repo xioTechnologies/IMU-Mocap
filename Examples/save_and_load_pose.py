@@ -14,4 +14,4 @@ imumocap.save_pose("pose.json", model.joints)
 imumocap.load_pose("pose.json", model.joints)
 
 # Plot
-model.root.plot(block=not dont_block)
+imumocap.plot(model.root, block=not dont_block)
