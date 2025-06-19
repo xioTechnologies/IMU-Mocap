@@ -43,7 +43,12 @@ while True:
 
         imumocap.set_pose(model.root, frame)
 
-        connection.send(imumocap.viewer.link_to_primitives(model.root))
+        connection.send(
+            [
+                *imumocap.viewer.link_to_primitives(model.root),
+                *imumocap.viewer.joints_to_primitives(model.joints, ["Left"]),
+            ]
+        )
 
     if dont_block:
         break

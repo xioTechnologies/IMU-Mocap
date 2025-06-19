@@ -54,4 +54,9 @@ while True:
 
     imumocap.solvers.floor(model.root)
 
-    connection.send(imumocap.viewer.link_to_primitives(model.root))
+    connection.send(
+        [
+            *imumocap.viewer.link_to_primitives(model.root),
+            *imumocap.viewer.joints_to_primitives(model.joints, ["Left"]),
+        ]
+    )

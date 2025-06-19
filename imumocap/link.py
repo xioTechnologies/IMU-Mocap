@@ -24,6 +24,10 @@ class Link:
         return self.__name
 
     @property
+    def origin(self) -> Matrix:
+        return self.__origin.copy()
+
+    @property
     def joint(self) -> Matrix:
         return self.__joint.copy()
 
