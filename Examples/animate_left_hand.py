@@ -2,6 +2,7 @@ import sys
 import time
 
 import imumocap
+import imumocap.viewer
 import models
 import numpy as np
 

@@ -3,6 +3,7 @@ import time
 import hardware
 import imumocap
 import imumocap.solvers
+import imumocap.viewer
 import models
 
 # Load example model

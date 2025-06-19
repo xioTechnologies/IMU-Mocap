@@ -14,4 +14,4 @@ license = { file = "LICENSE.md" }
 Repository = "https://github.com/xioTechnologies/IMU-Mocap"
 
 [tool.setuptools]
-packages = ["imumocap", "imumocap.file", "imumocap.solvers"]
+packages = ["imumocap", "imumocap.file", "imumocap.solvers", "imumocap.viewer"]

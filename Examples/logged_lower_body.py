@@ -3,6 +3,7 @@ import time
 
 import imumocap
 import imumocap.solvers
+import imumocap.viewer
 import models
 import ximu3csv
 from imumocap import Matrix
