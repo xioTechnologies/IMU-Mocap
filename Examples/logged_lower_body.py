@@ -38,7 +38,7 @@ for index in range(number_of_samples):
     frames.append(imumocap.get_pose(model.root))
 
 # Plot
-model.root.plot(frames, block=not dont_block)
+imumocap.plot(model.root, frames, block=not dont_block)
 
 # Stream to IMU Mocap Viewer
 connection = imumocap.viewer.Connection()
