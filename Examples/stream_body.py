@@ -47,8 +47,7 @@ while True:
     if any([i.button_pressed for i in imus.values()]):
         calibrate()
 
-    for name, imu in imus.items():
-        model.root.dictionary()[name].set_joint_from_imu_world(imu.matrix)
+    imumocap.set_pose_from_imus(model.root, {n: i.matrix for n, i in imus.items()})
 
     imumocap.solvers.interpolate([model.pelvis, model.lower_lumbar, model.upper_lumbar, model.lower_torso, model.upper_torso])
     imumocap.solvers.interpolate([model.upper_torso, model.neck, model.head])

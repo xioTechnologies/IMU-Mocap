@@ -34,7 +34,7 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     model.joints["Left V Middle"].set(90 * a)
     model.joints["Left V Proximal"].set(90 * a)
 
-    frames.append({l.name: l.joint for l in model.root.flatten()})  # each frame is a dictionary of joint matrices
+    frames.append(imumocap.get_pose(model.root))
 
 # Plot
 model.root.plot(frames, block=not dont_block)
@@ -46,8 +46,7 @@ while True:
     for frame in frames:
         time.sleep(1 / 30)  # 30 fps
 
-        for name, joint in frame.items():
-            model.root.dictionary()[name].joint = joint
+        imumocap.set_pose(model.root, frame)
 
         connection.send(imumocap.viewer.link_to_primitives(model.root))
 

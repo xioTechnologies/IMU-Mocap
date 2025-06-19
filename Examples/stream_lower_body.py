@@ -39,8 +39,7 @@ while True:
     if any([i.button_pressed for i in imus.values()]):
         calibrate()
 
-    for name, imu in imus.items():
-        model.root.dictionary()[name].set_joint_from_imu_world(imu.matrix)
+    imumocap.set_pose_from_imus(model.root, {n: i.matrix for n, i in imus.items()})
 
     imumocap.solvers.floor(model.root)
 

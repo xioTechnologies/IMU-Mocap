@@ -11,7 +11,7 @@ from .matrix import Matrix
 def load_model(path: str) -> tuple[Link, dict[str, Joint] | None]:
     model = _load_model(path)
 
-    root = _load_root(model["root"])
+    root = _load_link(model["root"])
 
     joints = _load_joints(model["joints"], root) if "joints" in model else None
 
@@ -40,7 +40,7 @@ def _load_model(path: str) -> dict[str, Any]:
     return model
 
 
-def _load_root(value: dict[str, Any]) -> Link:
+def _load_link(value: dict[str, Any]) -> Link:
     root = Link(
         value["name"],
         _matrix(value["end"]),
@@ -48,7 +48,7 @@ def _load_root(value: dict[str, Any]) -> Link:
     )
 
     for link, matrix in value["links"]:
-        root.connect(_load_root(link), _matrix(matrix))
+        root.connect(_load_link(link), _matrix(matrix))
 
     return root
 
@@ -57,10 +57,12 @@ def _matrix(value: list) -> Matrix:
     return Matrix(np.array(value))
 
 
-def _load_joints(value: dict[str, Any], root: Link) -> Link:
+def _load_joints(value: dict[str, Any], root: Link) -> dict[str, Joint]:
+    links = {l.name: l for l in root.flatten()}
+
     return {
         n: Joint(
-            root.dictionary()[j["link"]],
+            links[j["link"]],
             _matrix(j["alignment"]),
             j["bend_limit"],
             j["tilt_limit"],
