@@ -2,7 +2,7 @@
 AppName=IMU Mocap Viewer
 AppPublisher=x-io Technologies Limited
 AppVerName=IMU Mocap Viewer
-AppVersion=1.1.0
+AppVersion=1.1.1
 DefaultDirName={autopf64}\IMU Mocap Viewer
 DefaultGroupName=IMU Mocap Viewer
 DisableProgramGroupPage=yes
