@@ -95,7 +95,7 @@ class Link:
         links = [self]
 
         for link, _ in self.__links:
-            links = np.concatenate((links, link.flatten()))
+            links += link.flatten()
 
         return links
 
