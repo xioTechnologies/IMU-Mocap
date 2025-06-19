@@ -112,7 +112,7 @@ namespace Viewer.Runtime
                                 AngleAndLimit(obj.RotY, obj.LimitY),
                                 AngleAndLimit(obj.RotZ, obj.LimitZ),
                                 obj.Scale,
-                                obj.Flipped
+                                obj.Mirror
                             );
                             break;
 
@@ -173,7 +173,7 @@ namespace Viewer.Runtime
             [JsonProperty(PropertyName = "limit_z")]
             public float[] LimitZ;
 
-            public bool Flipped;
+            public bool Mirror;
 
             public string Text;
 
