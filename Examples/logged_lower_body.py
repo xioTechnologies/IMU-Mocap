@@ -1,6 +1,7 @@
 import sys
 import time
 
+import imumocap
 import imumocap.solvers
 import models
 import ximu3csv

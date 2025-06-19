@@ -9,9 +9,9 @@ dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 model = models.Body()
 
 # Save and load model
-imumocap.save.save_model("model.json", model.root, model.joints)
+imumocap.save_model("model.json", model.root, model.joints)
 
-root, joints = imumocap.load.load_model("model.json")
+root, joints = imumocap.load_model("model.json")
 
 # Plot
 root.plot(block=not dont_block)
