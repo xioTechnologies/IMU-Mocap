@@ -8,22 +8,23 @@ from .link import Link
 from .matrix import Matrix
 
 
-def load_model(path: str) -> tuple[Link, dict[str, Joint] | None, dict[str, Matrix] | None]:
+def load_model(path: str) -> tuple[Link, dict[str, Joint] | None]:
     model = _load_model(path)
 
     root = _load_root(model["root"])
 
     joints = _load_joints(model["joints"], root) if "joints" in model else None
 
-    pose = _load_pose(model["pose"], joints) if "pose" in model else None
+    if "pose" in model:
+        _load_pose(model["pose"], joints)
 
-    return root, joints, pose
+    return root, joints
 
 
-def load_pose(path: str, joints: dict[str, Joint]) -> dict[str, Matrix]:
+def load_pose(path: str, joints: dict[str, Joint]) -> None:
     model = _load_model(path)
 
-    return _load_pose(model["pose"], joints)
+    _load_pose(model["pose"], joints)
 
 
 def _load_model(path: str) -> dict[str, Any]:
@@ -69,17 +70,8 @@ def _load_joints(value: dict[str, Any], root: Link) -> Link:
     }
 
 
-def _load_pose(value: dict[str, Any], joints: dict[str, Joint]) -> dict[str, Matrix]:
+def _load_pose(value: dict[str, Any], joints: dict[str, Joint]) -> None:
     pose = {n: (a["bend"], a["tilt"], a["twist"]) for n, a in value.items()}
-
-    cache = {n: j.link.joint for n, j in joints.items()}
 
     for name, angles in pose.items():
         joints[name].set(*angles)
-
-    pose = {j.link.name: j.link.joint for j in joints.values()}
-
-    for name, matrix in cache.items():
-        joints[name].link.joint = matrix  # TODO: why does this modify pose?
-
-    return pose
