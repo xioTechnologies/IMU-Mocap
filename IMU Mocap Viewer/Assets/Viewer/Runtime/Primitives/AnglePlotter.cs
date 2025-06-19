@@ -117,7 +117,7 @@ namespace Viewer.Runtime.Primitives
             Plot(xyz, quaternion, angle, null, scale * 2f, genericColorLinear, genericAlphaLinear, false);
         }
 
-        public void PlotEuler(Vector3 xyz, Quaternion quaternion, AngleAndLimit? angleX, AngleAndLimit? angleY, AngleAndLimit? angleZ, float scale, bool flipped)
+        public void PlotEuler(Vector3 xyz, Quaternion quaternion, AngleAndLimit? angleX, AngleAndLimit? angleY, AngleAndLimit? angleZ, float scale, bool mirror)
         {
             int inset = 6;
             float insetScale = 1f / inset * scale * 2f;
@@ -138,7 +138,7 @@ namespace Viewer.Runtime.Primitives
             {
                 if (value == null) return;
 
-                Plot(position, rotation, value.Value.Angle, value.Value.Limit, ring-- * insetScale, color, alphaColor, flipped);
+                Plot(position, rotation, value.Value.Angle, value.Value.Limit, ring-- * insetScale, color, alphaColor, mirror);
             }
         }
 
