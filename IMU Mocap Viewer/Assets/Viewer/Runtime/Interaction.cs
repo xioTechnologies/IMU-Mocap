@@ -119,12 +119,16 @@ namespace Viewer.Runtime
             if (allowInteraction.Value == false)
             {
                 clicksReleased = false;
+                
                 return noInput;
             }
 
-            if (clicksReleased == false) clicksReleased = click == false && rightClick == false && doubleClick == false;
+            if (clicksReleased == false && (click || rightClick || doubleClick))
+            {
+                return noInput;
+            }
 
-            if (clicksReleased == false) return noInput;
+            clicksReleased = true;
             
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return noInput;
 
