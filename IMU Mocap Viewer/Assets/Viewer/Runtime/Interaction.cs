@@ -8,6 +8,8 @@ namespace Viewer.Runtime
 {
     public sealed class Interaction : MonoBehaviour
     {
+        [SerializeField] private GlobalSetting allowInteraction; 
+        
         [Header("Settings")] [SerializeField, Range(0f, 1000f)]
         private float maxDistance = 1000;
 
@@ -39,8 +41,8 @@ namespace Viewer.Runtime
         private Camera mainCamera;
 
         private (Vector3 offset, float azimuth)? rotationSettings;
-        private bool shouldReleaseInput;
-        private bool hasFocus;
+        private bool clearTools;
+        private bool clicksReleased; 
 
         private bool shouldResetView;
         private (Vector3 origin, Vector3 hitPoint)? translationSettings;
@@ -56,11 +58,11 @@ namespace Viewer.Runtime
 
         private void Awake()
         {
+            if (allowInteraction == null) throw new ArgumentNullException(nameof(allowInteraction), "Allow Interaction global setting is not set.");
+            
             viewerInputs = new ViewerInputs();
 
             viewerInputs.Enable();
-
-            hasFocus = true;
 
             mainCamera = Camera.main;
 
@@ -85,7 +87,7 @@ namespace Viewer.Runtime
         {
             shouldResetView = true;
 
-            shouldReleaseInput = true;
+            clearTools = true;
 
             Main.OnProcessDataFrame += UpdateView;
         }
@@ -94,30 +96,46 @@ namespace Viewer.Runtime
         {
             Main.OnProcessDataFrame -= UpdateView;
 
-            shouldReleaseInput = true;
+            clearTools = true;
         }
 
         private void OnDestroy() => viewerInputs.Dispose();
 
         private void OnApplicationFocus(bool hasFocus)
         {
-            shouldReleaseInput = true;
+            clearTools = true;
 
-            this.hasFocus = hasFocus;
+            allowInteraction.Value = hasFocus;
         }
 
         private (bool click, bool rightClick, bool doubleClick, Vector2 point, Vector2 pointDelta, int scrollWheel, bool control) GetInput()
         {
             var noInput = (false, false, false, Vector2.zero, Vector2.zero, 0, false);
 
-            if (hasFocus == false) return noInput;
+            bool click = viewerInputs.Plotter.Click.ReadValue<float>() > 0.5f;
+            bool rightClick = viewerInputs.Plotter.RightClick.ReadValue<float>() > 0.5f;
+            bool doubleClick = viewerInputs.Plotter.DoubleClick.triggered;
 
+            if (allowInteraction.Value == false)
+            {
+                clicksReleased = false;
+                
+                return noInput;
+            }
+
+            if (clicksReleased == false && (click || rightClick || doubleClick))
+            {
+                return noInput;
+            }
+
+            clicksReleased = true;
+            
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return noInput;
 
             return (
-                viewerInputs.Plotter.Click.ReadValue<float>() > 0.5f,
-                viewerInputs.Plotter.RightClick.ReadValue<float>() > 0.5f,
-                viewerInputs.Plotter.DoubleClick.triggered,
+                click, 
+                rightClick, 
+                doubleClick,
                 viewerInputs.Plotter.Point.ReadValue<Vector2>(),
                 viewerInputs.Plotter.PointDelta.ReadValue<Vector2>(),
                 (int)Mathf.Clamp(viewerInputs.Plotter.ScrollWheel.ReadValue<Vector2>().y, -1, 1),
@@ -133,7 +151,7 @@ namespace Viewer.Runtime
 
             Vector3 viewDelta = mainCamera.ScreenToViewportPoint(pointDelta);
 
-            if (Utils.ConsumeFlag(ref shouldReleaseInput))
+            if (Utils.ConsumeFlag(ref clearTools))
             {
                 ClearToolStates();
                 return;
