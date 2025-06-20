@@ -65,7 +65,7 @@ namespace Viewer.Runtime.Primitives
             sorted.Add(label);
         }
 
-        private void Update()
+        private void LateUpdate()
         {
 #if UNITY_EDITOR
             ConfigureHierarchyFlags();

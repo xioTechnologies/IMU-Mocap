@@ -15,7 +15,7 @@ namespace Viewer.Runtime.Widgets
 
         private Vector3 head;
 
-        private void Update()
+        private void LateUpdate()
         {
             var offset = head.y;
 

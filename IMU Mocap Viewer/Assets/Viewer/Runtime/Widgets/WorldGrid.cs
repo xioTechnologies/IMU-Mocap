@@ -59,7 +59,7 @@ namespace Viewer.Runtime.Widgets
             minorLines?.Dispose();
         }
 
-        void Update()
+        void LateUpdate()
         {
             axisLines.Clear();
             majorLines.Clear();

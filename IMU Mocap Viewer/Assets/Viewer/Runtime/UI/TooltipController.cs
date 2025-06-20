@@ -29,7 +29,7 @@ namespace Viewer.Runtime.UI
 
         private void OnDisable() => tooltipLabel.Hide();
 
-        private void Update()
+        private void LateUpdate()
         {
             Tooltip tooltipUnderPointer = GetTooltipUnderPointer();
 

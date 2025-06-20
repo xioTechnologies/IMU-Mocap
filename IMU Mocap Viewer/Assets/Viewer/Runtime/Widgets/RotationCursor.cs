@@ -11,7 +11,7 @@ namespace Viewer.Runtime.Widgets
 
         private void Awake() => mainCamera = Camera.main;
 
-        private void Update()
+        private void LateUpdate()
         {
             transform.localScale = PixelScaleUtility.GetWorldScaleFromPixels(objectSize, transform.position) * PlotterSettings.UIScale;
 

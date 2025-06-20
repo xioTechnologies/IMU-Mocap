@@ -24,7 +24,7 @@ namespace Viewer.Runtime.Widgets
 
         private void OnDestroy() => lines?.Dispose();
 
-        void Update()
+        void LateUpdate()
         {
             lines.Clear();
 
