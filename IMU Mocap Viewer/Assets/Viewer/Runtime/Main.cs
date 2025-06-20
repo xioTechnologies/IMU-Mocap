@@ -15,6 +15,9 @@ namespace Viewer.Runtime
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Initialize()
         {
+            Application.targetFrameRate = -1; // unlimited
+            QualitySettings.vSyncCount = 1; // use v sync to limit frame rate 
+                            
             GameObject updaterObject = new GameObject("[Main Updater]");
             UnityEngine.Object.DontDestroyOnLoad(updaterObject);
 
