@@ -7,7 +7,7 @@ namespace Viewer.Runtime.Primitives
     public class Stretchable : MonoBehaviour
     {
         [SerializeField] protected Material Material;
- 
+
         [SerializeField, Range(0f, 50f)] private float lineWidthInPixels = 1f;
 
         [SerializeField] private Color nearColor = Color.white;

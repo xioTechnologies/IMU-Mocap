@@ -29,7 +29,7 @@ namespace Viewer.Runtime.Primitives
         [SerializeField] private Color zColor = Utils.ColorFromHex("5AFBF1");
         [SerializeField] private Color genericColor = Utils.ColorFromHex("FFFFFF");
         [SerializeField, Range(0, 1)] private float valueAlpha = 0.2f;
-        
+
         private AngleDrawBatch ranges;
         private AngleDrawBatch needles;
         private AngleDrawBatch values;
@@ -126,7 +126,7 @@ namespace Viewer.Runtime.Primitives
             var rotY = angleY.HasValue ? angleY.Value.Angle : 0;
 
             // Re-aligned to match the viewer's coordinate system
-            var identity = Quaternion.identity; 
+            var identity = Quaternion.identity;
             var zRotation = Quaternion.Euler(new(0, -rotZ, 0));
             var yRotation = zRotation * Quaternion.Euler(new(0, 0, -rotY));
 

@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace Viewer.Runtime.Global
 {
     [CreateAssetMenu(menuName = "IMU Viewer/Global Setting", fileName = "Global Setting", order = -1000)]
-    public sealed class GlobalSetting : ScriptableObject
+    public sealed class GlobalSetting : ScriptableObject, IEquatable<GlobalSetting>
     {
         [SerializeField] private string id = Guid.NewGuid().ToString();
 
@@ -37,5 +37,9 @@ namespace Viewer.Runtime.Global
             add => Runtime.onValueChanged += value;
             remove => Runtime.onValueChanged -= value;
         }
+
+        public bool Equals(GlobalSetting other) => other != null && Runtime == other.Runtime;
+
+        public override string ToString() => id;
     }
 }
