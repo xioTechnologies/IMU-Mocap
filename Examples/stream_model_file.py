@@ -30,4 +30,9 @@ while True:
 
     imumocap.set_pose_from_imus(root, {n: i.matrix for n, i in imus.items()})
 
-    connection.send(imumocap.viewer.link_to_primitives(root))
+    connection.send(
+        [
+            *imumocap.viewer.link_to_primitives(root),
+            *imumocap.viewer.joints_to_primitives(joints, ["Left"]),
+        ]
+    )
