@@ -97,7 +97,7 @@ jobs:
           buildsPath: "build/"
           buildName: 'IMU Mocap Viewer'
           versioning: Custom
-          version: '1.1.1'
+          version: '1.1.2'
 
       - name: Install certificate # https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development#add-a-step-to-your-workflow
         env:
@@ -176,7 +176,7 @@ jobs:
           buildsPath: "build/"
           buildName: 'IMU Mocap Viewer'
           versioning: Custom
-          version: '1.1.1'
+          version: '1.1.2'
 
       # https://docs.digicert.com/zh/digicert-keylocker/ci-cd-integrations/plugins/github-custom-action-for-keypair-signing.html
       - name: Setup Certificate
@@ -251,7 +251,7 @@ jobs:
           buildsPath: "build/"
           buildName: 'IMU Mocap Viewer'
           versioning: Custom
-          version: '1.1.1'
+          version: '1.1.2'
 
       - name: Remove DoNotShip
         run: sudo rm -rf build/StandaloneLinux64/*DoNotShip
