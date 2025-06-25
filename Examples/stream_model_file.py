@@ -4,6 +4,7 @@ import imumocap
 import imumocap.file
 import imumocap.solvers
 import ximu3s
+from imumocap.solvers import Mounting
 
 # Load model
 root, joints = imumocap.file.load_model("model.json")
@@ -24,11 +25,13 @@ while True:
 
         time.sleep(2)
 
-        imumocap.solvers.calibrate(root, {n: i.matrix for n, i in imus.items()}, calibration_pose)
+        imumocap.solvers.calibrate(root, {n: i.matrix for n, i in imus.items()}, calibration_pose, Mounting.Z_FORWARDS)
 
         print("Calibrated")
 
     imumocap.set_pose_from_imus(root, {n: i.matrix for n, i in imus.items()})
+
+    imumocap.solvers.translate(root, [0, 0, 0.5])
 
     viewer_connection.send(
         [
