@@ -1,9 +1,9 @@
 import time
 
-import hardware
 import imumocap
 import imumocap.file
 import imumocap.solvers
+import ximu3s
 
 # Load model
 root, joints = imumocap.file.load_model("model.json")
@@ -11,7 +11,7 @@ root, joints = imumocap.file.load_model("model.json")
 calibration_pose = imumocap.get_pose(root)
 
 # Connect to and configure IMUs
-imus = hardware.setup([l.name for l in root.flatten() if l.name])
+imus = ximu3s.setup([l.name for l in root.flatten() if l.name])
 
 # Stream to IMU Mocap Viewer
 viewer_connection = imumocap.viewer.Connection()

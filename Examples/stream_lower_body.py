@@ -1,10 +1,10 @@
 import time
 
-import hardware
+import example_models
 import imumocap
 import imumocap.solvers
 import imumocap.viewer
-import example_models
+import ximu3s
 
 # Load model
 model = example_models.LowerBody()
@@ -15,7 +15,7 @@ ignored = [
     model.right_toe.name,
 ]  # there are no IMUs on the toes
 
-imus = hardware.setup([l.name for l in model.root.flatten() if l.name not in ignored])
+imus = ximu3s.setup([l.name for l in model.root.flatten() if l.name not in ignored])
 
 # Stream to IMU Mocap Viewer
 viewer_connection = imumocap.viewer.Connection()
