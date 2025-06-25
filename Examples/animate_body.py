@@ -1,16 +1,16 @@
 import sys
 import time
 
+import example_models
 import imumocap
 import imumocap.solvers
 import imumocap.viewer
-import models
 import numpy as np
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
-# Load example model
-model = models.Body()
+# Load model
+model = example_models.Body()
 
 # Create animation frames
 frames = []
@@ -54,7 +54,7 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
 imumocap.plot(model.root, frames, block=not dont_block)
 
 # Stream to IMU Mocap Viewer
-connection = imumocap.viewer.Connection()
+viewer_connection = imumocap.viewer.Connection()
 
 while True:
     for frame in frames:
@@ -62,7 +62,7 @@ while True:
 
         imumocap.set_pose(model.root, frame)
 
-        connection.send(
+        viewer_connection.send(
             [
                 *imumocap.viewer.link_to_primitives(model.root),
                 *imumocap.viewer.joints_to_primitives(model.joints, "Left"),

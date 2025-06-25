@@ -1,13 +1,13 @@
 import time
 
-import hardware
+import example_models
 import imumocap
 import imumocap.solvers
 import imumocap.viewer
-import models
+import ximu3s
 
-# Load example model
-model = models.LowerBody()
+# Load model
+model = example_models.LowerBody()
 
 # Connect to and configure IMUs
 ignored = [
@@ -15,10 +15,10 @@ ignored = [
     model.right_toe.name,
 ]  # there are no IMUs on the toes
 
-imus = hardware.setup([l.name for l in model.root.flatten() if l.name not in ignored])
+imus = ximu3s.setup([l.name for l in model.root.flatten() if l.name not in ignored])
 
 # Stream to IMU Mocap Viewer
-connection = imumocap.viewer.Connection()
+viewer_connection = imumocap.viewer.Connection()
 
 while True:
     time.sleep(1 / 30)  # 30 fps
@@ -36,7 +36,7 @@ while True:
 
     imumocap.solvers.floor(model.root)
 
-    connection.send(
+    viewer_connection.send(
         [
             *imumocap.viewer.link_to_primitives(model.root),
             *imumocap.viewer.joints_to_primitives(model.joints, "Left"),

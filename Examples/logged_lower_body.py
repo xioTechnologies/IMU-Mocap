@@ -1,10 +1,10 @@
 import sys
 import time
 
+import example_models
 import imumocap
 import imumocap.solvers
 import imumocap.viewer
-import models
 import ximu3csv
 from imumocap import Matrix
 
@@ -22,8 +22,8 @@ number_of_samples = len(devices[0].quaternion.timestamp)
 
 imus = {d.device_name: d.quaternion.quaternion.wxyz for d in devices}
 
-# Load example model
-model = models.LowerBody()
+# Load model
+model = example_models.LowerBody()
 
 # Calibrate IMU alignment (logged data must start in calibration pose)
 imumocap.solvers.calibrate(model.root, {n: Matrix(quaternion=q[0, :]) for n, q in imus.items()})
@@ -42,7 +42,7 @@ for index in range(number_of_samples):
 imumocap.plot(model.root, frames, block=not dont_block)
 
 # Stream to IMU Mocap Viewer
-connection = imumocap.viewer.Connection()
+viewer_connection = imumocap.viewer.Connection()
 
 while True:
     for frame in frames:
@@ -50,7 +50,7 @@ while True:
 
         imumocap.set_pose(model.root, frame)
 
-        connection.send(
+        viewer_connection.send(
             [
                 *imumocap.viewer.link_to_primitives(model.root),
                 *imumocap.viewer.joints_to_primitives(model.joints, "Left"),
