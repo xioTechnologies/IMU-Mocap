@@ -33,6 +33,6 @@ while True:
     connection.send(
         [
             *imumocap.viewer.link_to_primitives(root),
-            *imumocap.viewer.joints_to_primitives(joints, ["Left"]),
+            *imumocap.viewer.joints_to_primitives(joints, "Left"),
         ]
     )

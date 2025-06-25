@@ -157,7 +157,7 @@ def link_to_primitives(root: Link) -> list[Primitive]:
 
 def joints_to_primitives(
     joints: dict[str, Joint],
-    mirror_tokens: list[str] | None = None,  # angles are mirrored if the joint name contains any of the tokens
+    mirror: str | None = None,  # angles are mirrored if the joint name contains this string
 ) -> list[Primitive]:
     primitives = []
 
@@ -180,7 +180,7 @@ def joints_to_primitives(
                 limit_y=None if limit_y == (0, 0) else limit_y,
                 limit_z=None if limit_z == (0, 0) else limit_z,
                 scale=joint.link.length / 3,
-                mirror=any(token in name for token in mirror_tokens) if mirror_tokens else False,
+                mirror=mirror in name if mirror else False,
             )
         )
 
