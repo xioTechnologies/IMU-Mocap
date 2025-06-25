@@ -4,10 +4,10 @@ import hardware
 import imumocap
 import imumocap.solvers
 import imumocap.viewer
-import models
+import example_models
 
-# Load example model
-model = models.UpperBody()
+# Load model
+model = example_models.UpperBody()
 
 # Connect to and configure IMUs
 ignored = [

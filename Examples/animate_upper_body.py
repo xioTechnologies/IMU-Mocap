@@ -1,15 +1,15 @@
 import sys
 import time
 
+import example_models
 import imumocap
 import imumocap.viewer
-import models
 import numpy as np
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
-# Load example model
-model = models.UpperBody()
+# Load model
+model = example_models.UpperBody()
 
 # Create animation frames
 frames = []

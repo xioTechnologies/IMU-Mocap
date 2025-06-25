@@ -5,7 +5,7 @@ import imumocap
 import imumocap.file
 import imumocap.solvers
 
-# Load example model
+# Load model
 root, joints = imumocap.file.load_model("model.json")
 
 calibration_pose = imumocap.get_pose(root)
