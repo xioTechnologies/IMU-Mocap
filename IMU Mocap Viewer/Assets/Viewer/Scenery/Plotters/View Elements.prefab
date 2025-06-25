@@ -179,6 +179,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6548424962409652520}
+  - component: {fileID: 5135310879783408486}
   m_Layer: 0
   m_Name: Widgets
   m_TagString: Untagged
@@ -205,6 +206,19 @@ Transform:
   - {fileID: 3622496473837826620}
   m_Father: {fileID: 6747383131549908031}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5135310879783408486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2614373540630034857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5216c0949014413eb9d7ff9353028b06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  setting: {fileID: 11400000, guid: d3e80e633f3dbb643877eb35b14e5fba, type: 2}
 --- !u!1 &4814764295850544817
 GameObject:
   m_ObjectHideFlags: 0
@@ -313,7 +327,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3fe0142a57940eeb86c65f905f9a2af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allowInteraction: {fileID: 0}
+  tabHasFocus: {fileID: 11400000, guid: c84c0712929f23940928ee2a0b9c3ff6, type: 2}
+  showWidgets: {fileID: 11400000, guid: d3e80e633f3dbb643877eb35b14e5fba, type: 2}
   maxDistance: 100
   angleSensitivity: 2.5
   heightSensitivity: 2

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -13,6 +13,7 @@ namespace Viewer.Editor
         public static void GenerateAll()
         {
             const int resolution = 128;
+            const int smaller = 64;
 
             GenerateSDF("Angle", resolution);
             GenerateSDF("Axes", resolution);
@@ -22,6 +23,11 @@ namespace Viewer.Editor
             GenerateSDF("Line", resolution);
             GenerateSDF("Tracking", resolution);
             GenerateSDF("Not allowed", resolution);
+            GenerateSDF("Python", resolution);
+            GenerateSDF("Directory", resolution);
+            
+            GenerateSDF("Play", smaller);
+            GenerateSDF("Edit", smaller);
         }
 
         private static void GenerateSDF(string icon, int outputResolution)

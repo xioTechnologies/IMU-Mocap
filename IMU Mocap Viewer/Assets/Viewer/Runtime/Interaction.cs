@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using Viewer.Runtime.Global;
 using Viewer.Runtime.Widgets;
 
@@ -8,8 +9,9 @@ namespace Viewer.Runtime
 {
     public sealed class Interaction : MonoBehaviour
     {
-        [SerializeField] private GlobalSetting allowInteraction; 
-        
+        [SerializeField] private GlobalSetting tabHasFocus;
+        [SerializeField] private GlobalSetting showWidgets;
+
         [Header("Settings")] [SerializeField, Range(0f, 1000f)]
         private float maxDistance = 1000;
 
@@ -34,6 +36,8 @@ namespace Viewer.Runtime
 
         private Tool active = Tool.None;
 
+        private bool applicationHasFocus = true;
+
         private float zoomNotAllowedTimeout = 0;
         private float distance = 0.1f;
         private Bounds? cumulativeBounds;
@@ -42,7 +46,7 @@ namespace Viewer.Runtime
 
         private (Vector3 offset, float azimuth)? rotationSettings;
         private bool clearTools;
-        private bool clicksReleased; 
+        private bool clicksReleased;
 
         private bool shouldResetView;
         private (Vector3 origin, Vector3 hitPoint)? translationSettings;
@@ -58,8 +62,10 @@ namespace Viewer.Runtime
 
         private void Awake()
         {
-            if (allowInteraction == null) throw new ArgumentNullException(nameof(allowInteraction), "Allow Interaction global setting is not set.");
-            
+            if (tabHasFocus == null) throw new ArgumentNullException(nameof(tabHasFocus), "Disable Interaction global setting is not set.");
+
+            if (showWidgets == null) throw new ArgumentNullException(nameof(showWidgets), "Allow Interaction global setting is not set.");
+
             viewerInputs = new ViewerInputs();
 
             viewerInputs.Enable();
@@ -105,7 +111,7 @@ namespace Viewer.Runtime
         {
             clearTools = true;
 
-            allowInteraction.Value = hasFocus;
+            applicationHasFocus = hasFocus;
         }
 
         private (bool click, bool rightClick, bool doubleClick, Vector2 point, Vector2 pointDelta, int scrollWheel, bool control) GetInput()
@@ -116,10 +122,10 @@ namespace Viewer.Runtime
             bool rightClick = viewerInputs.Plotter.RightClick.ReadValue<float>() > 0.5f;
             bool doubleClick = viewerInputs.Plotter.DoubleClick.triggered;
 
-            if (allowInteraction.Value == false)
+            if (showWidgets.Value == false)
             {
                 clicksReleased = false;
-                
+
                 return noInput;
             }
 
@@ -129,12 +135,12 @@ namespace Viewer.Runtime
             }
 
             clicksReleased = true;
-            
+
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return noInput;
 
             return (
-                click, 
-                rightClick, 
+                click,
+                rightClick,
                 doubleClick,
                 viewerInputs.Plotter.Point.ReadValue<Vector2>(),
                 viewerInputs.Plotter.PointDelta.ReadValue<Vector2>(),
@@ -146,6 +152,8 @@ namespace Viewer.Runtime
         private void UpdateView()
         {
             PlotterSettings.Update();
+
+            showWidgets.Value = applicationHasFocus && tabHasFocus.Value;
 
             (bool click, bool rightClick, bool doubleClick, Vector2 point, Vector2 pointDelta, int scrollWheel, bool control) = GetInput();
 
