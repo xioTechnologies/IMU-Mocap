@@ -5,6 +5,7 @@ import imumocap
 import imumocap.solvers
 import imumocap.viewer
 import ximu3s
+from imumocap.solvers import Mounting
 
 # Load model
 model = example_models.Body()
@@ -36,7 +37,7 @@ while True:
 
         time.sleep(2)
 
-        imumocap.solvers.calibrate(model.root, {n: i.matrix for n, i in imus.items()})
+        imumocap.solvers.calibrate(model.root, {n: i.matrix for n, i in imus.items()}, mounting=Mounting.Z_BACKWARDS)
 
         print("Calibrated")
 
