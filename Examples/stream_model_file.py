@@ -6,7 +6,7 @@ import imumocap.file
 import imumocap.solvers
 
 # Load example model
-root, joints = imumocap.file.load_model("stream_model_file.json")
+root, joints = imumocap.file.load_model("model.json")
 
 calibration_pose = imumocap.get_pose(root)
 
@@ -14,7 +14,7 @@ calibration_pose = imumocap.get_pose(root)
 imus = hardware.setup([l.name for l in root.flatten() if l.name])
 
 # Stream to IMU Mocap Viewer
-connection = imumocap.viewer.Connection()
+viewer_connection = imumocap.viewer.Connection()
 
 while True:
     time.sleep(1 / 30)  # 30 fps
@@ -30,7 +30,7 @@ while True:
 
     imumocap.set_pose_from_imus(root, {n: i.matrix for n, i in imus.items()})
 
-    connection.send(
+    viewer_connection.send(
         [
             *imumocap.viewer.link_to_primitives(root),
             *imumocap.viewer.joints_to_primitives(joints, "Left"),

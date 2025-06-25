@@ -55,7 +55,7 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
 imumocap.plot(model.root, frames, block=not dont_block)
 
 # Stream to IMU Mocap Viewer
-connection = imumocap.viewer.Connection()
+viewer_connection = imumocap.viewer.Connection()
 
 while True:
     for frame in frames:
@@ -63,7 +63,7 @@ while True:
 
         imumocap.set_pose(model.root, frame)
 
-        connection.send(
+        viewer_connection.send(
             [
                 *imumocap.viewer.link_to_primitives(model.root),
                 *imumocap.viewer.joints_to_primitives(model.joints, "Left"),

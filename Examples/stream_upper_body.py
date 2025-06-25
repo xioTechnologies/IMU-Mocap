@@ -19,7 +19,7 @@ ignored = [
 imus = hardware.setup([l.name for l in model.root.flatten() if l.name not in ignored])
 
 # Stream to IMU Mocap Viewer
-connection = imumocap.viewer.Connection()
+viewer_connection = imumocap.viewer.Connection()
 
 while True:
     time.sleep(1 / 30)  # 30 fps
@@ -37,7 +37,7 @@ while True:
 
     imumocap.solvers.interpolate([model.upper_torso, model.neck, model.head])
 
-    connection.send(
+    viewer_connection.send(
         [
             *imumocap.viewer.link_to_primitives(model.root),
             *imumocap.viewer.joints_to_primitives(model.joints, "Left"),

@@ -9,7 +9,7 @@ import numpy as np
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
 # Load example model
-root, joints = imumocap.file.load_model("stream_model_file.json")
+root, joints = imumocap.file.load_model("model.json")
 
 # Create animation frames
 frames = []
@@ -30,7 +30,7 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
 imumocap.plot(root, frames, block=not dont_block)
 
 # Stream to IMU Mocap Viewer
-connection = imumocap.viewer.Connection()
+viewer_connection = imumocap.viewer.Connection()
 
 while True:
     for frame in frames:
@@ -38,7 +38,7 @@ while True:
 
         imumocap.set_pose(root, frame)
 
-        connection.send(
+        viewer_connection.send(
             [
                 *imumocap.viewer.link_to_primitives(root),
                 *imumocap.viewer.joints_to_primitives(joints, "Left"),
