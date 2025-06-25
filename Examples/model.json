@@ -323,7 +323,7 @@
         ]
     },
     "joints": {
-        "Head": {
+        "Neck": {
             "link": "Head",
             "alignment": [
                 [
@@ -517,7 +517,7 @@
         }
     },
     "pose": {
-        "Head": {
+        "Neck": {
             "bend": 0,
             "tilt": 0,
             "twist": 0

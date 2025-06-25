@@ -15,7 +15,7 @@ root, joints = imumocap.file.load_model("model.json")
 frames = []
 
 for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
-    joints["Head"].set(a * 15)
+    joints["Neck"].set(a * 15)
 
     joints["Left Elbow"].set(bend=a * 60, twist=a * -120)
     joints["Left Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
