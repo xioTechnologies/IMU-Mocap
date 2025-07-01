@@ -9,7 +9,7 @@ namespace Viewer.Runtime
 {
     public sealed class Interaction : MonoBehaviour
     {
-        [SerializeField] private GlobalSetting tabHasFocus;
+        [SerializeField] private GlobalSetting worldViewHasFocus;
         [SerializeField] private GlobalSetting showWidgets;
 
         [Header("Settings")] [SerializeField, Range(0f, 1000f)]
@@ -19,7 +19,7 @@ namespace Viewer.Runtime
         [SerializeField, Range(0.1f, 10f)] private float heightSensitivity = 2f;
         [SerializeField] private int numberZoomTicks = 100;
         [SerializeField] private Vector2 distanceRange = new(0.1f, 10f);
-        [SerializeField] private Vector2 initialAngle = new(120f, -30f); // TODO: Is this wrong way round?
+        [SerializeField] private Vector2 initialAngle = new(120f, -30f);
         [SerializeField] private Vector2 angle = new(60f, -30f);
         [SerializeField, Range(1f, 3f)] private float margin = 1.125f;
 
@@ -62,7 +62,7 @@ namespace Viewer.Runtime
 
         private void Awake()
         {
-            if (tabHasFocus == null) throw new ArgumentNullException(nameof(tabHasFocus), "Disable Interaction global setting is not set.");
+            if (worldViewHasFocus == null) throw new ArgumentNullException(nameof(worldViewHasFocus), "Disable Interaction global setting is not set.");
 
             if (showWidgets == null) throw new ArgumentNullException(nameof(showWidgets), "Allow Interaction global setting is not set.");
 
@@ -153,7 +153,7 @@ namespace Viewer.Runtime
         {
             PlotterSettings.Update();
 
-            showWidgets.Value = applicationHasFocus && tabHasFocus.Value;
+            showWidgets.Value = applicationHasFocus && worldViewHasFocus.Value;
 
             (bool click, bool rightClick, bool doubleClick, Vector2 point, Vector2 pointDelta, int scrollWheel, bool control) = GetInput();
 

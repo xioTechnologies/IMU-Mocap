@@ -27,6 +27,7 @@ namespace Viewer.Editor
             GenerateSDF("Directory", resolution);
             
             GenerateSDF("Play", smaller);
+            GenerateSDF("Stop", smaller);
             GenerateSDF("Edit", smaller);
         }
 

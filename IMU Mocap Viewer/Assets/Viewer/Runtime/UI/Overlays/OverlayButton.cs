@@ -2,11 +2,14 @@
 using UnityEngine.UI;
 using Viewer.Runtime.Global;
 
-namespace Viewer.Runtime.UI
+namespace Viewer.Runtime.UI.Overlays
 {
-    public class TabButton : MonoBehaviour
+    public class OverlayButton : MonoBehaviour
     {
-        [SerializeField] private GlobalSetting tab;
+        [SerializeField] private GlobalSetting overlay;
+
+        [SerializeField] private OverlayButtonAction action = OverlayButtonAction.Open;
+
         [SerializeField] private bool settingSetsToggleState;
 
         private Button button;
@@ -24,7 +27,7 @@ namespace Viewer.Runtime.UI
 
             toggle.onValueChanged.AddListener(Toggled);
 
-            if (settingSetsToggleState) tab.OnValueChanged += TabOnOnValueChanged;
+            if (settingSetsToggleState) overlay.OnValueChanged += OverlayChanged;
         }
 
         private void OnDestroy()
@@ -35,29 +38,42 @@ namespace Viewer.Runtime.UI
 
             toggle.onValueChanged.RemoveListener(Toggled);
 
-            tab.OnValueChanged -= TabOnOnValueChanged;
+            overlay.OnValueChanged -= OverlayChanged;
         }
 
         private void Clicked()
         {
-            tab.Value = true;
+            overlay.Value = action switch
+            {
+                OverlayButtonAction.Open => true,
+                OverlayButtonAction.Close => false,
+                OverlayButtonAction.Toggle => overlay.Value == false,
+                _ => overlay.Value
+            };
         }
 
         private void Toggled(bool value)
         {
             if (settingSetsToggleState)
             {
-                if (tab.Value != value) tab.Value = value;
+                if (overlay.Value != value) overlay.Value = value;
             }
             else
             {
-                tab.Value = true;
+                overlay.Value = true;
             }
         }
 
-        private void TabOnOnValueChanged(bool value)
+        private void OverlayChanged(bool value)
         {
             if (toggle.isOn != value) toggle.isOn = value;
         }
+    }
+
+    public enum OverlayButtonAction
+    {
+        Open,
+        Close,
+        Toggle
     }
 }
