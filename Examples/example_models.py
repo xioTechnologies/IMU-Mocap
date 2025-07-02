@@ -183,13 +183,13 @@ class Model(ABC):
             # Left arm
             "Left Wrist": Joint(self.left_hand, Matrix.align_py_pz_px()),
             "Left Elbow": Joint(self.left_forearm, Matrix.align_py_px_nz()),
-            "Left Shoulder": Joint(self.left_upper_arm, Matrix.align_nz_py_px()),
-            "Left Clavicle": Joint(self.left_shoulder, Matrix.align_nz_py_px()),
+            "Left Shoulder": Joint(self.left_upper_arm, Matrix.align_px_ny_nz()),
+            "Left Clavicle": Joint(self.left_shoulder, Matrix.align_px_ny_nz()),
             # Right arm
             "Right Wrist": Joint(self.right_hand, Matrix.align_py_nz_nx()),
             "Right Elbow": Joint(self.right_forearm, Matrix.align_py_nx_pz()),
-            "Right Shoulder": Joint(self.right_upper_arm, Matrix.align_pz_py_nx()),
-            "Right Clavicle": Joint(self.right_shoulder, Matrix.align_pz_py_nx()),
+            "Right Shoulder": Joint(self.right_upper_arm, Matrix.align_nx_ny_pz()),
+            "Right Clavicle": Joint(self.right_shoulder, Matrix.align_nx_ny_pz()),
             # Torso
             "Upper Torso": Joint(self.upper_torso, Matrix.align_nz_nx_py()),
             "Lower Torso": Joint(self.lower_torso, Matrix.align_nz_nx_py()),
@@ -206,11 +206,11 @@ class Model(ABC):
             "Right Knee": Joint(self.right_lower_leg, Matrix.align_pz_px_py()),
             "Right Hip": Joint(self.right_upper_leg, Matrix.align_pz_nx_ny()),
             # Pelvis
-            "Pelvis": Joint(self.pelvis, Matrix.align_nz_nx_py()),
+            "Pelvis": Joint(self.pelvis, Matrix.align_py_nx_pz()),
             # Wheelchair
-            "Left Wheel": Joint(self.left_wheel, Matrix.align_nz_nx_py()),
-            "Right Wheel": Joint(self.right_wheel, Matrix.align_pz_px_py()),
-            "Seat": Joint(self.seat, Matrix.align_nz_nx_py()),
+            "Left Wheel": Joint(self.left_wheel, Matrix.align_py_nx_pz()),
+            "Right Wheel": Joint(self.right_wheel, Matrix.align_py_px_nz()),
+            "Seat": Joint(self.seat, Matrix.align_py_nx_pz()),
             # Left hand
             "Left I Distal": Joint(self.left_i_distal, Matrix.align_py_nz_nx()),
             "Left I Proximal": Joint(self.left_i_proximal, Matrix.align_py_nz_nx()),

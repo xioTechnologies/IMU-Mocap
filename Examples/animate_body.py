@@ -20,14 +20,14 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     model.joints["Neck"].set(a * 15)
 
     model.joints["Left Wrist"].set(a * -45)
-    model.joints["Left Elbow"].set(bend=a * 60, twist=a * -120)
-    model.joints["Left Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
-    model.joints["Left Clavicle"].set(a * -15)
+    model.joints["Left Elbow"].set(alpha=a * 60, gamma=a * -120)
+    model.joints["Left Shoulder"].set(alpha=a * 60, beta=a * 30, gamma=a * 10)
+    model.joints["Left Clavicle"].set(gamma=a * -15)
 
     model.joints["Right Wrist"].set(a * -45)
-    model.joints["Right Elbow"].set(bend=a * 60, twist=a * -120)
-    model.joints["Right Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
-    model.joints["Right Clavicle"].set(a * -15)
+    model.joints["Right Elbow"].set(alpha=a * 60, gamma=a * -120)
+    model.joints["Right Shoulder"].set(alpha=a * 60, beta=a * 30, gamma=a * 10)
+    model.joints["Right Clavicle"].set(gamma=a * -15)
 
     model.joints["Upper Torso"].set(a * 15)
     model.joints["Lower Torso"].set(a * 15)
@@ -37,14 +37,14 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     model.joints["Left Toe"].set(a * -45)
     model.joints["Left Ankle"].set(a * 45)
     model.joints["Left Knee"].set(a * 160)
-    model.joints["Left Hip"].set(bend=a * 45, tilt=a * 20, twist=a * -30)
+    model.joints["Left Hip"].set(alpha=a * 45, beta=a * 20, gamma=a * -30)
 
     model.joints["Right Toe"].set(a * -45)
     model.joints["Right Ankle"].set(a * 45)
     model.joints["Right Knee"].set(a * 160)
-    model.joints["Right Hip"].set(bend=a * 45, tilt=a * 20, twist=a * -30)
+    model.joints["Right Hip"].set(alpha=a * 45, beta=a * 20, gamma=a * -30)
 
-    model.joints["Pelvis"].set(a * -25)  # root joint connects the model to the world
+    model.joints["Pelvis"].set(gamma=a * -25)  # root joint connects the model to the world
 
     imumocap.solvers.floor(model.root)
 

@@ -1,10 +1,10 @@
 from .connection import Connection
 from .primatives import (
     Angle,
+    Angles,
     Axes,
     Circle,
     Dot,
-    Euler,
     Label,
     Line,
     joints_to_primitives,

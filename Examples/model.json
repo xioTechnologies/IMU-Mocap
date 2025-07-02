@@ -187,7 +187,7 @@
                         0,
                         1,
                         0,
-                        0.2
+                        0.125
                     ],
                     [
                         0,
@@ -304,7 +304,7 @@
                         0,
                         1,
                         0,
-                        -0.2
+                        -0.125
                     ],
                     [
                         0,
@@ -351,9 +351,9 @@
                     1
                 ]
             ],
-            "bend_limit": null,
-            "tilt_limit": null,
-            "twist_limit": null
+            "alpha_limit": null,
+            "beta_limit": null,
+            "gamma_limit": null
         },
         "Left Elbow": {
             "link": "Left Forearm",
@@ -383,29 +383,29 @@
                     1
                 ]
             ],
-            "bend_limit": null,
-            "tilt_limit": null,
-            "twist_limit": null
+            "alpha_limit": null,
+            "beta_limit": null,
+            "gamma_limit": null
         },
         "Left Shoulder": {
             "link": "Left Upper Arm",
             "alignment": [
                 [
-                    0,
-                    0,
                     1,
+                    0,
+                    0,
                     0
                 ],
                 [
                     0,
-                    1,
-                    0,
-                    0
-                ],
-                [
                     -1,
                     0,
+                    0
+                ],
+                [
                     0,
+                    0,
+                    -1,
                     0
                 ],
                 [
@@ -415,9 +415,9 @@
                     1
                 ]
             ],
-            "bend_limit": null,
-            "tilt_limit": null,
-            "twist_limit": null
+            "alpha_limit": null,
+            "beta_limit": null,
+            "gamma_limit": null
         },
         "Right Elbow": {
             "link": "Right Forearm",
@@ -447,29 +447,29 @@
                     1
                 ]
             ],
-            "bend_limit": null,
-            "tilt_limit": null,
-            "twist_limit": null
+            "alpha_limit": null,
+            "beta_limit": null,
+            "gamma_limit": null
         },
         "Right Shoulder": {
             "link": "Right Upper Arm",
             "alignment": [
                 [
+                    -1,
                     0,
+                    0,
+                    0
+                ],
+                [
                     0,
                     -1,
-                    0
-                ],
-                [
-                    0,
-                    1,
                     0,
                     0
                 ],
                 [
+                    0,
+                    0,
                     1,
-                    0,
-                    0,
                     0
                 ],
                 [
@@ -479,9 +479,9 @@
                     1
                 ]
             ],
-            "bend_limit": null,
-            "tilt_limit": null,
-            "twist_limit": null
+            "alpha_limit": null,
+            "beta_limit": null,
+            "gamma_limit": null
         },
         "Upper Torso": {
             "link": "Upper Torso",
@@ -511,41 +511,41 @@
                     1
                 ]
             ],
-            "bend_limit": null,
-            "tilt_limit": null,
-            "twist_limit": null
+            "alpha_limit": null,
+            "beta_limit": null,
+            "gamma_limit": null
         }
     },
     "pose": {
         "Neck": {
-            "bend": 0,
-            "tilt": 0,
-            "twist": 0
+            "alpha": 0,
+            "beta": 0,
+            "gamma": 0
         },
         "Left Elbow": {
-            "bend": 0,
-            "tilt": 0,
-            "twist": 0
+            "alpha": 0,
+            "beta": 0,
+            "gamma": 0
         },
         "Left Shoulder": {
-            "bend": 0,
-            "tilt": 0,
-            "twist": 0
+            "alpha": 0,
+            "beta": 0,
+            "gamma": 0
         },
         "Right Elbow": {
-            "bend": 0,
-            "tilt": 0,
-            "twist": 0
+            "alpha": 0,
+            "beta": 0,
+            "gamma": 0
         },
         "Right Shoulder": {
-            "bend": 0,
-            "tilt": 0,
-            "twist": 0
+            "alpha": 0,
+            "beta": 0,
+            "gamma": 0
         },
         "Upper Torso": {
-            "bend": 0,
-            "tilt": 0,
-            "twist": 0
+            "alpha": 0,
+            "beta": 0,
+            "gamma": 0
         }
     }
 }
