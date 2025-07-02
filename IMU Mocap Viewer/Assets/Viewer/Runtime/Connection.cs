@@ -112,9 +112,9 @@ namespace Viewer.Runtime
                             plotter.Angles(
                                 SwizzleFromArray3(obj.Xyz),
                                 SwizzleFromArray4(obj.Quaternion),
-                                AngleAndLimit(obj.Alpha, obj.LimitAlpha),
-                                AngleAndLimit(obj.Beta, obj.LimitBeta),
-                                AngleAndLimit(obj.Gamma, obj.LimitGamma),
+                                AngleAndLimit(obj.Alpha, obj.AlphaLimit),
+                                AngleAndLimit(obj.Beta, obj.BetaLimit),
+                                AngleAndLimit(obj.Gamma, obj.GammaLimit),
                                 obj.Scale,
                                 obj.Mirror
                             );
@@ -164,14 +164,14 @@ namespace Viewer.Runtime
             [JsonProperty(PropertyName = "beta")] public float? Beta;
             [JsonProperty(PropertyName = "gamma")] public float? Gamma;
 
-            [JsonProperty(PropertyName = "limit_alpha")]
-            public float[] LimitAlpha;
+            [JsonProperty(PropertyName = "alpha_limit")]
+            public float[] AlphaLimit;
 
-            [JsonProperty(PropertyName = "limit_beta")]
-            public float[] LimitBeta;
+            [JsonProperty(PropertyName = "beta_limit")]
+            public float[] BetaLimit;
 
-            [JsonProperty(PropertyName = "limit_gamma")]
-            public float[] LimitGamma;
+            [JsonProperty(PropertyName = "gamma_limit")]
+            public float[] GammaLimit;
 
             public bool Mirror;
 
