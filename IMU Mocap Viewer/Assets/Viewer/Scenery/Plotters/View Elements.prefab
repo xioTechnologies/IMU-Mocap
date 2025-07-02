@@ -327,7 +327,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3fe0142a57940eeb86c65f905f9a2af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tabHasFocus: {fileID: 11400000, guid: c84c0712929f23940928ee2a0b9c3ff6, type: 2}
+  worldViewHasFocus: {fileID: 11400000, guid: c84c0712929f23940928ee2a0b9c3ff6, type: 2}
   showWidgets: {fileID: 11400000, guid: d3e80e633f3dbb643877eb35b14e5fba, type: 2}
   maxDistance: 100
   angleSensitivity: 2.5

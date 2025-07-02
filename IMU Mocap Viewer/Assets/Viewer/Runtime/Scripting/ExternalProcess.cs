@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
-using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Process = System.Diagnostics.Process;
 
 namespace Viewer.Runtime.Scripting
@@ -9,15 +10,19 @@ namespace Viewer.Runtime.Scripting
     {
         private static Process active;
 
-        public static string Message { get; private set; }
+        public static event Action Started;
+
+        public static event Action Stopped;
+
+        public static string ScriptName { get; private set; }
 
         public static void Check()
         {
             if (active is not { HasExited: true }) return;
 
-            Message = "";
-
             active = null;
+
+            Stopped?.Invoke();
         }
 
         public static void Edit(string filePath)
@@ -31,20 +36,20 @@ namespace Viewer.Runtime.Scripting
             {
                 Debug.Log("Exiting the active process");
 
-                Dispose();
+                Stop();
             }
 
             active = RunScript(script);
         }
 
-        public static void Dispose()
+        public static void Stop()
         {
-            Message = "";
-
-            if (active == null || active.HasExited) return;
+            if (active == null) return;
 
             try
             {
+                if (active.HasExited) return;
+
                 if (active.CloseMainWindow() == false) active.Kill();
 
                 if (active.WaitForExit(5000)) return;
@@ -60,6 +65,8 @@ namespace Viewer.Runtime.Scripting
             {
                 active?.Dispose();
                 active = null;
+
+                Stopped?.Invoke();
             }
         }
 
@@ -67,7 +74,7 @@ namespace Viewer.Runtime.Scripting
         {
             if (File.Exists(scriptPath) == false)
             {
-                Message = "Script not found";
+                ScriptName = "Script not found";
 
                 Debug.LogError($"Script not found: {scriptPath}");
 
@@ -81,7 +88,7 @@ namespace Viewer.Runtime.Scripting
 
             process.StartInfo.WorkingDirectory = workingDir!;
 
-            Message = Path.GetFileName(scriptPath);
+            ScriptName = Path.GetFileName(scriptPath);
 
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             process.StartInfo.FileName = "python";
@@ -90,17 +97,14 @@ namespace Viewer.Runtime.Scripting
             process.StartInfo.CreateNoWindow = false;
 
 #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-            process.StartInfo.FileName = "/usr/bin/open";
-            process.StartInfo.Arguments = $"-a Terminal \"{escapedScriptPath}\"";
+            var command = $"python3 '{escapedScriptPath}'";
+            process.StartInfo.FileName = "/usr/bin/osascript";
+            process.StartInfo.Arguments = $"-e \"tell application \\\"Terminal\\\" to do script \\\"{command}\\\"\"";
             process.StartInfo.UseShellExecute = false;
-
-#elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
-            process.StartInfo.FileName = "/usr/bin/x-terminal-emulator"; // or try gnome-terminal, konsole, etc.
-            process.StartInfo.Arguments = $"-e \"python3 \\\"{escapedScriptPath}\\\"\"";
-            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = false;
 
 #else
-            ActiveScript = "Unsupported platform for script execution";
+            ScriptName = "Unsupported platform for script execution";
             Debug.LogError("Unsupported platform for script execution.");
             return null;
 #endif
@@ -109,11 +113,13 @@ namespace Viewer.Runtime.Scripting
             {
                 process.Start();
 
+                Started?.Invoke();
+
                 return process;
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
-                Message = $"Failed to run script: {e.Message}";
+                ScriptName = $"Failed to run script: {e.Message}";
 
                 Debug.LogError($"Failed to run script: {e.Message}");
 
@@ -131,7 +137,7 @@ namespace Viewer.Runtime.Scripting
 
             try
             {
-                return Process.Start(new System.Diagnostics.ProcessStartInfo()
+                return Process.Start(new ProcessStartInfo()
                 {
                     FileName = filePath,
                     UseShellExecute = true,

@@ -8,7 +8,7 @@ namespace Viewer.Runtime.UI
     public class FlexibleLayout : LayoutGroup
     {
         [Header("Layout")] [SerializeField] private float itemHeight = 40;
-        [SerializeField] private float preferredColumnSize = 300;
+        [SerializeField] private float preferredColumnSize = 400;
 
         [Header("Spacing")] [SerializeField] private float columnSpacing;
         [SerializeField] private float rowSpacing;
@@ -64,7 +64,7 @@ namespace Viewer.Runtime.UI
         public override void SetLayoutVertical()
         {
             float itemHeightWithSpacing = itemHeight + rowSpacing;
-            float columnSizeWithSpacing = preferredColumnSize + columnSpacing;
+            float columnSizeWithSpacing = columnCount <= 1 ? parentRect.rect.width : preferredColumnSize + columnSpacing;
 
             int row = 0;
             int column = 0;

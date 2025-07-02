@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Viewer.Runtime.Scripting
 {
@@ -11,17 +12,17 @@ namespace Viewer.Runtime.Scripting
 
         public static string ScriptsDirectoriesFile => Path.Combine(Scripts, "Scripts Directories.txt").Replace("\\", "/");
 
-        [SerializeField] private ScriptOverlayButton buttonPrefab;
+        [SerializeField] private ScriptListItem itemPrefab;
         [SerializeField] private RectTransform container;
 
-        private readonly List<ScriptOverlayButton> buttons = new();
+        private readonly List<ScriptListItem> items = new();
 
-        public static string Message
+        public static string ScriptName
         {
             get
             {
                 ExternalProcess.Check();
-                return ExternalProcess.Message;
+                return ExternalProcess.ScriptName;
             }
         }
 
@@ -44,9 +45,9 @@ namespace Viewer.Runtime.Scripting
 
             Debug.Log($"Loaded {additionalPaths.Length} from {ScriptsDirectoriesFile}");
 
-            foreach (ScriptOverlayButton button in buttons) Destroy(button.gameObject);
+            foreach (ScriptListItem item in items) Destroy(item.gameObject);
 
-            buttons.Clear();
+            items.Clear();
 
             foreach (string path in additionalPaths) CacheDirectory(path);
         }
@@ -61,17 +62,17 @@ namespace Viewer.Runtime.Scripting
             {
                 string scriptName = Path.GetFileName(scriptPath);
 
-                var button = Instantiate(buttonPrefab, container);
+                var item = Instantiate(itemPrefab, container);
 
-                button.Initialize(
+                item.Initialize(
                     () => { ExternalProcess.Run(scriptPath); },
                     () => { ExternalProcess.Edit(scriptPath); },
                     scriptName
                 );
 
-                buttons.Add(button);
+                items.Add(item);
 
-                button.gameObject.SetActive(true);
+                item.gameObject.SetActive(true);
             }
         }
 
@@ -86,6 +87,6 @@ namespace Viewer.Runtime.Scripting
 
         private void OnEnable() => Cache();
 
-        private void OnDestroy() => ExternalProcess.Dispose();
+        private void OnDestroy() => ExternalProcess.Stop();
     }
 }

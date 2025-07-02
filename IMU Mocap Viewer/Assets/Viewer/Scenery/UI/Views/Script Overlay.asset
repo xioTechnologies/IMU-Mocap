@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c410a6ea2f3744bfb8b009240436ce10, type: 3}
-  m_Name: File Overlay Tab
+  m_Name: Script Overlay
   m_EditorClassIdentifier: 
-  id: File Overlay Tab
+  id: Script Overlay
   value: 0

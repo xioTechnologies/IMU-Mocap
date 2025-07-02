@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Viewer.Runtime.Scripting
 {
-    public class ScriptOverlayButton : MonoBehaviour
+    public class ScriptListItem : MonoBehaviour
     {
         [SerializeField] private TMP_Text text;
 
@@ -18,7 +18,7 @@ namespace Viewer.Runtime.Scripting
             this.text.text = text;
         }
 
-        public void Trigger() => RunAction?.Invoke();
+        public void Run() => RunAction?.Invoke();
 
         public void Edit() => EditAction?.Invoke();
 
