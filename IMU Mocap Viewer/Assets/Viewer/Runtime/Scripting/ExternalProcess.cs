@@ -104,7 +104,7 @@ namespace Viewer.Runtime.Scripting
             process.StartInfo.CreateNoWindow = false;
 
 #else
-            ActiveScript = "Unsupported platform for script execution";
+            ScriptName = "Unsupported platform for script execution";
             Debug.LogError("Unsupported platform for script execution.");
             return null;
 #endif
