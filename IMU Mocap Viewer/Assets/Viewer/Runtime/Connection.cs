@@ -104,20 +104,20 @@ namespace Viewer.Runtime
                             plotter.Label(SwizzleFromArray3(obj.Xyz), obj.Text);
                             break;
 
-                        case "euler":
-                            plotter.Euler(
+                        case "angle":
+                            plotter.Angle(SwizzleFromArray3(obj.Xyz), SwizzleFromArray4(obj.Quaternion), obj.Angle, obj.Scale);
+                            break;
+
+                        case "angles":
+                            plotter.Angles(
                                 SwizzleFromArray3(obj.Xyz),
                                 SwizzleFromArray4(obj.Quaternion),
-                                AngleAndLimit(obj.RotX, obj.LimitX),
-                                AngleAndLimit(obj.RotY, obj.LimitY),
-                                AngleAndLimit(obj.RotZ, obj.LimitZ),
+                                AngleAndLimit(obj.Alpha, obj.LimitAlpha),
+                                AngleAndLimit(obj.Beta, obj.LimitBeta),
+                                AngleAndLimit(obj.Gamma, obj.LimitGamma),
                                 obj.Scale,
                                 obj.Mirror
                             );
-                            break;
-
-                        case "angle":
-                            plotter.Angle(SwizzleFromArray3(obj.Xyz), SwizzleFromArray4(obj.Quaternion), obj.Angle, obj.Scale);
                             break;
 
                         default:
@@ -160,18 +160,18 @@ namespace Viewer.Runtime
             public float[] Quaternion;
             public float Scale;
 
-            [JsonProperty(PropertyName = "rot_x")] public float? RotX;
-            [JsonProperty(PropertyName = "rot_y")] public float? RotY;
-            [JsonProperty(PropertyName = "rot_z")] public float? RotZ;
+            [JsonProperty(PropertyName = "alpha")] public float? Alpha;
+            [JsonProperty(PropertyName = "beta")] public float? Beta;
+            [JsonProperty(PropertyName = "gamma")] public float? Gamma;
 
-            [JsonProperty(PropertyName = "limit_x")]
-            public float[] LimitX;
+            [JsonProperty(PropertyName = "limit_alpha")]
+            public float[] LimitAlpha;
 
-            [JsonProperty(PropertyName = "limit_y")]
-            public float[] LimitY;
+            [JsonProperty(PropertyName = "limit_beta")]
+            public float[] LimitBeta;
 
-            [JsonProperty(PropertyName = "limit_z")]
-            public float[] LimitZ;
+            [JsonProperty(PropertyName = "limit_gamma")]
+            public float[] LimitGamma;
 
             public bool Mirror;
 
