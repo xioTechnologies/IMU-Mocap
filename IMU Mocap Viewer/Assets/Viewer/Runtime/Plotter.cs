@@ -67,11 +67,11 @@ namespace Viewer.Runtime
             axes.Plot(xyz, quaternion, scale);
         }
 
-        public void Euler(Vector3 xyz, Quaternion quaternion, AngleAndLimit? rotX, AngleAndLimit? rotY, AngleAndLimit? rotZ, float scale, bool mirror)
+        public void Angles(Vector3 xyz, Quaternion quaternion, AngleAndLimit? alpha, AngleAndLimit? beta, AngleAndLimit? gamma, float scale, bool mirror)
         {
             bounds.Encapsulate(new Bounds(xyz, Vector3.one * scale));
 
-            angle.PlotEuler(xyz, quaternion, rotX, rotY, rotZ, scale, mirror);
+            angle.PlotAngles(xyz, quaternion, alpha, beta, gamma, scale, mirror);
         }
 
         public void Angle(Vector3 xyz, Quaternion quaternion, float angleValue, float scale)
