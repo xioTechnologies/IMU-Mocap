@@ -164,9 +164,9 @@ def joints_to_primitives(
     for name, joint in joints.items():
         rot_z, rot_y, rot_x = joint.get()
 
-        limit_x = joint.twist_limit
-        limit_y = joint.tilt_limit
-        limit_z = joint.bend_limit
+        limit_x = joint.gamma_limit
+        limit_y = joint.beta_limit
+        limit_z = joint.alpha_limit
 
         joint_world = Matrix(xyz=joint.link.get_joint_world().xyz, rotation=joint.link.origin.rotation)
 
