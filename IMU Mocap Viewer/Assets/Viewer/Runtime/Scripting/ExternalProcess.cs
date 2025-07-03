@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Process = System.Diagnostics.Process;
 
@@ -8,6 +9,10 @@ namespace Viewer.Runtime.Scripting
 {
     static class ExternalProcess
     {
+        public static string BasePath => Path.Combine(Application.persistentDataPath);
+
+        public static string PythonCommand => Path.Combine(BasePath, "Python Command.txt");
+
         private static Process active;
 
         public static event Action Started;
@@ -81,36 +86,38 @@ namespace Viewer.Runtime.Scripting
                 return null;
             }
 
+            EnsurePythonCommandFileExists();
+
+            string commandLine = File.ReadAllText(PythonCommand);
+
+            if (ParseCommandLine(commandLine, out string command, out string arguments) == false)
+            {
+                ScriptName = "Could not parse command line: " + commandLine;
+
+                Debug.LogError(ScriptName);
+
+                return null;
+            }
+
             string workingDir = Path.GetDirectoryName(scriptPath);
-            string escapedScriptPath = scriptPath.Replace("\"", "\\\"");
-
-            Process process = new Process();
-
-            process.StartInfo.WorkingDirectory = workingDir!;
-
-            ScriptName = Path.GetFileName(scriptPath);
-
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-            process.StartInfo.FileName = "python";
-            process.StartInfo.Arguments = $@"""{escapedScriptPath}""";
-            process.StartInfo.UseShellExecute = true;
-            process.StartInfo.CreateNoWindow = false;
-
-#elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
-            var command = $"python3 '{escapedScriptPath}'";
-            process.StartInfo.FileName = "/usr/bin/osascript";
-            process.StartInfo.Arguments = $"-e \"tell application \\\"Terminal\\\" to do script \\\"{command}\\\"\"";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = false;
-
-#else
-            ScriptName = "Unsupported platform for script execution";
-            Debug.LogError("Unsupported platform for script execution.");
-            return null;
-#endif
-
+            string escapedScriptPath = scriptPath;
+            
+            Process process = new Process
+            {
+                StartInfo =
+                {
+                    FileName = command,
+                    Arguments = $@"{arguments} ""{escapedScriptPath}""",
+                    UseShellExecute = true,
+                    CreateNoWindow = false,
+                    WorkingDirectory = workingDir!
+                }
+            };
+            
             try
             {
+                ScriptName = Path.GetFileName(scriptPath);
+                
                 process.Start();
 
                 Started?.Invoke();
@@ -125,6 +132,60 @@ namespace Viewer.Runtime.Scripting
 
                 return null;
             }
+        }
+
+        private static void EnsurePythonCommandFileExists()
+        {
+            if (File.Exists(PythonCommand)) return;
+            
+            switch (Application.platform)
+            {
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                    File.WriteAllText(PythonCommand, "python3");
+                    break;
+                        
+                default:
+                    File.WriteAllText(PythonCommand, "python");
+                    break;
+            }
+        }
+
+        private static bool ParseCommandLine(string commandLine, out string command, out string arguments)
+        {
+            command = string.Empty;
+            arguments = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(commandLine)) return false;
+
+            commandLine = commandLine.Trim();
+
+            if (commandLine[0] == '"')
+            {
+                int closingQuote = commandLine.IndexOf('"', 1);
+
+                if (closingQuote == -1) return false;
+
+                command = commandLine.Substring(1, closingQuote - 1);
+                arguments = commandLine.Substring(closingQuote + 1).Trim();
+
+                return true;
+            }
+
+            int spaceIndex = commandLine.IndexOf(' ');
+
+            if (spaceIndex >= 0)
+            {
+                command = commandLine.Substring(0, spaceIndex);
+                arguments = commandLine.Substring(spaceIndex + 1).Trim();
+
+                return true;
+            }
+
+            command = commandLine;
+            arguments = string.Empty;
+
+            return true;
         }
 
         private static Process OpenFile(string filePath)

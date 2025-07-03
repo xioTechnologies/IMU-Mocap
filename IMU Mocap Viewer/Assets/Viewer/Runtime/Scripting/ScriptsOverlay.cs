@@ -2,15 +2,12 @@
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Viewer.Runtime.Scripting
 {
     public class ScriptsOverlay : MonoBehaviour
     {
-        public static string Scripts => Path.Combine(Application.persistentDataPath).Replace("\\", "/");
-
-        public static string ScriptsDirectoriesFile => Path.Combine(Scripts, "Scripts Directories.txt").Replace("\\", "/");
+        public static string ScriptsDirectoriesFile => Path.Combine(ExternalProcess.BasePath, "Scripts Directories.txt");
 
         [SerializeField] private ScriptListItem itemPrefab;
         [SerializeField] private RectTransform container;
@@ -35,7 +32,7 @@ namespace Viewer.Runtime.Scripting
 
         private void Cache()
         {
-            if (Directory.Exists(Scripts) == false) Directory.CreateDirectory(Scripts);
+            if (Directory.Exists(ExternalProcess.BasePath) == false) Directory.CreateDirectory(ExternalProcess.BasePath);
 
             TouchProjectsFile();
 
