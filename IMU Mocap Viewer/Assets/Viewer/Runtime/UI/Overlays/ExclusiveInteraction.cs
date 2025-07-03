@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Viewer.Runtime.Global;
 
@@ -11,13 +12,27 @@ namespace Viewer.Runtime.UI.Overlays
 
         [SerializeField] private List<GlobalSetting> overlays;
 
+        private readonly Dictionary<GlobalSetting, Action<bool>> events = new();
+
         private GlobalSetting active;
 
         private void Awake()
         {
             foreach (var overlay in overlays)
             {
-                overlay.OnValueChanged += value => OverlayChanged(overlay, value); // delegate may not be disposed
+                Action<bool> overlayEvent = value => OverlayChanged(overlay, value);
+
+                events[overlay] = overlayEvent;
+
+                overlay.OnValueChanged += overlayEvent;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            foreach (var overlay in overlays)
+            {
+                overlay.OnValueChanged -= events[overlay];
             }
         }
 
