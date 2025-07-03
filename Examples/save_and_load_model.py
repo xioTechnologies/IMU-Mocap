@@ -1,8 +1,8 @@
 import sys
 
+import example_models
 import imumocap
 import imumocap.file
-import example_models
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
