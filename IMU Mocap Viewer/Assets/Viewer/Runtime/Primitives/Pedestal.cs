@@ -1,17 +1,14 @@
-using UnityEngine;
-using Viewer.Runtime.Primitives;
+﻿using UnityEngine;
 
-namespace Viewer.Runtime.Widgets
+namespace Viewer.Runtime.Primitives
 {
-    public sealed class HeightStick : MonoBehaviour
+    public sealed class Pedestal : MonoBehaviour
     {
         [SerializeField] private Transform disc;
         [SerializeField] private Line stick;
-        [SerializeField] private Stretchable handle;
 
-        [SerializeField, Range(0f, 500f)] private float discSizeInPixels = 0.5f;
-        [SerializeField, Range(0f, 500f)] private float lineWidthInPixels = 2f;
-        [SerializeField, Range(0f, 500f)] private float knobSizeInPixels = 2f;
+        [SerializeField, Range(0f, 500f)] private float discSizeInPixels = 100f;
+        [SerializeField, Range(0f, 500f)] private float lineWidthInPixels = 8f;
 
         private Vector3 head;
 
@@ -24,17 +21,14 @@ namespace Viewer.Runtime.Widgets
             stick.LineWidthInPixels = lineWidthInPixels * PlotterSettings.UIScale;
             stick.SetPoints(Vector3.zero, Vector3.up * offset);
 
-            handle.transform.position = head;
-            handle.LineWidthInPixels = knobSizeInPixels;
-
             disc.localScale = PixelScaleUtility.GetWorldScaleFromPixels(discSizeInPixels, disc.position) * PlotterSettings.UIScale;
         }
 
         public void Hide() => gameObject.SetActive(false);
 
-        public void ShowAt(Vector3 getPoint)
+        public void Set(Vector3 xyz)
         {
-            head = getPoint;
+            head = xyz;
             gameObject.SetActive(true);
         }
     }

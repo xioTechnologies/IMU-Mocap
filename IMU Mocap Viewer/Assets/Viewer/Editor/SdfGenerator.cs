@@ -25,6 +25,7 @@ namespace Viewer.Editor
             GenerateSDF("Not allowed", resolution);
             GenerateSDF("Python", resolution);
             GenerateSDF("Directory", resolution);
+            GenerateSDF("Pedestal", resolution);
             
             GenerateSDF("Play", smaller);
             GenerateSDF("Stop", smaller);

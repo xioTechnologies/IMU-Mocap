@@ -4,6 +4,7 @@ import time
 import example_models
 import imumocap
 import imumocap.viewer
+import imumocap.solvers
 import numpy as np
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI

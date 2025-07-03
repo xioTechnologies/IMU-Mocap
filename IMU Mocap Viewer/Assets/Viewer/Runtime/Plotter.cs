@@ -15,6 +15,8 @@ namespace Viewer.Runtime
 
         [Header("Angle")] [SerializeField] private AnglePlotter angle;
 
+        [Header("Pedestal")] [SerializeField] private PedestalPlotter pedestals;
+        
         [Header("Label")] [SerializeField] private LabelPlotter labels;
 
         private Bounds? bounds;
@@ -32,6 +34,7 @@ namespace Viewer.Runtime
             dot.Clear();
             axes.Clear();
             angle.Clear();
+            pedestals.Clear();
             labels.Clear();
         }
 
@@ -77,6 +80,8 @@ namespace Viewer.Runtime
 
             angle.PlotAngle(xyz, quaternion, angleValue, scale);
         }
+
+        public void Pedestal(Vector3 xyz) => pedestals.Plot(xyz);
 
         public void Label(Vector3 xyz, string text)
         {

@@ -120,6 +120,10 @@ namespace Viewer.Runtime
                             plotter.Angle(SwizzleFromArray3(obj.Xyz), SwizzleFromArray4(obj.Quaternion), obj.Angle, obj.Scale);
                             break;
 
+                        case "pedestal":
+                            plotter.Pedestal(SwizzleFromArray3(obj.Xyz));
+                            break;
+                        
                         default:
                             Debug.LogError("Unknown primitive type: " + obj.Type);
                             break;
