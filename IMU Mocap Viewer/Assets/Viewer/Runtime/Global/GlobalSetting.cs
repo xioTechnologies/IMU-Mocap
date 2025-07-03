@@ -22,6 +22,8 @@ namespace Viewer.Runtime.Global
 
         private Action<bool> onValueChanged;
 
+        public string ID => id;
+
         public bool Value
         {
             get => Runtime.runtimeValue ?? Runtime.value;
