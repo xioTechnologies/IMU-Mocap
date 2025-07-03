@@ -110,6 +110,14 @@ class Label(Primitive):
         return f'{{"type":"label","xyz":{_xyz(self.xyz)},"text":"{self.text}"}}'
 
 
+@dataclass(frozen=True)
+class Pedestal(Primitive):
+    xyz: np.ndarray
+
+    def __str__(self) -> str:
+        return f'{{"type":"pedestal","xyz":{_xyz(self.xyz)}}}'
+
+
 def _number(value: float) -> str:
     string = f"{value:.6f}".rstrip("0").rstrip(".")
 
@@ -125,7 +133,7 @@ def _quaternion(quaternion: np.ndarray) -> str:
 
 
 def link_to_primitives(root: Link) -> list[Primitive]:
-    primitives = []
+    primitives = [Pedestal(root.get_joint_world().xyz)]
 
     for link in root.flatten():
         joint = link.get_joint_world()

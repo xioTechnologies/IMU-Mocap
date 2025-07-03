@@ -30,6 +30,8 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
 
     model.joints["Upper Torso"].set(a * 15)  # root joint connects the model to the world
 
+    imumocap.solvers.translate(model.root, [0, 0, 0.5])
+
     frames.append(imumocap.get_pose(model.root))
 
 # Plot
