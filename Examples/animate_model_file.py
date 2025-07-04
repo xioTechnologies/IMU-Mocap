@@ -3,6 +3,7 @@ import time
 
 import imumocap
 import imumocap.file
+import imumocap.solvers
 import imumocap.viewer
 import numpy as np
 
@@ -23,6 +24,8 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     joints["Right Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
 
     joints["Upper Torso"].set(a * 15)  # root joint connects the model to the world
+
+    imumocap.solvers.translate(root, [0, 0, 0.5])
 
     frames.append(imumocap.get_pose(root))
 
