@@ -4,7 +4,7 @@ Rotations in ~~strikethrough~~ do not typically occur in the human body or wheel
 
 ## Body
 
-| Joint         | + Bend                            | - Bend                          | + Tilt                                             | - Tilt                                              | + Twist                                      | - Twist                                       |
+| Joint         | + Alpha                           | - Alpha                         | + Beta                                             | - Beta                                              | + Gamma                                      | - Gamma                                       |
 |---------------|-----------------------------------|---------------------------------|----------------------------------------------------|-----------------------------------------------------|----------------------------------------------|-----------------------------------------------|
 | Head, Neck    | Flexion (tilting head down)       | Extension (tilting head up)     | Left lateral flexion (tilting head left)           | Right lateral flexion (tilting head right)          | Right rotation (turning head right)          | Left rotation (turning head left)             |
 | Wrist         | Flexion (lifting palms up)        | Extension (lowering palms down) | Ulnar deviation (tilting towards little fingers)   | Radial deviation (tilting towards thumbs)           | ~~Pronation (rotating palms down)~~          | ~~Supination (rotating palms up)~~            |
@@ -20,14 +20,14 @@ Rotations in ~~strikethrough~~ do not typically occur in the human body or wheel
 
 ## Weelchair
 
-| Joint | + Bend               | - Bend                | + Tilt                                                | - Tilt                                           | + Twist                                 | - Twist                                       |
+| Joint | + Alpha              | - Alpha               | + Beta                                                | - Beta                                           | + Gamma                                 | - Gamma                                       |
 |-------|----------------------|-----------------------|-------------------------------------------------------|--------------------------------------------------|-----------------------------------------|-----------------------------------------------|
 | Wheel | Spining forwards     | Spining backwards     | ~~Increasing camber (top of wheels coming together)~~ | ~~Decreasing camber (top of wheels separating)~~ | ~~Toe in (front of wheels separating)~~ | ~~Tow out (front of wheels coming together)~~ |
 | Seat  | ~~Leaning forwards~~ | ~~Leaning backwards~~ | ~~Leaning left~~                                      | ~~Leaning right~~                                | Turning left                            | Turning right                                 |
 
 ## Hands
 
-| Joint                     | + Bend                    | - Bend                         | + Tilt                                          | - Tilt                                              | + Twist                                   | - Twist                                  |
+| Joint                     | + Alpha                   | - Alpha                        | + Tilt                                          | - Tilt                                              | + Gamma                                   | - Gamma                                  |
 |---------------------------|---------------------------|--------------------------------|-------------------------------------------------|-----------------------------------------------------|-------------------------------------------|------------------------------------------|
 | Distal                    | Flexion (bending)         | Extension (straightening)      | ~~Radial abduction (moving towards thumbs)~~    | ~~Ulnar abduction (moving towards little fingers)~~ | ~~Pronation (rotating finger pads down)~~ | ~~Supination (rotating finger pads up)~~ |
 | Middle                    | Flexion (bending)         | Extension (straightening)      | ~~Radial abduction (moving towards thumbs)~~    | ~~Ulnar abduction (moving towards little fingers)~~ | ~~Pronation (rotating finger pads down)~~ | ~~Supination (rotating finger pads up)~~ |
