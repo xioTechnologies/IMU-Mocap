@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using Viewer.Runtime.Global;
+using Viewer.Runtime.Primitives;
 using Viewer.Runtime.Widgets;
 
 namespace Viewer.Runtime
@@ -31,7 +32,7 @@ namespace Viewer.Runtime
         [Header("Cursor")] [SerializeField] private TranslationCursor translationCursor;
         [SerializeField] private GlobalSetting notAllowedCursor;
         [SerializeField] private RotationCursor rotationCursor;
-        [SerializeField] private HeightStick heightStick;
+        [SerializeField] private Pedestal heightStick;
         [SerializeField] private BoundingBox boundingBox;
 
         private Tool active = Tool.None;
@@ -484,11 +485,11 @@ namespace Viewer.Runtime
                     break;
                 case Tool.Orbit:
                     rotationCursor.ShowAt(location);
-                    heightStick.ShowAt(location);
+                    heightStick.Set(location);
                     break;
                 case Tool.Height:
                     rotationCursor.ShowAt(location);
-                    heightStick.ShowAt(location);
+                    heightStick.Set(location);
                     break;
                 case Tool.Zoom:
                     break;

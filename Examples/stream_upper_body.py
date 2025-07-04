@@ -38,6 +38,8 @@ while True:
 
     imumocap.solvers.interpolate([model.upper_torso, model.neck, model.head])
 
+    imumocap.solvers.translate(model.root, [0, 0, 0.5])
+
     viewer_connection.send(
         [
             *imumocap.viewer.link_to_primitives(model.root),
