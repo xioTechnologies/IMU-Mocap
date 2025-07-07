@@ -8,9 +8,9 @@ namespace Viewer.Runtime.Global
     {
         [InfoBox("Settings persist in the player preferences"), SerializeField]
         private List<GlobalSetting> settings = new();
-        
+
         private readonly Dictionary<GlobalSetting, Action<bool>> events = new();
-        
+
         void Awake()
         {
             foreach (var setting in settings)
@@ -19,7 +19,7 @@ namespace Viewer.Runtime.Global
 
                 Action<bool> settingEvent = value => PlayerPrefs.SetInt(setting.ID, value ? 1 : 0);
 
-                events[setting] = settingEvent; 
+                events[setting] = settingEvent;
 
                 setting.OnValueChanged += settingEvent;
             }

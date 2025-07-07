@@ -14,15 +14,6 @@ namespace Viewer.Runtime.Scripting
 
         private readonly List<ScriptListItem> items = new();
 
-        public static string ScriptName
-        {
-            get
-            {
-                ExternalProcess.Check();
-                return ExternalProcess.ScriptName;
-            }
-        }
-
         public static void OpenProjectsFile()
         {
             TouchProjectsFile();
@@ -39,8 +30,6 @@ namespace Viewer.Runtime.Scripting
             string[] additionalPaths = File.ReadAllLines(ScriptsDirectoriesFile)
                 .Where(path => string.IsNullOrWhiteSpace(path) == false && Directory.Exists(path.Trim()))
                 .ToArray();
-
-            Debug.Log($"Loaded {additionalPaths.Length} from {ScriptsDirectoriesFile}");
 
             foreach (ScriptListItem item in items) Destroy(item.gameObject);
 

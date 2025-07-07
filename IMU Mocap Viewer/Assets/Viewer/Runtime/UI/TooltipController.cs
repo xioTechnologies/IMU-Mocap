@@ -51,7 +51,7 @@ namespace Viewer.Runtime.UI
             );
 
             tooltipLabel.Show(
-                tooltipUnderPointer.TooltipText,
+                tooltipUnderPointer,
                 canvasPosition,
                 offset,
                 parentTransform.InverseTransformPoint(tooltipUnderPointer.transform.position),
@@ -102,6 +102,8 @@ namespace Viewer.Runtime.UI
                 var tooltip = result.gameObject.GetComponentInParent<Tooltip>();
 
                 if (tooltip == null) continue;
+
+                if (tooltip.enabled == false) continue;
 
                 return tooltip;
             }

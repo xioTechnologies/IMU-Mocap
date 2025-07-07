@@ -8,7 +8,11 @@ namespace Viewer.Runtime.UI
         [SerializeField] private bool useHoverOffset;
         [SerializeField] private Vector2 hoverOffset;
 
-        public string TooltipText => tooltipText;
+        public string TooltipText
+        {
+            get => tooltipText;
+            set => tooltipText = value;
+        }
 
         public Vector2? HoverOffset => useHoverOffset ? hoverOffset : null;
     }

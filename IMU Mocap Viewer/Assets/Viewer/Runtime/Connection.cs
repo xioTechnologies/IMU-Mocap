@@ -123,7 +123,7 @@ namespace Viewer.Runtime
                         case "pedestal":
                             plotter.Pedestal(SwizzleFromArray3(obj.Xyz));
                             break;
-                        
+
                         default:
                             Debug.LogError("Unknown primitive type: " + obj.Type);
                             break;
