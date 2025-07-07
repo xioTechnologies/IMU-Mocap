@@ -5,9 +5,16 @@ from tkinter import ttk
 import imumocap
 import imumocap.file
 import imumocap.solvers
+import imumocap.viewer
 from imumocap import Joint
+import example_models
 
-root, joints = imumocap.file.load_model("edit_pose.json")
+# Load model
+model = example_models.Body()
+
+imumocap.file.save_model("model.json", model.root, model.joints)
+
+root, joints = imumocap.file.load_model("model.json")
 
 original_pose = imumocap.get_pose(root)
 
@@ -83,14 +90,14 @@ grid_frame.columnconfigure(2, weight=2)  # Tilt
 grid_frame.columnconfigure(3, weight=2)  # Twist
 
 # Headers
-header_bend = ttk.Label(grid_frame, text="Bend", font=("TkDefaultFont", 10, "bold"), anchor="center")
-header_bend.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
+header_alpha = ttk.Label(grid_frame, text="Alpha", font=("TkDefaultFont", 10, "bold"), anchor="center")
+header_alpha.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
 
-header_tilt = ttk.Label(grid_frame, text="Tilt", font=("TkDefaultFont", 10, "bold"), anchor="center")
-header_tilt.grid(row=0, column=2, sticky="ew", padx=5, pady=5)
+header_beta = ttk.Label(grid_frame, text="Beta", font=("TkDefaultFont", 10, "bold"), anchor="center")
+header_beta.grid(row=0, column=2, sticky="ew", padx=5, pady=5)
 
-header_twist = ttk.Label(grid_frame, text="Twist", font=("TkDefaultFont", 10, "bold"), anchor="center")
-header_twist.grid(row=0, column=3, sticky="ew", padx=5, pady=5)
+header_gamma = ttk.Label(grid_frame, text="Gamma", font=("TkDefaultFont", 10, "bold"), anchor="center")
+header_gamma.grid(row=0, column=3, sticky="ew", padx=5, pady=5)
 
 # Sliders
 slider_groups: dict[str, list[tk.Scale]] = {}
@@ -107,18 +114,18 @@ for name, joint in joints.items():
     joint_label = ttk.Label(grid_frame, text=name)
     joint_label.grid(row=row, column=0, sticky="w", padx=5, pady=2)
 
-    bend, tilt, twist = joint.get()
+    alpha, beta, gamma = joint.get()
 
-    bend_slider = create_slider(grid_frame, bend, BEND_RANGE)
-    bend_slider.grid(row=row, column=1, sticky="ew", padx=5, pady=2)
+    alpha_slider = create_slider(grid_frame, alpha, BEND_RANGE)
+    alpha_slider.grid(row=row, column=1, sticky="ew", padx=5, pady=2)
 
-    tilt_slider = create_slider(grid_frame, tilt, TILT_RANGE)
-    tilt_slider.grid(row=row, column=2, sticky="ew", padx=5, pady=2)
+    beta_slider = create_slider(grid_frame, beta, TILT_RANGE)
+    beta_slider.grid(row=row, column=2, sticky="ew", padx=5, pady=2)
 
-    twist_slider = create_slider(grid_frame, twist, TWIST_RANGE)
-    twist_slider.grid(row=row, column=3, sticky="ew", padx=5, pady=2)
+    gamma_slider = create_slider(grid_frame, gamma, TWIST_RANGE)
+    gamma_slider.grid(row=row, column=3, sticky="ew", padx=5, pady=2)
 
-    slider_groups[name] = [bend_slider, tilt_slider, twist_slider]
+    slider_groups[name] = [alpha_slider, beta_slider, gamma_slider]
 
     row += 1
 
@@ -153,7 +160,7 @@ def update_model_loop():
         group = slider_groups[name]
         joint.set(group[0].get(), group[1].get(), group[2].get())
 
-    connection.send([*imumocap.viewer.link_to_primitives(root), *imumocap.viewer.joints_to_primitives(joints, ["Left"])])
+    connection.send([*imumocap.viewer.link_to_primitives(root), *imumocap.viewer.joints_to_primitives(joints, "Left")])
 
     global job
     job = ui_root.after(UPDATE_RATE, update_model_loop)  # loop

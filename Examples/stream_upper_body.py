@@ -10,14 +10,15 @@ from imumocap.solvers import Mounting
 # Load model
 model = example_models.UpperBody()
 
-# Connect to and configure IMUs
-ignored = [
-    model.neck.name,
-    model.left_shoulder.name,
-    model.right_shoulder.name,
-]  # there are no IMUs on these parts of the body
-
-imus = ximu3s.setup([l.name for l in model.root.flatten() if l.name not in ignored])
+imus = ximu3s.setup(
+    [
+        model.upper_torso.name,
+        model.left_upper_arm.name,
+        model.left_forearm.name,
+        model.right_upper_arm.name,
+        model.right_forearm.name,
+    ]
+)
 
 # Stream to IMU Mocap Viewer
 viewer_connection = imumocap.viewer.Connection()
