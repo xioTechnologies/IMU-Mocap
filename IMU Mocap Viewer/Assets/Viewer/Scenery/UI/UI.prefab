@@ -1203,10 +1203,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Footer
       objectReference: {fileID: 0}
-    - target: {fileID: 1959033629523972131, guid: 8905ee643e73a0746b99aa6ed33a9869, type: 3}
-      propertyPath: overlay
-      value: 
-      objectReference: {fileID: 11400000, guid: 77345cc3414dad64d9a3899640718a24, type: 2}
     - target: {fileID: 2294188428918967012, guid: 8905ee643e73a0746b99aa6ed33a9869, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

@@ -51,7 +51,6 @@ GameObject:
   - component: {fileID: 4962013183979003438}
   - component: {fileID: 265496063033707020}
   - component: {fileID: 2232290590787724136}
-  - component: {fileID: 7626343920758682559}
   m_Layer: 5
   m_Name: Script Name
   m_TagString: Untagged
@@ -191,19 +190,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
---- !u!114 &7626343920758682559
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5869195876002950202}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92d0829a462d4c589b52932efdc11c1f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  disabledColor: {r: 0.24313726, g: 0.24313726, b: 0.25882354, a: 1}
 --- !u!1 &6515849370944586297
 GameObject:
   m_ObjectHideFlags: 0
@@ -543,7 +529,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c20cc30a7c294ab0ab9a8067cbec29d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tab: {fileID: 11400000, guid: 77345cc3414dad64d9a3899640718a24, type: 2}
+  overlay: {fileID: 11400000, guid: 77345cc3414dad64d9a3899640718a24, type: 2}
   action: 2
   settingSetsToggleState: 1
 --- !u!224 &6849143850149555024 stripped
@@ -565,7 +551,7 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: f799876f58f109940b84ddce873e97f0, type: 3}
     - target: {fileID: 2073597007716643083, guid: 27fcfcbcf8a2efb44a85093a09bc1f9d, type: 3}
       propertyPath: m_Name
-      value: Stop Script
+      value: Run Stop Script
       objectReference: {fileID: 0}
     - target: {fileID: 3312703364367832923, guid: 27fcfcbcf8a2efb44a85093a09bc1f9d, type: 3}
       propertyPath: m_SizeDelta.x
@@ -719,6 +705,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 510eca8335524213abc216661ba2e582, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scriptName: {fileID: 265496063033707020}
+  run: {fileID: 21300000, guid: df83cacc068ff0c4fb0bf9c429afe456, type: 3}
+  stop: {fileID: 21300000, guid: f799876f58f109940b84ddce873e97f0, type: 3}
 --- !u!114 &4032721522741070735
 MonoBehaviour:
   m_ObjectHideFlags: 0

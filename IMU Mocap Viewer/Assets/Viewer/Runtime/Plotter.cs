@@ -16,7 +16,7 @@ namespace Viewer.Runtime
         [Header("Angle")] [SerializeField] private AnglePlotter angle;
 
         [Header("Pedestal")] [SerializeField] private PedestalPlotter pedestals;
-        
+
         [Header("Label")] [SerializeField] private LabelPlotter labels;
 
         private Bounds? bounds;

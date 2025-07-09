@@ -13,11 +13,29 @@ namespace Viewer.Runtime.Scripting
 
         public static string PythonCommand => Path.Combine(BasePath, "Python Command.txt");
 
+        const string PreviousScriptKey = "PreviousScript";
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void LoadSettings()
+        {
+            string scriptPath = PlayerPrefs.HasKey(PreviousScriptKey) ? PlayerPrefs.GetString(PreviousScriptKey) : null;
+
+            PreviousScript = scriptPath != null && File.Exists(scriptPath) ? scriptPath : null;
+
+            ScriptName = PreviousScript != null ? Path.GetFileName(PreviousScript) : "";
+        }
+
+        public static string PreviousScript { get; private set; }
+
+        public static bool CanRerun => PreviousScript != null;
+
         private static Process active;
 
         public static event Action Started;
 
         public static event Action Stopped;
+
+        public static bool Running { get; private set; }
 
         public static string ScriptName { get; private set; }
 
@@ -27,12 +45,21 @@ namespace Viewer.Runtime.Scripting
 
             active = null;
 
+            Running = false;
+
             Stopped?.Invoke();
         }
 
         public static void Edit(string filePath)
         {
             OpenFile(filePath);
+        }
+
+        public static void Rerun()
+        {
+            if (CanRerun == false) return;
+
+            Run(PreviousScript);
         }
 
         public static void Run(string script)
@@ -71,6 +98,7 @@ namespace Viewer.Runtime.Scripting
                 active?.Dispose();
                 active = null;
 
+                Running = false;
                 Stopped?.Invoke();
             }
         }
@@ -101,7 +129,7 @@ namespace Viewer.Runtime.Scripting
 
             string workingDir = Path.GetDirectoryName(scriptPath);
             string escapedScriptPath = scriptPath;
-            
+
             Process process = new Process
             {
                 StartInfo =
@@ -113,13 +141,16 @@ namespace Viewer.Runtime.Scripting
                     WorkingDirectory = workingDir!
                 }
             };
-            
+
             try
             {
                 ScriptName = Path.GetFileName(scriptPath);
-                
+                PlayerPrefs.SetString(PreviousScriptKey, scriptPath);
+                PreviousScript = scriptPath;
+
                 process.Start();
 
+                Running = true;
                 Started?.Invoke();
 
                 return process;
@@ -137,14 +168,14 @@ namespace Viewer.Runtime.Scripting
         private static void EnsurePythonCommandFileExists()
         {
             if (File.Exists(PythonCommand)) return;
-            
+
             switch (Application.platform)
             {
                 case RuntimePlatform.OSXEditor:
                 case RuntimePlatform.OSXPlayer:
                     File.WriteAllText(PythonCommand, "python3");
                     break;
-                        
+
                 default:
                     File.WriteAllText(PythonCommand, "python");
                     break;
