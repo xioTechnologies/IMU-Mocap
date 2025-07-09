@@ -18,9 +18,9 @@ namespace Viewer.Runtime.UI
         private int columnCount;
         private int maxColumnRowCount;
 
-        protected override void Start()
+        protected override void Awake()
         {
-            base.Start();
+            base.Awake();
 
             Assert.IsNotNull(rectTransform.parent);
             parentRect = rectTransform.parent.GetComponent<RectTransform>();
