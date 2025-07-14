@@ -28,7 +28,7 @@ def calibrate(
     imus: dict[str, Matrix],  # {<link name>: <IMU measurment>, ...}
     pose: dict[str, Matrix] = {},  # {<link name>: <link joint matrix>, ...}
     mounting: Mounting | None = None,
-) -> None:
+) -> float | None:
     if not root.is_root:
         raise ValueError(f"{root.name} is not the root")
 
@@ -47,3 +47,6 @@ def calibrate(
 
     for name, matrix in imus.items():
         links[name].set_imu_world(matrix)
+
+    if mounting:
+        return heading
