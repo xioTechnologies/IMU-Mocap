@@ -19,8 +19,11 @@ def set_pose(
 def set_pose_from_imus(
     root: Link,
     imus: dict[str, Matrix],  # {<link name>: <IMU measurement>, ...}
+    heading: float | None = None,
 ) -> None:
+    alignment = Matrix(rot_z=-heading)
+
     links = {l.name: l for l in root.flatten()}
 
     for name, matrix in imus.items():
-        links[name].set_joint_from_imu_world(matrix)
+        links[name].set_joint_from_imu_world(alignment * matrix)
