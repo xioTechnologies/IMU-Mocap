@@ -19,7 +19,7 @@ def set_pose(
 def set_pose_from_imus(
     root: Link,
     imus: dict[str, Matrix],  # {<link name>: <IMU measurement>, ...}
-    heading: float | None = None,
+    heading: float = 0.0,
 ) -> None:
     alignment = Matrix(rot_z=-heading)
 
