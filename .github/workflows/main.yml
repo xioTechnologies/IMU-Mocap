@@ -210,10 +210,16 @@ jobs:
           smctl windows certsync
         shell: cmd
 
-      - name: Create installer
-        run: |
-          Get-ChildItem -Recurse -Directory -Filter "*DoNotShip" | Remove-Item -Recurse -Force
-          ISCC.exe "/Ssigntool=signtool.exe sign /sha1 ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 `$f" WindowsInstaller.iss
+      - name: Skip *DoNotShip files
+        run: Get-ChildItem -Recurse -Directory -Filter "*DoNotShip" | Remove-Item -Recurse -Force
+
+      - name: Create installer (signed)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: ISCC.exe "/DENABLE_SIGNING" "/Ssigntool=signtool.exe sign /sha1 ${{ secrets.SM_CODE_SIGNING_CERT_SHA1_HASH }} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256 `$f" WindowsInstaller.iss
+
+      - name: Create installer (unsigned)
+        if: ${{ ! startsWith(github.ref, 'refs/tags/v') }}
+        run: ISCC.exe WindowsInstaller.iss
 
       - uses: actions/upload-artifact@v4
         with:

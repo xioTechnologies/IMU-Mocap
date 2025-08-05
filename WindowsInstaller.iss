@@ -7,7 +7,9 @@ DefaultDirName={autopf64}\IMU Mocap Viewer
 DefaultGroupName=IMU Mocap Viewer
 DisableProgramGroupPage=yes
 OutputBaseFilename=IMU-Mocap-Viewer-Setup
+#ifdef ENABLE_SIGNING
 SignTool=signtool
+#endif
 UninstallDisplayIcon={app}\IMU Mocap Viewer.exe
 WizardStyle=modern
 
