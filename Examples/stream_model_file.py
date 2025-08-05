@@ -1,3 +1,4 @@
+import os
 import time
 
 import imumocap
@@ -7,7 +8,7 @@ import ximu3s
 from imumocap.solvers import Mounting
 
 # Load model
-root, joints = imumocap.file.load_model("model.json")
+root, joints = imumocap.file.load_model(os.path.join(os.path.dirname(os.path.abspath(__file__)), "model.json"))
 
 calibration_pose = imumocap.get_pose(root)
 
