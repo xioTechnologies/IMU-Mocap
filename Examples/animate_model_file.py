@@ -18,10 +18,10 @@ frames = []
 for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     joints["Neck"].set(a * 15)
 
-    joints["Left Elbow"].set(bend=a * 60, twist=a * -120)
-    joints["Left Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
-    joints["Right Elbow"].set(bend=a * 60, twist=a * -120)
-    joints["Right Shoulder"].set(bend=a * 10, tilt=a * -30, twist=a * 60)
+    joints["Left Elbow"].set(alpha=a * 60, gamma=a * -120)
+    joints["Left Shoulder"].set(alpha=a * 10, beta=a * -30, gamma=a * 60)
+    joints["Right Elbow"].set(alpha=a * 60, gamma=a * -120)
+    joints["Right Shoulder"].set(alpha=a * 10, beta=a * -30, gamma=a * 60)
 
     joints["Upper Torso"].set(a * 15)  # root joint connects the model to the world
 
