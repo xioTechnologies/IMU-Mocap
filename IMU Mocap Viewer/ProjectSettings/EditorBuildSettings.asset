@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Mac Tests/Screen 1.unity
+    guid: f4db80b211ce2384e906e1173363cda8
+  - enabled: 1
+    path: Assets/Mac Tests/Screen 2.unity
+    guid: 84f9d274ec6c2d345a531d81e62e571f
+  - enabled: 1
     path: Assets/Viewer/Scenery/Scenes/Viewer Scene.unity
     guid: 7b09a4ab941635e4ab8c0c21920824fd
   m_configObjects:
