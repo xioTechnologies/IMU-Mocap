@@ -13,14 +13,17 @@ namespace Viewer.Runtime
         [SerializeField] private GlobalSetting worldViewHasFocus;
         [SerializeField] private GlobalSetting showWidgets;
 
-        [Header("Settings")] [SerializeField, Range(0f, 1000f)]
-        private float maxDistance = 1000;
+        [Header("Settings")] [SerializeField] private SavedValue viewOriginSetting;
+        [SerializeField] private SavedValue viewAngleAndDistanceSetting;
+
+        [SerializeField, Range(0f, 1000f)] private float maxDistance = 1000;
 
         [SerializeField, Range(0.1f, 10f)] private float angleSensitivity = 2f;
         [SerializeField, Range(0.1f, 10f)] private float heightSensitivity = 2f;
         [SerializeField] private int numberZoomTicks = 100;
         [SerializeField] private Vector2 distanceRange = new(0.1f, 10f);
         [SerializeField] private Vector2 initialAngle = new(120f, -30f);
+        private readonly float initialDistance = (float)Math.Pow(0.05f, 1f / 3f);
         [SerializeField] private Vector2 angle = new(60f, -30f);
         [SerializeField, Range(1f, 3f)] private float margin = 1.125f;
 
@@ -73,21 +76,42 @@ namespace Viewer.Runtime
 
             mainCamera = Camera.main;
 
+            LoadPreviousView();
+
             Reset();
         }
 
         private void Reset()
         {
-            angle = initialAngle;
-            distance = (float)Math.Pow(0.05f, 1f / 3f);
-
-            target.position = Vector3.zero;
-
             ClearBounds();
 
             ClearToolStates();
 
             UpdateCamera();
+        }
+
+        private void LoadDefaultView()
+        {
+            angle = initialAngle;
+            distance = initialDistance;
+            target.position = Vector3.zero;
+        }
+
+        private void LoadPreviousView()
+        {
+            var cameraOrigin = viewOriginSetting.GetValue(Vector3.zero);
+            var angleAndDistance = viewAngleAndDistanceSetting.GetValue(new Vector3(initialAngle.x, initialAngle.y, initialDistance));
+
+            target.position = cameraOrigin;
+
+            angle = angleAndDistance._xy();
+            distance = angleAndDistance.z;
+        }
+
+        private void SaveCurrentView()
+        {
+            viewOriginSetting.SetValue(target.position);
+            viewAngleAndDistanceSetting.SetValue(new Vector3(angle.x, angle.y, distance));
         }
 
         private void OnEnable()
@@ -168,8 +192,12 @@ namespace Viewer.Runtime
 
             if (Utils.ConsumeFlag(ref shouldResetView) || doubleClick)
             {
+                if (doubleClick) LoadDefaultView();
+
                 Reset();
+
                 AccumulateBounds();
+
                 FitZoomToDataBounds();
 
                 return;
@@ -300,6 +328,8 @@ namespace Viewer.Runtime
             mainCamera.transform.rotation = Quaternion.Euler(-angle.y, angle.x + 180f, 0);
 
             PixelScaleUtility.CalculateForCamera(mainCamera);
+
+            SaveCurrentView();
         }
 
         private void Idle() => SwitchToTool(Tool.None, Vector3.zero);
