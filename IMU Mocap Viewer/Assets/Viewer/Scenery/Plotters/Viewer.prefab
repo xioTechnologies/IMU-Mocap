@@ -331,6 +331,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   worldViewHasFocus: {fileID: 11400000, guid: c84c0712929f23940928ee2a0b9c3ff6, type: 2}
   showWidgets: {fileID: 11400000, guid: d3e80e633f3dbb643877eb35b14e5fba, type: 2}
+  viewOriginSetting: {fileID: 11400000, guid: 2119b59adce771b4eb780fbc57beeb74, type: 2}
+  viewAngleAndDistanceSetting: {fileID: 11400000, guid: c2f5b2d8fbd4fb04fb607accf9d37833, type: 2}
   maxDistance: 100
   angleSensitivity: 2.5
   heightSensitivity: 2
@@ -404,7 +406,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6747383131549908031}
   m_Layer: 0
-  m_Name: View Elements
+  m_Name: Viewer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
