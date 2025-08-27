@@ -3,6 +3,7 @@ import time
 import imumocap
 import imumocap.file
 import imumocap.solvers
+import imumocap.viewer
 import ximu3s
 from imumocap.solvers import Mounting
 
