@@ -127,7 +127,12 @@ namespace Viewer.Runtime.Scripting
             }
 
             var workingDir = Path.GetDirectoryName(scriptPath);
-            var argumentsWithScript = arguments.Replace("<script>", scriptPath);
+            
+            Debug.Log("Working dir:" + workingDir);
+
+            var argumentsWithScript = arguments
+                .Replace("<working-directory>", workingDir)
+                .Replace("<script>", scriptPath);
 
             Debug.Log($"{command} {argumentsWithScript}");
 
@@ -168,17 +173,17 @@ namespace Viewer.Runtime.Scripting
         }
 
         private static void EnsurePythonCommandFileExists()
-        {
+        {        
             if (File.Exists(PythonCommand)
-                && File.ReadAllText(PythonCommand).IndexOf("<script>") >= 0)
-                return;
+                 && File.ReadAllText(PythonCommand).IndexOf("<script>") >= 0)
+                 return;
 
             switch (Application.platform)
             {
                 case RuntimePlatform.OSXEditor:
                 case RuntimePlatform.OSXPlayer:
                     File.WriteAllText(PythonCommand,
-                        "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"python3 '<script>'\\\"\"");
+                        "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"cd '<working-directory>'; python3 '<script>'\\\"\"");
                     break;
 
                 default:
