@@ -126,9 +126,7 @@ namespace Viewer.Runtime.Scripting
                 return null;
             }
 
-            var workingDir = Path.GetDirectoryName(scriptPath);
-            
-            Debug.Log("Working dir:" + workingDir);
+            var workingDir = Path.GetDirectoryName(scriptPath);            
 
             var argumentsWithScript = arguments
                 .Replace("<working-directory>", workingDir)
