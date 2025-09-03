@@ -72,28 +72,28 @@ class Angle(Primitive):
 
 
 @dataclass(frozen=True)
-class Euler(Primitive):
+class Angles(Primitive):
     matrix: Matrix
-    rot_x: float | None = None
-    rot_y: float | None = None
-    rot_z: float | None = None
-    limit_x: tuple[float, float] | None = None
-    limit_y: tuple[float, float] | None = None
-    limit_z: tuple[float, float] | None = None
+    alpha: float | None = None
+    beta: float | None = None
+    gamma: float | None = None
+    alpha_limit: tuple[float, float] | None = None
+    beta_limit: tuple[float, float] | None = None
+    gamma_limit: tuple[float, float] | None = None
     scale: float = 1.0
     mirror: bool = False
 
     def __str__(self) -> str:
         key_values = [
-            '"type":"euler"',
+            '"type":"angles"',
             f'"xyz":{_xyz(self.matrix.xyz)}',
             f'"quaternion":{_quaternion(self.matrix.quaternion)}',
-            f'"rot_x":{_number(self.rot_x)}' if self.rot_x is not None else None,
-            f'"rot_y":{_number(self.rot_y)}' if self.rot_y is not None else None,
-            f'"rot_z":{_number(self.rot_z)}' if self.rot_z is not None else None,
-            f'"limit_x":[{_number(self.limit_x[0])},{_number(self.limit_x[1])}]' if self.limit_x else None,
-            f'"limit_y":[{_number(self.limit_y[0])},{_number(self.limit_y[1])}]' if self.limit_y else None,
-            f'"limit_z":[{_number(self.limit_z[0])},{_number(self.limit_z[1])}]' if self.limit_z else None,
+            f'"alpha":{_number(self.alpha)}' if self.alpha is not None else None,
+            f'"beta":{_number(self.beta)}' if self.beta is not None else None,
+            f'"gamma":{_number(self.gamma)}' if self.gamma is not None else None,
+            f'"alpha_limit":[{_number(self.alpha_limit[0])},{_number(self.alpha_limit[1])}]' if self.alpha_limit else None,
+            f'"beta_limit":[{_number(self.beta_limit[0])},{_number(self.beta_limit[1])}]' if self.beta_limit else None,
+            f'"gamma_limit":[{_number(self.gamma_limit[0])},{_number(self.gamma_limit[1])}]' if self.gamma_limit else None,
             f'"scale":{_number(self.scale)}',
             '"mirror":true' if self.mirror else None,
         ]
@@ -170,23 +170,23 @@ def joints_to_primitives(
     primitives = []
 
     for name, joint in joints.items():
-        rot_z, rot_y, rot_x = joint.get()
+        alpha, beta, gamma = joint.get()
 
-        limit_x = joint.twist_limit
-        limit_y = joint.tilt_limit
-        limit_z = joint.bend_limit
+        alpha_limit = joint.alpha_limit
+        beta_limit = joint.beta_limit
+        gamma_limit = joint.gamma_limit
 
         joint_world = Matrix(xyz=joint.link.get_joint_world().xyz, rotation=joint.link.origin.rotation)
 
         primitives.append(
-            Euler(
+            Angles(
                 joint_world * joint.alignment,
-                rot_x=None if limit_x == (0, 0) else rot_x,
-                rot_y=None if limit_y == (0, 0) else rot_y,
-                rot_z=None if limit_z == (0, 0) else rot_z,
-                limit_x=None if limit_x == (0, 0) else limit_x,
-                limit_y=None if limit_y == (0, 0) else limit_y,
-                limit_z=None if limit_z == (0, 0) else limit_z,
+                gamma=None if gamma_limit == (0, 0) else gamma,
+                beta=None if beta_limit == (0, 0) else beta,
+                alpha=None if alpha_limit == (0, 0) else alpha,
+                gamma_limit=None if gamma_limit == (0, 0) else gamma_limit,
+                beta_limit=None if beta_limit == (0, 0) else beta_limit,
+                alpha_limit=None if alpha_limit == (0, 0) else alpha_limit,
                 scale=joint.link.length / 3,
                 mirror=mirror in name if mirror else False,
             )

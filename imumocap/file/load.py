@@ -64,16 +64,16 @@ def _load_joints(value: dict[str, Any], root: Link) -> dict[str, Joint]:
         n: Joint(
             links[j["link"]],
             _matrix(j["alignment"]),
-            j["bend_limit"],
-            j["tilt_limit"],
-            j["twist_limit"],
+            j["alpha_limit"],
+            j["beta_limit"],
+            j["gamma_limit"],
         )
         for n, j in value.items()
     }
 
 
 def _load_pose(value: dict[str, Any], joints: dict[str, Joint]) -> None:
-    pose = {n: (a["bend"], a["tilt"], a["twist"]) for n, a in value.items()}
+    pose = {n: (a["alpha"], a["beta"], a["gamma"]) for n, a in value.items()}
 
     for name, angles in pose.items():
         joints[name].set(*angles)

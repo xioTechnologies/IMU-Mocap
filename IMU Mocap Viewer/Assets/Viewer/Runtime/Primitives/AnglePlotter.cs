@@ -117,22 +117,22 @@ namespace Viewer.Runtime.Primitives
             Plot(xyz, quaternion, angle, null, scale * 2f, genericColorLinear, genericAlphaLinear, false);
         }
 
-        public void PlotEuler(Vector3 xyz, Quaternion quaternion, AngleAndLimit? angleX, AngleAndLimit? angleY, AngleAndLimit? angleZ, float scale, bool mirror)
+        public void PlotAngles(Vector3 xyz, Quaternion quaternion, AngleAndLimit? alpha, AngleAndLimit? beta, AngleAndLimit? gamma, float scale, bool mirror)
         {
             int inset = 6;
             float insetScale = 1f / inset * scale * 2f;
 
-            var rotZ = angleZ.HasValue ? angleZ.Value.Angle : 0;
-            var rotY = angleY.HasValue ? angleY.Value.Angle : 0;
+            var rotZ = alpha?.Angle ?? 0;
+            var rotY = beta?.Angle ?? 0;
 
             // Re-aligned to match the viewer's coordinate system
             var identity = Quaternion.identity;
             var zRotation = Quaternion.Euler(new(0, -rotZ, 0));
             var yRotation = zRotation * Quaternion.Euler(new(0, 0, -rotY));
 
-            PlotNext(xyz, quaternion * identity * ZAlignment, angleZ, ref inset, zColorLinear, zAlphaLinear);
-            PlotNext(xyz, quaternion * zRotation * YAlignment, angleY, ref inset, yColorLinear, yAlphaLinear);
-            PlotNext(xyz, quaternion * yRotation * XAlignment, angleX, ref inset, xColorLinear, xAlphaLinear);
+            PlotNext(xyz, quaternion * identity * ZAlignment, alpha, ref inset, zColorLinear, zAlphaLinear);
+            PlotNext(xyz, quaternion * zRotation * YAlignment, beta, ref inset, yColorLinear, yAlphaLinear);
+            PlotNext(xyz, quaternion * yRotation * XAlignment, gamma, ref inset, xColorLinear, xAlphaLinear);
 
             void PlotNext(Vector3 position, Quaternion rotation, AngleAndLimit? value, ref int ring, Color color, Color alphaColor)
             {

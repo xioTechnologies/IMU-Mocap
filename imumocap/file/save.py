@@ -61,9 +61,9 @@ def _joint(joint: Joint) -> str:
     key_values = [
         f'"link": "{joint.link.name}"',
         f'"alignment": {_matrix(joint.alignment)}',
-        f'"bend_limit": {_limit(joint.bend_limit)}',
-        f'"tilt_limit": {_limit(joint.tilt_limit)}',
-        f'"twist_limit": {_limit(joint.twist_limit)}',
+        f'"alpha_limit": {_limit(joint.alpha_limit)}',
+        f'"beta_limit": {_limit(joint.beta_limit)}',
+        f'"gamma_limit": {_limit(joint.gamma_limit)}',
     ]
 
     return "{ " + ", ".join([k for k in key_values]) + " }"
@@ -78,9 +78,9 @@ def _pose(joints: dict[str, Joint]) -> str:
 
 
 def _angles(joint: Joint) -> str:
-    bend, tilt, twist = joint.get()
+    alpha, beta, gamma = joint.get()
 
-    return f'{{ "bend": {_number(bend)}, "tilt": {_number(tilt)}, "twist": {_number(twist)} }}'
+    return f'{{ "alpha": {_number(alpha)}, "beta": {_number(beta)}, "gamma": {_number(gamma)} }}'
 
 
 def _number(value: float, precision: int = 9) -> str:
