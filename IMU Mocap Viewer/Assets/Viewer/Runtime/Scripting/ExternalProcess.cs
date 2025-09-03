@@ -126,10 +126,10 @@ namespace Viewer.Runtime.Scripting
                 return null;
             }
 
-            var workingDir = Path.GetDirectoryName(scriptPath);
+            var workingDirectory = Path.GetDirectoryName(scriptPath);
 
             var argumentsWithScript = arguments
-                .Replace("<working-directory>", workingDir)
+                .Replace("<working-directory>", workingDirectory)
                 .Replace("<script>", scriptPath);
 
             Debug.Log($"{command} {argumentsWithScript}");
@@ -143,7 +143,7 @@ namespace Viewer.Runtime.Scripting
                     Arguments = argumentsWithScript,
                     UseShellExecute = true,
                     CreateNoWindow = false,
-                    WorkingDirectory = workingDir!
+                    WorkingDirectory = workingDirectory!
                 }
             };
 
@@ -172,22 +172,22 @@ namespace Viewer.Runtime.Scripting
 
         private static void EnsurePythonCommandFileExists()
         {
-            if (File.Exists(PythonCommand)
-                 && File.ReadAllText(PythonCommand).IndexOf("<script>") >= 0)
-                 return;
-
-            switch (Application.platform)
+            if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer)
             {
-                case RuntimePlatform.OSXEditor:
-                case RuntimePlatform.OSXPlayer:
-                    File.WriteAllText(PythonCommand,
-                        "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"cd '<working-directory>'; python3 '<script>'\\\"\"");
-                    break;
+                if (File.Exists(PythonCommand)
+                    && File.ReadAllText(PythonCommand).IndexOf("<script>", StringComparison.Ordinal) >= 0
+                    && File.ReadAllText(PythonCommand).IndexOf("<working-directory>", StringComparison.Ordinal) >= 0)
+                    return;
 
-                default:
-                    File.WriteAllText(PythonCommand, "python \"<script>\"");
-                    break;
+                File.WriteAllText(PythonCommand,
+                    "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"cd '<working-directory>'; python3 '<script>'\\\"\"");
+
+                return;
             }
+
+            if (File.Exists(PythonCommand) && File.ReadAllText(PythonCommand).IndexOf("<script>", StringComparison.Ordinal) >= 0) return;
+
+            File.WriteAllText(PythonCommand, "python \"<script>\"");
         }
 
         private static bool ParseCommandLine(string commandLine, out string command, out string arguments)
