@@ -126,7 +126,7 @@ namespace Viewer.Runtime.Scripting
                 return null;
             }
 
-            var workingDir = Path.GetDirectoryName(scriptPath);            
+            var workingDir = Path.GetDirectoryName(scriptPath);
 
             var argumentsWithScript = arguments
                 .Replace("<working-directory>", workingDir)
@@ -171,7 +171,7 @@ namespace Viewer.Runtime.Scripting
         }
 
         private static void EnsurePythonCommandFileExists()
-        {        
+        {
             if (File.Exists(PythonCommand)
                  && File.ReadAllText(PythonCommand).IndexOf("<script>") >= 0)
                  return;
