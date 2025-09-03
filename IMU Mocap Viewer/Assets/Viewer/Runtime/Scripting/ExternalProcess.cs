@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
@@ -7,37 +7,36 @@ using Process = System.Diagnostics.Process;
 
 namespace Viewer.Runtime.Scripting
 {
-    static class ExternalProcess
+    internal static class ExternalProcess
     {
+        private const string PreviousScriptKey = "PreviousScript";
+
+        private static Process active;
         public static string BasePath => Path.Combine(Application.persistentDataPath);
 
         public static string PythonCommand => Path.Combine(BasePath, "Python Command.txt");
 
-        const string PreviousScriptKey = "PreviousScript";
+        public static string PreviousScript { get; private set; }
+
+        public static bool CanRerun => PreviousScript != null;
+
+        public static bool Running { get; private set; }
+
+        public static string ScriptName { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void LoadSettings()
+        private static void LoadSettings()
         {
-            string scriptPath = PlayerPrefs.HasKey(PreviousScriptKey) ? PlayerPrefs.GetString(PreviousScriptKey) : null;
+            var scriptPath = PlayerPrefs.HasKey(PreviousScriptKey) ? PlayerPrefs.GetString(PreviousScriptKey) : null;
 
             PreviousScript = scriptPath != null && File.Exists(scriptPath) ? scriptPath : null;
 
             ScriptName = PreviousScript != null ? Path.GetFileName(PreviousScript) : "";
         }
 
-        public static string PreviousScript { get; private set; }
-
-        public static bool CanRerun => PreviousScript != null;
-
-        private static Process active;
-
         public static event Action Started;
 
         public static event Action Stopped;
-
-        public static bool Running { get; private set; }
-
-        public static string ScriptName { get; private set; }
 
         public static void Check()
         {
@@ -116,9 +115,9 @@ namespace Viewer.Runtime.Scripting
 
             EnsurePythonCommandFileExists();
 
-            string commandLine = File.ReadAllText(PythonCommand);
+            var commandLine = File.ReadAllText(PythonCommand);
 
-            if (ParseCommandLine(commandLine, out string command, out string arguments) == false)
+            if (ParseCommandLine(commandLine, out var command, out var arguments) == false)
             {
                 ScriptName = "Could not parse command line: " + commandLine;
 
@@ -127,18 +126,24 @@ namespace Viewer.Runtime.Scripting
                 return null;
             }
 
-            string workingDir = Path.GetDirectoryName(scriptPath);
-            string escapedScriptPath = scriptPath;
+            var workingDirectory = Path.GetDirectoryName(scriptPath);
 
-            Process process = new Process
+            var argumentsWithScript = arguments
+                .Replace("<working-directory>", workingDirectory)
+                .Replace("<script>", scriptPath);
+
+            Debug.Log($"{command} {argumentsWithScript}");
+
+
+            var process = new Process
             {
                 StartInfo =
                 {
                     FileName = command,
-                    Arguments = $@"{arguments} ""{escapedScriptPath}""",
+                    Arguments = argumentsWithScript,
                     UseShellExecute = true,
                     CreateNoWindow = false,
-                    WorkingDirectory = workingDir!
+                    WorkingDirectory = workingDirectory!
                 }
             };
 
@@ -167,19 +172,22 @@ namespace Viewer.Runtime.Scripting
 
         private static void EnsurePythonCommandFileExists()
         {
-            if (File.Exists(PythonCommand)) return;
-
-            switch (Application.platform)
+            if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer)
             {
-                case RuntimePlatform.OSXEditor:
-                case RuntimePlatform.OSXPlayer:
-                    File.WriteAllText(PythonCommand, "python3");
-                    break;
+                if (File.Exists(PythonCommand)
+                    && File.ReadAllText(PythonCommand).IndexOf("<script>", StringComparison.Ordinal) >= 0
+                    && File.ReadAllText(PythonCommand).IndexOf("<working-directory>", StringComparison.Ordinal) >= 0)
+                    return;
 
-                default:
-                    File.WriteAllText(PythonCommand, "python");
-                    break;
+                File.WriteAllText(PythonCommand,
+                    "osascript -e \"tell application \\\"Terminal\\\" to do script \\\"cd '<working-directory>'; python3 '<script>'\\\"\"");
+
+                return;
             }
+
+            if (File.Exists(PythonCommand) && File.ReadAllText(PythonCommand).IndexOf("<script>", StringComparison.Ordinal) >= 0) return;
+
+            File.WriteAllText(PythonCommand, "python \"<script>\"");
         }
 
         private static bool ParseCommandLine(string commandLine, out string command, out string arguments)
@@ -193,7 +201,7 @@ namespace Viewer.Runtime.Scripting
 
             if (commandLine[0] == '"')
             {
-                int closingQuote = commandLine.IndexOf('"', 1);
+                var closingQuote = commandLine.IndexOf('"', 1);
 
                 if (closingQuote == -1) return false;
 
@@ -203,7 +211,7 @@ namespace Viewer.Runtime.Scripting
                 return true;
             }
 
-            int spaceIndex = commandLine.IndexOf(' ');
+            var spaceIndex = commandLine.IndexOf(' ');
 
             if (spaceIndex >= 0)
             {
@@ -229,7 +237,7 @@ namespace Viewer.Runtime.Scripting
 
             try
             {
-                return Process.Start(new ProcessStartInfo()
+                return Process.Start(new ProcessStartInfo
                 {
                     FileName = filePath,
                     UseShellExecute = true,
