@@ -2,7 +2,8 @@
 
 using System;
 using System.Globalization;
-using System.Text;
+using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace Viewer.Runtime.Json
 {
@@ -46,7 +47,7 @@ namespace Viewer.Runtime.Json
     /// <summary>
     /// Zero-allocation JSON parser using ReadOnlySpan for streaming parsing.
     /// </summary>
-    public static class Json99
+    public static partial class JsonZero
     {
         /// <summary>
         /// Parses value type. The position is not modified.
@@ -55,12 +56,13 @@ namespace Viewer.Runtime.Json
         /// <param name="position">Current position</param>
         /// <param name="type">Parsed type</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseType(ReadOnlySpan<char> json, ref int position, out JsonType type)
         {
             SkipWhiteSpace(json, ref position);
-            
+
             int pos = position;
-            
+
             if (pos >= json.Length)
             {
                 type = default;
@@ -109,6 +111,7 @@ namespace Viewer.Runtime.Json
         /// </summary>
         /// <param name="json">JSON span</param>
         /// <param name="position">Current position</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void SkipWhiteSpace(ReadOnlySpan<char> json, ref int position)
         {
             while (position < json.Length)
@@ -134,14 +137,13 @@ namespace Viewer.Runtime.Json
         /// <param name="position">Current position</param>
         /// <param name="expectedType">Expected type</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult CheckType(ReadOnlySpan<char> json, ref int position, JsonType expectedType)
         {
             JsonResult result = ParseType(json, ref position, out JsonType type);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
-            if (type != expectedType)
-                return JsonResult.UnexpectedType;
+            if (type != expectedType) return JsonResult.UnexpectedType;
 
             return JsonResult.Ok;
         }
@@ -152,17 +154,16 @@ namespace Viewer.Runtime.Json
         /// <param name="json">JSON span</param>
         /// <param name="position">Current position</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseObjectStart(ReadOnlySpan<char> json, ref int position)
         {
             JsonResult result = CheckType(json, ref position, JsonType.Object);
-            
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             position++;
-            
+
             SkipWhiteSpace(json, ref position);
-            
+
             return JsonResult.Ok;
         }
 
@@ -172,13 +173,15 @@ namespace Viewer.Runtime.Json
         /// <param name="json">JSON span</param>
         /// <param name="position">Current position</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseObjectEnd(ReadOnlySpan<char> json, ref int position)
         {
             SkipWhiteSpace(json, ref position);
-            if (position >= json.Length || json[position] != '}')
-                return JsonResult.MissingObjectEnd;
+
+            if (position >= json.Length || json[position] != '}') return JsonResult.MissingObjectEnd;
 
             position++;
+
             return JsonResult.Ok;
         }
 
@@ -188,14 +191,16 @@ namespace Viewer.Runtime.Json
         /// <param name="json">JSON span</param>
         /// <param name="position">Current position</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseArrayStart(ReadOnlySpan<char> json, ref int position)
         {
             JsonResult result = CheckType(json, ref position, JsonType.Array);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             position++;
+
             SkipWhiteSpace(json, ref position);
+
             return JsonResult.Ok;
         }
 
@@ -205,13 +210,15 @@ namespace Viewer.Runtime.Json
         /// <param name="json">JSON span</param>
         /// <param name="position">Current position</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseArrayEnd(ReadOnlySpan<char> json, ref int position)
         {
             SkipWhiteSpace(json, ref position);
-            if (position >= json.Length || json[position] != ']')
-                return JsonResult.MissingArrayEnd;
+
+            if (position >= json.Length || json[position] != ']') return JsonResult.MissingArrayEnd;
 
             position++;
+
             return JsonResult.Ok;
         }
 
@@ -221,13 +228,15 @@ namespace Viewer.Runtime.Json
         /// <param name="json">JSON span</param>
         /// <param name="position">Current position</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseComma(ReadOnlySpan<char> json, ref int position)
         {
             SkipWhiteSpace(json, ref position);
-            if (position >= json.Length || json[position] != ',')
-                return JsonResult.MissingComma;
+
+            if (position >= json.Length || json[position] != ',') return JsonResult.MissingComma;
 
             position++;
+
             return JsonResult.Ok;
         }
 
@@ -239,6 +248,7 @@ namespace Viewer.Runtime.Json
         /// <param name="destination">Destination span</param>
         /// <param name="numberOfBytes">Number of bytes written</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseKey(ReadOnlySpan<char> json, ref int position, Span<char> destination, out int numberOfBytes)
         {
             // Check type
@@ -250,15 +260,14 @@ namespace Viewer.Runtime.Json
 
             // Parse key
             JsonResult result = ParseString(json, ref position, destination, out numberOfBytes);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Parse colon
             SkipWhiteSpace(json, ref position);
-            if (position >= json.Length || json[position] != ':')
-                return JsonResult.MissingColon;
+            if (position >= json.Length || json[position] != ':') return JsonResult.MissingColon;
 
             position++;
+
             return JsonResult.Ok;
         }
 
@@ -270,14 +279,14 @@ namespace Viewer.Runtime.Json
         /// <param name="destination">Destination span</param>
         /// <param name="numberOfBytes">Number of characters written</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseString(ReadOnlySpan<char> json, ref int position, Span<char> destination, out int numberOfBytes)
         {
             numberOfBytes = 0;
 
             // Check type
             JsonResult result = CheckType(json, ref position, JsonType.String);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             position++; // Skip opening quote
 
@@ -285,23 +294,18 @@ namespace Viewer.Runtime.Json
             int index = 0;
             while (position < json.Length)
             {
-                // if (destination.Length > 0 && index >= destination.Length)
-                if (destination.Length > 0 && index > destination.Length)
+                if (destination.IsEmpty == false && index >= destination.Length)
                     return JsonResult.StringTooLong;
 
                 char ch = json[position];
 
-                if (ch == '\0')
-                    return JsonResult.MissingStringEnd;
-
-                if (ch >= 0 && ch < 0x20)
-                    return JsonResult.InvalidStringCharacter; // control characters must be escaped
-
+                if (ch == '\0') return JsonResult.MissingStringEnd;
+                if (ch >= 0 && ch < 0x20) return JsonResult.InvalidStringCharacter; // control characters must be escaped
                 if (ch == '\\')
                 {
                     result = ParseEscapeSequence(json, ref position, destination, ref index);
-                    if (result != JsonResult.Ok)
-                        return result;
+                    if (result != JsonResult.Ok) return result;
+
                     continue;
                 }
 
@@ -313,6 +317,7 @@ namespace Viewer.Runtime.Json
                 }
 
                 WriteToDestination(destination, ref index, ch);
+
                 position++;
             }
 
@@ -327,10 +332,10 @@ namespace Viewer.Runtime.Json
         /// <param name="destination">Destination span</param>
         /// <param name="index">Current index in destination</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult ParseEscapeSequence(ReadOnlySpan<char> json, ref int position, Span<char> destination, ref int index)
         {
-            if (position + 1 >= json.Length)
-                return JsonResult.InvalidStringEscapeSequence;
+            if (position + 1 >= json.Length) return JsonResult.InvalidStringEscapeSequence;
 
             switch (json[position + 1])
             {
@@ -365,6 +370,7 @@ namespace Viewer.Runtime.Json
             }
 
             position += 2;
+
             return JsonResult.Ok;
         }
 
@@ -376,24 +382,24 @@ namespace Viewer.Runtime.Json
         /// <param name="destination">Destination span</param>
         /// <param name="index">Current index in destination</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult ParseHexEscapeSequence(ReadOnlySpan<char> json, ref int position, Span<char> destination, ref int index)
         {
-            if (position + 5 >= json.Length)
-                return JsonResult.InvalidStringHexEscapeSequence;
+            if (position + 5 >= json.Length) return JsonResult.InvalidStringHexEscapeSequence;
 
             for (int i = 2; i <= 5; i++)
             {
                 char ch = json[position + i];
-                if (!((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f')))
-                    return JsonResult.InvalidStringHexEscapeSequence;
+                if ((ch is >= '0' and <= '9' || ch is >= 'A' and <= 'F' || ch is >= 'a' and <= 'f') == false) return JsonResult.InvalidStringHexEscapeSequence;
             }
 
             ReadOnlySpan<char> hexSpan = json.Slice(position + 2, 4);
-            if (!int.TryParse(hexSpan, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int value))
-                return JsonResult.UnableToParseStringHexEscapeSequence;
+            if (int.TryParse(hexSpan, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int value) == false) return JsonResult.UnableToParseStringHexEscapeSequence;
 
             WriteToDestination(destination, ref index, (char)value);
+
             position += 6;
+
             return JsonResult.Ok;
         }
 
@@ -403,12 +409,11 @@ namespace Viewer.Runtime.Json
         /// <param name="destination">Destination span</param>
         /// <param name="index">Current index</param>
         /// <param name="character">Character to write</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void WriteToDestination(Span<char> destination, ref int index, char character)
         {
-            if (!destination.IsEmpty && index < destination.Length)
-            {
-                destination[index] = character;
-            }
+            if (destination.IsEmpty == false && index < destination.Length) destination[index] = character;
+
             index++;
         }
 
@@ -419,14 +424,14 @@ namespace Viewer.Runtime.Json
         /// <param name="position">Current position</param>
         /// <param name="number">Parsed number</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseNumber(ReadOnlySpan<char> json, ref int position, out float number)
         {
             number = 0;
 
             // Check type
             JsonResult result = CheckType(json, ref position, JsonType.Number);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             int startPos = position;
 
@@ -434,61 +439,49 @@ namespace Viewer.Runtime.Json
             if (position < json.Length && json[position] == '-')
             {
                 position++;
-                if (position >= json.Length || !char.IsDigit(json[position]))
-                    return JsonResult.InvalidNumberFormat; // minus sign must be followed by digit
+
+                if (position >= json.Length || char.IsDigit(json[position]) == false) return JsonResult.InvalidNumberFormat; // minus sign must be followed by digit
             }
 
             // Parse first zero
             if (position < json.Length && json[position] == '0')
             {
                 position++;
-                if (position < json.Length && json[position] == '0')
-                    return JsonResult.InvalidNumberFormat; // leading zeros are invalid
+
+                if (position < json.Length && json[position] == '0') return JsonResult.InvalidNumberFormat; // leading zeros are invalid
             }
 
             // Parse integer
-            while (position < json.Length && char.IsDigit(json[position]))
-            {
-                position++;
-            }
+            while (position < json.Length && char.IsDigit(json[position])) position++;
 
             // Parse fraction
             if (position < json.Length && json[position] == '.')
             {
                 position++;
-                if (position >= json.Length || !char.IsDigit(json[position]))
-                    return JsonResult.InvalidNumberFormat; // decimal point must be followed by digit
 
-                while (position < json.Length && char.IsDigit(json[position]))
-                {
-                    position++;
-                }
+                if (position >= json.Length || char.IsDigit(json[position]) == false) return JsonResult.InvalidNumberFormat; // decimal point must be followed by digit
+
+                while (position < json.Length && char.IsDigit(json[position])) position++;
             }
 
             // Parse exponent
             if (position < json.Length && (json[position] == 'e' || json[position] == 'E'))
             {
                 position++;
-                if (position < json.Length && (json[position] == '+' || json[position] == '-'))
-                {
-                    position++;
-                }
-                if (position >= json.Length || !char.IsDigit(json[position]))
-                    return JsonResult.InvalidNumberFormat; // exponent must be followed by digit
 
-                while (position < json.Length && char.IsDigit(json[position]))
-                {
-                    position++;
-                }
+                if (position < json.Length && (json[position] == '+' || json[position] == '-')) position++;
+
+                if (position >= json.Length || char.IsDigit(json[position]) == false) return JsonResult.InvalidNumberFormat; // exponent must be followed by digit
+
+                while (position < json.Length && char.IsDigit(json[position])) position++;
             }
 
             // Parse number string
             ReadOnlySpan<char> numberSpan = json.Slice(startPos, position - startPos);
-            if (numberSpan.Length >= 32)
-                return JsonResult.NumberTooLong;
 
-            if (!float.TryParse(numberSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out number))
-                return JsonResult.UnableToParseNumber;
+            if (numberSpan.Length >= 32) return JsonResult.NumberTooLong;
+
+            if (float.TryParse(numberSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out number) == false) return JsonResult.UnableToParseNumber;
 
             return JsonResult.Ok;
         }
@@ -500,19 +493,18 @@ namespace Viewer.Runtime.Json
         /// <param name="position">Current position</param>
         /// <param name="boolean">Parsed boolean value</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseBoolean(ReadOnlySpan<char> json, ref int position, out bool boolean)
         {
             boolean = false;
 
             // Check type
             JsonResult result = CheckType(json, ref position, JsonType.Boolean);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Parse true
             ReadOnlySpan<char> trueSpan = "true".AsSpan();
-            if (position + trueSpan.Length <= json.Length && 
-                json.Slice(position, trueSpan.Length).SequenceEqual(trueSpan))
+            if (position + trueSpan.Length <= json.Length && json.Slice(position, trueSpan.Length).SequenceEqual(trueSpan))
             {
                 position += trueSpan.Length;
                 boolean = true;
@@ -521,8 +513,7 @@ namespace Viewer.Runtime.Json
 
             // Parse false
             ReadOnlySpan<char> falseSpan = "false".AsSpan();
-            if (position + falseSpan.Length <= json.Length && 
-                json.Slice(position, falseSpan.Length).SequenceEqual(falseSpan))
+            if (position + falseSpan.Length <= json.Length && json.Slice(position, falseSpan.Length).SequenceEqual(falseSpan))
             {
                 position += falseSpan.Length;
                 boolean = false;
@@ -538,17 +529,16 @@ namespace Viewer.Runtime.Json
         /// <param name="json">JSON span</param>
         /// <param name="position">Current position</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult ParseNull(ReadOnlySpan<char> json, ref int position)
         {
             // Check type
             JsonResult result = CheckType(json, ref position, JsonType.Null);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Parse null
             ReadOnlySpan<char> nullSpan = "null".AsSpan();
-            if (position + nullSpan.Length <= json.Length && 
-                json.Slice(position, nullSpan.Length).SequenceEqual(nullSpan))
+            if (position + nullSpan.Length <= json.Length && json.Slice(position, nullSpan.Length).SequenceEqual(nullSpan))
             {
                 position += nullSpan.Length;
                 return JsonResult.Ok;
@@ -563,6 +553,7 @@ namespace Viewer.Runtime.Json
         /// <param name="json">JSON span</param>
         /// <param name="position">Current position</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult Parse(ReadOnlySpan<char> json, ref int position)
         {
             int indent = 0;
@@ -573,13 +564,14 @@ namespace Viewer.Runtime.Json
         /// Prints the JSON structure and result message.
         /// </summary>
         /// <param name="json">JSON string</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Print(string json)
         {
             ReadOnlySpan<char> jsonSpan = json.AsSpan();
             int position = 0;
             int indent = 0;
             JsonResult result = ParseValue(jsonSpan, ref position, true, ref indent);
-            Console.WriteLine(ResultToString(result));
+            Debug.Log(ResultToString(result));
         }
 
         /// <summary>
@@ -590,59 +582,54 @@ namespace Viewer.Runtime.Json
         /// <param name="print">True to print structure</param>
         /// <param name="indent">Current indentation level</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult ParseValue(ReadOnlySpan<char> json, ref int position, bool print, ref int indent)
         {
             // Parse value type
             JsonResult result = ParseType(json, ref position, out JsonType type);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Print value type
             if (print)
             {
                 int actualIndent = 4 * indent;
-                string indentStr = new string(' ', actualIndent);
+                string indentStr = new(' ', actualIndent);
                 switch (type)
                 {
                     case JsonType.String:
-                        Console.WriteLine($"{indentStr}string");
+                        Debug.Log($"{indentStr}string");
                         break;
                     case JsonType.Number:
-                        Console.WriteLine($"{indentStr}number");
+                        Debug.Log($"{indentStr}number");
                         break;
                     case JsonType.Object:
-                        Console.WriteLine($"{indentStr}object");
+                        Debug.Log($"{indentStr}object");
                         break;
                     case JsonType.Array:
-                        Console.WriteLine($"{indentStr}array");
+                        Debug.Log($"{indentStr}array");
                         break;
                     case JsonType.Boolean:
-                        Console.WriteLine($"{indentStr}boolean");
+                        Debug.Log($"{indentStr}boolean");
                         break;
                     case JsonType.Null:
-                        Console.WriteLine($"{indentStr}null");
+                        Debug.Log($"{indentStr}null");
+                        break;
+                    default:
                         break;
                 }
             }
 
             // Parse value
-            switch (type)
+            return type switch
             {
-                case JsonType.String:
-                    return ParseString(json, ref position, Span<char>.Empty, out _);
-                case JsonType.Number:
-                    return ParseNumber(json, ref position, out _);
-                case JsonType.Object:
-                    return ParseObject(json, ref position, print, ref indent);
-                case JsonType.Array:
-                    return ParseArray(json, ref position, print, ref indent);
-                case JsonType.Boolean:
-                    return ParseBoolean(json, ref position, out _);
-                case JsonType.Null:
-                    return ParseNull(json, ref position);
-            }
-
-            return JsonResult.Ok;
+                JsonType.String => ParseString(json, ref position, Span<char>.Empty, out _),
+                JsonType.Number => ParseNumber(json, ref position, out _),
+                JsonType.Object => ParseObject(json, ref position, print, ref indent),
+                JsonType.Array => ParseArray(json, ref position, print, ref indent),
+                JsonType.Boolean => ParseBoolean(json, ref position, out _),
+                JsonType.Null => ParseNull(json, ref position),
+                _ => JsonResult.Ok
+            };
         }
 
         /// <summary>
@@ -653,44 +640,42 @@ namespace Viewer.Runtime.Json
         /// <param name="print">True to print structure</param>
         /// <param name="indent">Current indentation level</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult ParseObject(ReadOnlySpan<char> json, ref int position, bool print, ref int indent)
         {
             // Parse object start
             JsonResult result = ParseObjectStart(json, ref position);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Parse object end (empty object)
             result = ParseObjectEnd(json, ref position);
-            if (result == JsonResult.Ok)
-                return JsonResult.Ok;
+            if (result == JsonResult.Ok) return JsonResult.Ok;
 
             // Loop through each key/value pair
             indent++;
+
+            Span<char> key = stackalloc char[64];
+
             while (true)
             {
                 // Parse key
-                Span<char> key = stackalloc char[64];
                 result = ParseKey(json, ref position, key, out _);
-                if (result != JsonResult.Ok)
-                    return result;
+                if (result != JsonResult.Ok) return result;
 
                 // Parse value
                 result = ParseValue(json, ref position, print, ref indent);
-                if (result != JsonResult.Ok)
-                    return result;
+                if (result != JsonResult.Ok) return result;
 
                 // Parse comma
                 result = ParseComma(json, ref position);
-                if (result == JsonResult.Ok)
-                    continue;
+                if (result == JsonResult.Ok) continue;
 
                 // Parse object end
                 result = ParseObjectEnd(json, ref position);
-                if (result != JsonResult.Ok)
-                    return result;
+                if (result != JsonResult.Ok) return result;
                 break;
             }
+
             indent--;
             return JsonResult.Ok;
         }
@@ -703,17 +688,16 @@ namespace Viewer.Runtime.Json
         /// <param name="print">True to print structure</param>
         /// <param name="indent">Current indentation level</param>
         /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult ParseArray(ReadOnlySpan<char> json, ref int position, bool print, ref int indent)
         {
             // Parse array start
             JsonResult result = ParseArrayStart(json, ref position);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Parse array end (empty array)
             result = ParseArrayEnd(json, ref position);
-            if (result == JsonResult.Ok)
-                return JsonResult.Ok;
+            if (result == JsonResult.Ok) return JsonResult.Ok;
 
             // Loop through each value
             indent++;
@@ -721,20 +705,19 @@ namespace Viewer.Runtime.Json
             {
                 // Parse value
                 result = ParseValue(json, ref position, print, ref indent);
-                if (result != JsonResult.Ok)
-                    return result;
+                if (result != JsonResult.Ok) return result;
 
                 // Parse comma
                 result = ParseComma(json, ref position);
-                if (result == JsonResult.Ok)
-                    continue;
+                if (result == JsonResult.Ok) continue;
 
                 // Parse array end
                 result = ParseArrayEnd(json, ref position);
-                if (result != JsonResult.Ok)
-                    return result;
+                if (result != JsonResult.Ok) return result;
+
                 break;
             }
+
             indent--;
             return JsonResult.Ok;
         }
@@ -744,6 +727,7 @@ namespace Viewer.Runtime.Json
         /// </summary>
         /// <param name="result">Result code</param>
         /// <returns>Result message</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ResultToString(JsonResult result)
         {
             return result switch
@@ -767,59 +751,6 @@ namespace Viewer.Runtime.Json
                 JsonResult.UnableToParseNumber => "Unable to parse number",
                 _ => ""
             };
-        }
-
-        // Helper method for parsing arrays of numbers into spans
-        /// <summary>
-        /// Parses a JSON array of numbers into a span. Returns the number of elements parsed.
-        /// </summary>
-        /// <param name="json">JSON span</param>
-        /// <param name="position">Current position</param>
-        /// <param name="destination">Destination span for parsed numbers</param>
-        /// <param name="count">Number of elements parsed</param>
-        /// <returns>Result</returns>
-        public static JsonResult ParseNumberArray(ReadOnlySpan<char> json, ref int position, Span<float> destination, out int count)
-        {
-            count = 0;
-            
-            if (ParseArrayStart(json, ref position) != JsonResult.Ok)
-                return JsonResult.InvalidSyntax;
-                
-            // Check for empty array
-            int savedPos = position;
-            if (ParseArrayEnd(json, ref savedPos) == JsonResult.Ok)
-            {
-                position = savedPos;
-                return JsonResult.Ok;
-            }
-            
-            // Parse elements
-            while (count < destination.Length)
-            {
-                if (ParseNumber(json, ref position, out float number) != JsonResult.Ok)
-                    return JsonResult.InvalidSyntax;
-                    
-                destination[count] = number;
-                count++;
-                
-                // Try comma or array end
-                savedPos = position;
-                if (ParseComma(json, ref savedPos) == JsonResult.Ok)
-                {
-                    position = savedPos;
-                    continue;
-                }
-                
-                if (ParseArrayEnd(json, ref savedPos) == JsonResult.Ok)
-                {
-                    position = savedPos;
-                    return JsonResult.Ok;
-                }
-                
-                return JsonResult.InvalidSyntax;
-            }
-            
-            return JsonResult.Ok;
         }
     }
 }

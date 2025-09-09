@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Viewer.Runtime.Json;
 using Viewer.Runtime.Primitives;
 
 namespace Viewer.Runtime
@@ -84,13 +85,6 @@ namespace Viewer.Runtime
 
         public void Pedestal(Vector3 xyz) => pedestals.Plot(xyz);
 
-        public void Label(Vector3 xyz, string text)
-        {
-            bounds.Encapsulate(xyz);
-
-            labels.Plot(xyz, text, PlotterSettings.LabelColor);
-        }
-
         public void Label(Vector3 xyz, ReadOnlySpan<char> textSpan)
         {
             bounds.Encapsulate(xyz);
@@ -98,11 +92,9 @@ namespace Viewer.Runtime
             labels.Plot(xyz, textSpan, PlotterSettings.LabelColor);
         }
 
-        public void Text(string value, float time)
+        public void Text(ref FixedString1k value, float time)
         {
-            Debug.Log("Show text: " + value + ", for " + time + " seconds");
-
-            UI.Text.Set(value, time);
+            UI.Text.Set(ref value, time);
         }
     }
 

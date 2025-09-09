@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Viewer.Runtime.Json;
 
 namespace Viewer.Runtime.Primitives
 {
@@ -34,15 +35,6 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear() => group.Clear();
 
-        public void Plot(Vector3 xyz, string text, Color color)
-        {
-            Label obj = group.Get();
-
-            obj.Position = xyz;
-            obj.Text = text;
-            obj.Color = color;
-        }
-
         public void Plot(Vector3 xyz, ReadOnlySpan<char> textSpan, Color color)
         {
             Label obj = group.Get();
@@ -52,12 +44,12 @@ namespace Viewer.Runtime.Primitives
             obj.Color = color;
         }
 
-        public void Plot(Vector3 xyz, Color color, string text, Vector3 marginDirection, float margin)
+        public void Plot(Vector3 xyz, ReadOnlySpan<char> textSpan, Color color, Vector3 marginDirection, float margin)
         {
             Label obj = group.Get();
 
             obj.Position = xyz;
-            obj.Text = text;
+            obj.SetText(textSpan);
             obj.Color = color;
             obj.MarginDirection = marginDirection;
             obj.Margin = margin;

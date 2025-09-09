@@ -9,7 +9,7 @@ namespace Viewer.Runtime
 {
     public sealed class Connection : MonoBehaviour
     {
-        private ProfilerMarker jsonParse = new(nameof(Connection));
+        private static readonly ProfilerMarker JsonParseProfileMarker = new(nameof(Connection));
 
         [SerializeField] private Plotter plotter;
 
@@ -55,19 +55,28 @@ namespace Viewer.Runtime
 
             isReceivingData = false;
 
-            if (receiveTask.IsCompletedSuccessfully)
+            try
             {
-                using (jsonParse.Auto())
+                if (receiveTask.IsCompletedSuccessfully == false)
                 {
-                    if (Paused == false) Parsing.ProcessPacket(plotter, receiveTask.Result);
+                    Debug.LogError("Error receiving UDP data.");
+
+                    return;
+                }
+
+                using (JsonParseProfileMarker.Auto())
+                {
+                    if (Paused) return;
+
+                    JsonResult result = Parsing.ProcessPacket(plotter, receiveTask.Result);
+
+                    if (result != JsonResult.Ok) Debug.LogError(JsonZero.ResultToString(result));
                 }
             }
-            else
+            finally
             {
-                Debug.LogError("Error receiving UDP data.");
+                StartReceivingData();
             }
-
-            StartReceivingData();
         }
 
         void StartReceivingData()

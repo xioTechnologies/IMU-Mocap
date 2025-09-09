@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using Viewer.Runtime.Json;
 
 namespace Viewer.Runtime.Primitives
 {
@@ -14,19 +15,24 @@ namespace Viewer.Runtime.Primitives
         private RectTransform rectTransform;
         private RectTransform parentTransform;
 
-        public string Text
-        {
-            get => text.text;
-            set => text.text = value;
-        }
+        private readonly char[] buffer = new char[128];
+        private int bufferLength;
 
         public void SetText(ReadOnlySpan<char> textSpan)
-        {            
-            string currentText = text.text;
+        {
+            if (bufferLength == textSpan.Length
+                && textSpan.SequenceEqual(buffer.AsSpan(0, bufferLength)))
+            {
+                return;
+            }
 
-            if (currentText != null && textSpan.SequenceEqual(currentText.AsSpan())) return; 
-            
-            text.text = textSpan.ToString();
+            int truncated = Math.Min(textSpan.Length, buffer.Length);
+
+            textSpan.Slice(0, truncated).CopyTo(buffer);
+
+            bufferLength = truncated;
+
+            text.SetCharArray(buffer, 0, bufferLength);
         }
 
         public float Margin
