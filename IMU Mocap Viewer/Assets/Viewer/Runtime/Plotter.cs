@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Viewer.Runtime.Primitives;
 
@@ -89,6 +90,13 @@ namespace Viewer.Runtime
 
             labels.Plot(xyz, text, PlotterSettings.LabelColor);
         }
+
+        public void Label(Vector3 xyz, ReadOnlySpan<char> textSpan)
+        {
+            bounds.Encapsulate(xyz);
+
+            labels.Plot(xyz, textSpan, PlotterSettings.LabelColor);
+        }
     }
 
     public struct AngleAndLimit
@@ -96,13 +104,11 @@ namespace Viewer.Runtime
         public float Angle;
 
         public (float min, float max)? Limit;
-
-        public AngleAndLimit(float angle, float[] limit = null)
+        
+        public AngleAndLimit(float angle, (float min, float max)? limit)
         {
             Angle = angle;
-
-            if (limit is { Length: 2 }) Limit = (limit[0], limit[1]);
-            else Limit = null;
+            Limit = limit;
         }
     }
 }
