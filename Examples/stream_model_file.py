@@ -36,7 +36,7 @@ while True:
 
     imumocap.solvers.translate(root, [0, 0, 0.5])
 
-    viewer.send(
+    viewer.send_frame(
         [
             *imumocap.viewer.link_to_primitives(root),
             *imumocap.viewer.joints_to_primitives(joints, "Left"),

@@ -1,6 +1,7 @@
 import socket
+import json
 
-from .primatives import Primitive
+from .primatives import Primitive, _number
 
 
 class Connection:
@@ -16,10 +17,20 @@ class Connection:
     def __del__(self) -> None:
         self.__socket.close()
 
-    def send(self, primitives: list[Primitive]) -> None:
-        json = "[" + ",".join([str(p) for p in primitives]) + "]"
+    def send_text(self, string: str | None = None, time: float = 0) -> None:
+        json_string = f'{{"text":{{"string":{json.dumps(string)},"time":{_number(time)}}}}}'
 
-        data = json.encode("ascii")
+        data = json_string.encode("ascii")
+
+        if len(data) > self.__buffer_size:
+            raise ValueError(f"The data size is {len(data)}, which exceeds the buffer size of {self.__buffer_size}.")
+
+        self.__socket.sendto(data, self.__address)
+
+    def send_frame(self, primitives: list[Primitive], layer: int = 0) -> None:
+        json_string = f'{{"frame":{{"layer":{layer},"primitives":[{",".join([str(p) for p in primitives])}]}}}}'
+
+        data = json_string.encode("ascii")
 
         if len(data) > self.__buffer_size:
             raise ValueError(f"The data size is {len(data)}, which exceeds the buffer size of {self.__buffer_size}.")
