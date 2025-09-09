@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Viewer.Runtime.Primitives
@@ -39,6 +40,15 @@ namespace Viewer.Runtime.Primitives
 
             obj.Position = xyz;
             obj.Text = text;
+            obj.Color = color;
+        }
+
+        public void Plot(Vector3 xyz, ReadOnlySpan<char> textSpan, Color color)
+        {
+            Label obj = group.Get();
+
+            obj.Position = xyz;
+            obj.SetText(textSpan);
             obj.Color = color;
         }
 

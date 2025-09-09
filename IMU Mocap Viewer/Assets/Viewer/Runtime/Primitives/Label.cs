@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -17,6 +18,15 @@ namespace Viewer.Runtime.Primitives
         {
             get => text.text;
             set => text.text = value;
+        }
+
+        public void SetText(ReadOnlySpan<char> textSpan)
+        {            
+            string currentText = text.text;
+
+            if (currentText != null && textSpan.SequenceEqual(currentText.AsSpan())) return; 
+            
+            text.text = textSpan.ToString();
         }
 
         public float Margin
