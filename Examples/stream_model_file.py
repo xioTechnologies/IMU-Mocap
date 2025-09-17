@@ -16,7 +16,7 @@ calibration_pose = imumocap.get_pose(root)
 imus = ximu3s.setup([l.name for l in root.flatten() if l.name])
 
 # Stream to IMU Mocap Viewer
-viewer_connection = imumocap.viewer.Connection()
+viewer = imumocap.viewer.Connection()
 
 calibrated_heading = 0
 
@@ -36,7 +36,7 @@ while True:
 
     imumocap.solvers.translate(root, [0, 0, 0.5])
 
-    viewer_connection.send(
+    viewer.send(
         [
             *imumocap.viewer.link_to_primitives(root),
             *imumocap.viewer.joints_to_primitives(joints, "Left"),

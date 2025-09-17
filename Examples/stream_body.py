@@ -27,7 +27,7 @@ ignored = [
 imus = ximu3s.setup([l.name for l in model.root.flatten() if l.name not in ignored])
 
 # Stream to IMU Mocap Viewer
-viewer_connection = imumocap.viewer.Connection()
+viewer = imumocap.viewer.Connection()
 
 calibrated_heading = 0
 
@@ -50,7 +50,7 @@ while True:
 
     imumocap.solvers.floor(model.root)
 
-    viewer_connection.send(
+    viewer.send(
         [
             *imumocap.viewer.link_to_primitives(model.root),
             *imumocap.viewer.joints_to_primitives(model.joints, "Left"),
