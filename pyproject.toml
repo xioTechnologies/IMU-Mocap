@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "imumocap"
-version = "1.2.0"
+version = "1.2.1"
 description = "IMU Mocap"
 readme = { text = "See [github](https://github.com/xioTechnologies/IMU-Mocap) for documentation and examples.", content-type = "text/markdown" }
 authors = [{ name = "x-io Technologies Limited", email = "info@x-io.co.uk" }]
