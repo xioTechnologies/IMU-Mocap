@@ -47,7 +47,7 @@ namespace Viewer.Runtime.Json
     /// <summary>
     /// Zero-allocation JSON parser using ReadOnlySpan for streaming parsing.
     /// </summary>
-    public static class Json99
+    public static class JsonZero
     {
         /// <summary>
         /// Parses value type. The position is not modified.
@@ -60,9 +60,9 @@ namespace Viewer.Runtime.Json
         public static JsonResult ParseType(ReadOnlySpan<char> json, ref int position, out JsonType type)
         {
             SkipWhiteSpace(json, ref position);
-            
+
             int pos = position;
-            
+
             if (pos >= json.Length)
             {
                 type = default;
@@ -160,14 +160,14 @@ namespace Viewer.Runtime.Json
         public static JsonResult ParseObjectStart(ReadOnlySpan<char> json, ref int position)
         {
             JsonResult result = CheckType(json, ref position, JsonType.Object);
-            
+
             if (result != JsonResult.Ok)
                 return result;
 
             position++;
-            
+
             SkipWhiteSpace(json, ref position);
-            
+
             return JsonResult.Ok;
         }
 
@@ -423,6 +423,7 @@ namespace Viewer.Runtime.Json
             {
                 destination[index] = character;
             }
+
             index++;
         }
 
@@ -488,6 +489,7 @@ namespace Viewer.Runtime.Json
                 {
                     position++;
                 }
+
                 if (position >= json.Length || !char.IsDigit(json[position]))
                     return JsonResult.InvalidNumberFormat; // exponent must be followed by digit
 
@@ -527,7 +529,7 @@ namespace Viewer.Runtime.Json
 
             // Parse true
             ReadOnlySpan<char> trueSpan = "true".AsSpan();
-            if (position + trueSpan.Length <= json.Length && 
+            if (position + trueSpan.Length <= json.Length &&
                 json.Slice(position, trueSpan.Length).SequenceEqual(trueSpan))
             {
                 position += trueSpan.Length;
@@ -537,7 +539,7 @@ namespace Viewer.Runtime.Json
 
             // Parse false
             ReadOnlySpan<char> falseSpan = "false".AsSpan();
-            if (position + falseSpan.Length <= json.Length && 
+            if (position + falseSpan.Length <= json.Length &&
                 json.Slice(position, falseSpan.Length).SequenceEqual(falseSpan))
             {
                 position += falseSpan.Length;
@@ -564,7 +566,7 @@ namespace Viewer.Runtime.Json
 
             // Parse null
             ReadOnlySpan<char> nullSpan = "null".AsSpan();
-            if (position + nullSpan.Length <= json.Length && 
+            if (position + nullSpan.Length <= json.Length &&
                 json.Slice(position, nullSpan.Length).SequenceEqual(nullSpan))
             {
                 position += nullSpan.Length;
@@ -688,9 +690,9 @@ namespace Viewer.Runtime.Json
 
             // Loop through each key/value pair
             indent++;
-            
+
             Span<char> key = stackalloc char[64];
-            
+
             while (true)
             {
                 // Parse key
@@ -714,6 +716,7 @@ namespace Viewer.Runtime.Json
                     return result;
                 break;
             }
+
             indent--;
             return JsonResult.Ok;
         }
@@ -759,6 +762,7 @@ namespace Viewer.Runtime.Json
                     return result;
                 break;
             }
+
             indent--;
             return JsonResult.Ok;
         }
@@ -807,10 +811,10 @@ namespace Viewer.Runtime.Json
         public static JsonResult ParseNumberArray(ReadOnlySpan<char> json, ref int position, Span<float> destination, out int count)
         {
             count = 0;
-            
+
             if (ParseArrayStart(json, ref position) != JsonResult.Ok)
                 return JsonResult.InvalidSyntax;
-                
+
             // Check for empty array
             int savedPos = position;
             if (ParseArrayEnd(json, ref savedPos) == JsonResult.Ok)
@@ -818,16 +822,16 @@ namespace Viewer.Runtime.Json
                 position = savedPos;
                 return JsonResult.Ok;
             }
-            
+
             // Parse elements
             while (count < destination.Length)
             {
                 if (ParseNumber(json, ref position, out float number) != JsonResult.Ok)
                     return JsonResult.InvalidSyntax;
-                    
+
                 destination[count] = number;
                 count++;
-                
+
                 // Try comma or array end
                 savedPos = position;
                 if (ParseComma(json, ref savedPos) == JsonResult.Ok)
@@ -835,16 +839,16 @@ namespace Viewer.Runtime.Json
                     position = savedPos;
                     continue;
                 }
-                
+
                 if (ParseArrayEnd(json, ref savedPos) == JsonResult.Ok)
                 {
                     position = savedPos;
                     return JsonResult.Ok;
                 }
-                
+
                 return JsonResult.InvalidSyntax;
             }
-            
+
             return JsonResult.Ok;
         }
     }
