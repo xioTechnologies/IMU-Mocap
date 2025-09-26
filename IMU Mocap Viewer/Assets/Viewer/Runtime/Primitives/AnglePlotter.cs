@@ -1,3 +1,5 @@
+using System;
+using Unity.Profiling;
 using UnityEngine;
 using Viewer.Runtime.Primitives.Batching;
 
@@ -8,7 +10,7 @@ namespace Viewer.Runtime.Primitives
         private static readonly Quaternion ZAlignment = Quaternion.identity;
         private static readonly Quaternion YAlignment = Quaternion.Euler(new(90, 0, 0)); // re-aligned to match the viewer's coordinate system
         private static readonly Quaternion XAlignment = Quaternion.Euler(new(0, -90, 0)) * Quaternion.Euler(new(-90, 0, 0)); // re-aligned to match the viewer's coordinate system
-
+        
         [Header("Labels")] [SerializeField] private LabelPlotter labels;
         [SerializeField] private float labelMargin = 10f;
 
@@ -117,8 +119,11 @@ namespace Viewer.Runtime.Primitives
             Plot(xyz, quaternion, angle, null, scale * 2f, genericColorLinear, genericAlphaLinear, false);
         }
 
+        private static ProfilerMarker AnglesMarker = new("Parsing.Angles.PlotAngles");
+        
         public void PlotAngles(Vector3 xyz, Quaternion quaternion, AngleAndLimit? alpha, AngleAndLimit? beta, AngleAndLimit? gamma, float scale, bool mirror)
         {
+
             int inset = 6;
             float insetScale = 1f / inset * scale * 2f;
 
@@ -140,6 +145,7 @@ namespace Viewer.Runtime.Primitives
 
                 Plot(position, rotation, value.Value.Angle, value.Value.Limit, ring-- * insetScale, color, alphaColor, mirror);
             }
+
         }
 
         void Update()
@@ -151,6 +157,7 @@ namespace Viewer.Runtime.Primitives
 
         private void Plot(Vector3 xyz, Quaternion quaternion, float angle, (float min, float max)? range, float scale, Color color, Color alphaColor, bool flip)
         {
+
             float angleScale = scale;
             float thickness = PlotterSettings.AngleLineWidthInPixels;
 
@@ -167,8 +174,17 @@ namespace Viewer.Runtime.Primitives
             Vector3 direction = valueRotation * Vector3.forward;
 
             Vector3 offset = direction * (angleScale * 0.5f);
-
-            labels.Plot(xyz + offset, color, $"{angle:F1}°", direction, labelMargin);
+            
+            using (AnglesMarker.Auto())
+            {
+                Span<char> buffer = stackalloc char[16];
+                
+                angle.TryFormat(buffer, out int written, "F1");
+                
+                buffer[written++] = '°';
+                
+                labels.Plot(xyz + offset, buffer[..written], color, direction, labelMargin);
+            }
         }
     }
 }

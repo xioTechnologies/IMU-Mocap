@@ -13,6 +13,9 @@ namespace Viewer.Runtime.Primitives
 
         private RectTransform rectTransform;
         private RectTransform parentTransform;
+        
+        private readonly char[] buffer = new char[128]; 
+        private int bufferLength;
 
         public string Text
         {
@@ -21,12 +24,20 @@ namespace Viewer.Runtime.Primitives
         }
 
         public void SetText(ReadOnlySpan<char> textSpan)
-        {            
-            string currentText = text.text;
+        {
+            if (bufferLength == textSpan.Length 
+                && textSpan.SequenceEqual(buffer.AsSpan(0, bufferLength)))
+            {
+                return;
+            }
 
-            if (currentText != null && textSpan.SequenceEqual(currentText.AsSpan())) return; 
+            int truncated = Math.Min(textSpan.Length, buffer.Length); 
             
-            text.text = textSpan.ToString();
+            textSpan.Slice(0, truncated).CopyTo(buffer);
+            
+            bufferLength = truncated;
+
+            text.SetCharArray(buffer, 0, bufferLength);
         }
 
         public float Margin

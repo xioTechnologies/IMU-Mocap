@@ -2,12 +2,24 @@
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace Viewer.Runtime.Json
 {
     public static class Parsing
     {
+        private static ProfilerMarker FrameMarker = new(nameof(Parsing) + ".Frame");
+        private static ProfilerMarker PrimitiveMarker = new(nameof(Parsing) + ".Primitive");
+        private static ProfilerMarker LineMarker = new(nameof(Parsing) + ".Line");
+        private static ProfilerMarker CircleMarker = new(nameof(Parsing) + ".Circle");
+        private static ProfilerMarker DotMarker = new(nameof(Parsing) + ".Dot");
+        private static ProfilerMarker AxesMarker = new(nameof(Parsing) + ".Axes");
+        private static ProfilerMarker LabelMarker = new(nameof(Parsing) + ".Label");
+        private static ProfilerMarker AnglesMarker = new(nameof(Parsing) + ".Angles");
+        private static ProfilerMarker AngleMarker = new(nameof(Parsing) + ".Angle");
+        private static ProfilerMarker PedestalMarker = new(nameof(Parsing) + ".Pedestal");
+
         private const int TypeSize = 16;
 
         public static JsonResult ProcessPacket(Plotter plotter, UdpReceiveResult udpResult)
@@ -38,8 +50,11 @@ namespace Viewer.Runtime.Json
 
                 if (JsonProperties.IsKey(key, "frame"))
                 {
-                    result = Frame(plotter, jsonSpan, ref position);
-                    if (result != JsonResult.Ok) return result;
+                    using (FrameMarker.Auto())
+                    {
+                        result = Frame(plotter, jsonSpan, ref position);
+                        if (result != JsonResult.Ok) return result;
+                    }
                 }
                 else if (JsonProperties.IsKey(key, "text"))
                 {
@@ -131,19 +146,27 @@ namespace Viewer.Runtime.Json
             if (result == JsonResult.Ok) return JsonResult.Ok;
 
             Span<int> propertyValues = stackalloc int[2] { -1, -1 };
-
-            result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref FrameProperties.Parser);
+            
+            // primitives property is likely to be very large so we really don't want to have to parse it twice 
+            
+            result = JsonProperties.GetSingleProperty(jsonSpan, position, "layer", out int layerPosition);
+            if (result != JsonResult.Ok && result != JsonResult.MissingKey) return result;
+            
+            result = JsonProperties.Optional(jsonSpan, layerPosition, out int layer, 0);
+            if (result != JsonResult.Ok) return result;
+            
+            result = JsonProperties.GetSingleProperty(jsonSpan, position, "primitives", out int primitivesPosition);
             if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Optional(jsonSpan, propertyValues[FrameProperties.Layer], out int layer, 0);
+            position = primitivesPosition; 
+            
+            result = Primitives(plotter, layer, jsonSpan, ref position);
             if (result != JsonResult.Ok) return result;
 
-            if (propertyValues[FrameProperties.Primitives] < 0) return JsonResult.MissingKey;
-
-            return Primitives(plotter, layer, jsonSpan, propertyValues[FrameProperties.Primitives]);
+            return SkipRemainder(jsonSpan, ref position);
         }
 
-        private static JsonResult Primitives(Plotter plotter, int layer, ReadOnlySpan<char> jsonSpan, int position)
+        private static JsonResult Primitives(Plotter plotter, int layer, ReadOnlySpan<char> jsonSpan, ref int position)
         {
             JsonResult result = JsonZero.ParseArrayStart(jsonSpan, ref position);
             if (result != JsonResult.Ok) return result;
@@ -153,8 +176,11 @@ namespace Viewer.Runtime.Json
 
             while (true)
             {
-                result = Primitive(plotter, layer, jsonSpan, ref position);
-                if (result != JsonResult.Ok) return result;
+                using (PrimitiveMarker.Auto())
+                {
+                    result = Primitive(plotter, layer, jsonSpan, ref position);
+                    if (result != JsonResult.Ok) return result;
+                }
 
                 result = JsonZero.ParseComma(jsonSpan, ref position);
                 if (result == JsonResult.Ok) continue;
@@ -221,20 +247,23 @@ namespace Viewer.Runtime.Json
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static JsonResult Line(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
         {
-            Span<int> propertyValues = stackalloc int[2] { -1, -1 };
+            using (LineMarker.Auto())
+            {
+                Span<int> propertyValues = stackalloc int[2] { -1, -1 };
 
-            JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref LineProperties.Parser);
-            if (result != JsonResult.Ok) return result;
+                JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref LineProperties.Parser);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[LineProperties.Start], out Vector3 start);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[LineProperties.Start], out Vector3 start);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[LineProperties.End], out Vector3 end);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[LineProperties.End], out Vector3 end);
+                if (result != JsonResult.Ok) return result;
 
-            plotter.Line(start, end);
+                plotter.Line(start, end);
 
-            return JsonResult.Ok;
+                return JsonResult.Ok;
+            }
         }
 
         private struct DotProperties : IPropertyParser
@@ -255,20 +284,23 @@ namespace Viewer.Runtime.Json
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult Dot(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
         {
-            Span<int> propertyValues = stackalloc int[2] { -1, -1 };
+            using (DotMarker.Auto())
+            {
+                Span<int> propertyValues = stackalloc int[2] { -1, -1 };
 
-            JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref DotProperties.Parser);
-            if (result != JsonResult.Ok) return result;
+                JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref DotProperties.Parser);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[DotProperties.Xyz], out Vector3 xyz);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[DotProperties.Xyz], out Vector3 xyz);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[DotProperties.Size], out float size);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[DotProperties.Size], out float size);
+                if (result != JsonResult.Ok) return result;
 
-            plotter.Dot(xyz, size);
+                plotter.Dot(xyz, size);
 
-            return JsonResult.Ok;
+                return JsonResult.Ok;
+            }
         }
 
         private struct PedestalProperties : IPropertyParser
@@ -287,17 +319,20 @@ namespace Viewer.Runtime.Json
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult Pedestal(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
         {
-            Span<int> propertyValues = stackalloc int[1] { -1 };
+            using (PedestalMarker.Auto())
+            {
+                Span<int> propertyValues = stackalloc int[1] { -1 };
 
-            JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref PedestalProperties.Parser);
-            if (result != JsonResult.Ok) return result;
+                JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref PedestalProperties.Parser);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[PedestalProperties.Xyz], out Vector3 xyz);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[PedestalProperties.Xyz], out Vector3 xyz);
+                if (result != JsonResult.Ok) return result;
 
-            plotter.Pedestal(xyz);
+                plotter.Pedestal(xyz);
 
-            return JsonResult.Ok;
+                return JsonResult.Ok;
+            }
         }
 
         private struct CircleProperties : IPropertyParser
@@ -320,23 +355,26 @@ namespace Viewer.Runtime.Json
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult Circle(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
         {
-            Span<int> propertyValues = stackalloc int[3] { -1, -1, -1 };
+            using (CircleMarker.Auto())
+            {
+                Span<int> propertyValues = stackalloc int[3] { -1, -1, -1 };
 
-            JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref CircleProperties.Parser);
-            if (result != JsonResult.Ok) return result;
+                JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref CircleProperties.Parser);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[CircleProperties.Xyz], out Vector3 xyz);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[CircleProperties.Xyz], out Vector3 xyz);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[CircleProperties.Axis], out Vector3 axis);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[CircleProperties.Axis], out Vector3 axis);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[CircleProperties.Radius], out float radius);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[CircleProperties.Radius], out float radius);
+                if (result != JsonResult.Ok) return result;
 
-            plotter.Circle(xyz, axis, radius);
+                plotter.Circle(xyz, axis, radius);
 
-            return JsonResult.Ok;
+                return JsonResult.Ok;
+            }
         }
 
         private struct AxesProperties : IPropertyParser
@@ -359,23 +397,26 @@ namespace Viewer.Runtime.Json
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult Axes(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
         {
-            Span<int> propertyValues = stackalloc int[3] { -1, -1, -1 };
+            using (AxesMarker.Auto())
+            {
+                Span<int> propertyValues = stackalloc int[3] { -1, -1, -1 };
 
-            JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref AxesProperties.Parser);
-            if (result != JsonResult.Ok) return result;
+                JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref AxesProperties.Parser);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[AxesProperties.Xyz], out Vector3 xyz);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[AxesProperties.Xyz], out Vector3 xyz);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[AxesProperties.Quaternion], out Quaternion quaternion);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[AxesProperties.Quaternion], out Quaternion quaternion);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[AxesProperties.Scale], out float scale);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[AxesProperties.Scale], out float scale);
+                if (result != JsonResult.Ok) return result;
 
-            plotter.Axes(xyz, quaternion, scale);
+                plotter.Axes(xyz, quaternion, scale);
 
-            return JsonResult.Ok;
+                return JsonResult.Ok;
+            }
         }
 
         private struct LabelProperties : IPropertyParser
@@ -396,21 +437,24 @@ namespace Viewer.Runtime.Json
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult Label(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
         {
-            Span<int> propertyValues = stackalloc int[2] { -1, -1 };
+            using (LabelMarker.Auto())
+            {
+                Span<int> propertyValues = stackalloc int[2] { -1, -1 };
 
-            JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref LabelProperties.Parser);
-            if (result != JsonResult.Ok) return result;
+                JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref LabelProperties.Parser);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[LabelProperties.Xyz], out Vector3 xyz);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[LabelProperties.Xyz], out Vector3 xyz);
+                if (result != JsonResult.Ok) return result;
 
-            Span<char> textBuffer = stackalloc char[128];
-            result = JsonProperties.Required(jsonSpan, propertyValues[LabelProperties.Text], textBuffer, out int textLength);
-            if (result != JsonResult.Ok) return result;
+                Span<char> textBuffer = stackalloc char[128];
+                result = JsonProperties.Required(jsonSpan, propertyValues[LabelProperties.Text], textBuffer, out int textLength);
+                if (result != JsonResult.Ok) return result;
 
-            plotter.Label(xyz, textBuffer.Slice(0, textLength));
+                plotter.Label(xyz, textBuffer.Slice(0, textLength));
 
-            return JsonResult.Ok;
+                return JsonResult.Ok;
+            }
         }
 
         private struct AngleProperties : IPropertyParser
@@ -434,26 +478,29 @@ namespace Viewer.Runtime.Json
 
         private static JsonResult Angle(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
         {
-            Span<int> propertyValues = stackalloc int[4] { -1, -1, -1, -1 };
+            using (AngleMarker.Auto())
+            {
+                Span<int> propertyValues = stackalloc int[4] { -1, -1, -1, -1 };
 
-            JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref AngleProperties.Parser);
-            if (result != JsonResult.Ok) return result;
+                JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref AngleProperties.Parser);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[AngleProperties.Xyz], out Vector3 xyz);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[AngleProperties.Xyz], out Vector3 xyz);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[AngleProperties.Quaternion], out Quaternion quaternion);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[AngleProperties.Quaternion], out Quaternion quaternion);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[AngleProperties.Angle], out float angle);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[AngleProperties.Angle], out float angle);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[AngleProperties.Scale], out float scale);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[AngleProperties.Scale], out float scale);
+                if (result != JsonResult.Ok) return result;
 
-            plotter.Angle(xyz, quaternion, angle, scale);
+                plotter.Angle(xyz, quaternion, angle, scale);
 
-            return JsonResult.Ok;
+                return JsonResult.Ok;
+            }
         }
 
         private struct AnglesProperties : IPropertyParser
@@ -489,52 +536,59 @@ namespace Viewer.Runtime.Json
 
         private static JsonResult Angles(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
         {
-            Span<int> propertyValues = stackalloc int[10] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+            using (AnglesMarker.Auto())
+            {
+                Span<int> propertyValues = stackalloc int[10] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 
-            JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref AnglesProperties.Parser);
-            if (result != JsonResult.Ok) return result;
+                JsonResult result = JsonProperties.MapProperties(jsonSpan, ref position, propertyValues, ref AnglesProperties.Parser);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[AnglesProperties.Xyz], out Vector3 xyz);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[AnglesProperties.Xyz], out Vector3 xyz);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[AnglesProperties.Quaternion], out Quaternion quaternion);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[AnglesProperties.Quaternion], out Quaternion quaternion);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.Alpha], out float? alpha);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.Alpha], out float? alpha);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.Beta], out float? beta);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.Beta], out float? beta);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.Gamma], out float? gamma);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.Gamma], out float? gamma);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.AlphaLimit], out (float min, float max)? alphaLimit);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.AlphaLimit], out (float min, float max)? alphaLimit);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.BetaLimit], out (float min, float max)? betaLimit);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.BetaLimit], out (float min, float max)? betaLimit);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.GammaLimit], out (float min, float max)? gammaLimit);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.GammaLimit], out (float min, float max)? gammaLimit);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Required(jsonSpan, propertyValues[AnglesProperties.Scale], out float scale);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Required(jsonSpan, propertyValues[AnglesProperties.Scale], out float scale);
+                if (result != JsonResult.Ok) return result;
 
-            result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.Mirror], out bool mirror);
-            if (result != JsonResult.Ok) return result;
+                result = JsonProperties.Optional(jsonSpan, propertyValues[AnglesProperties.Mirror], out bool mirror);
+                if (result != JsonResult.Ok) return result;
 
-            plotter.Angles(
-                xyz,
-                quaternion,
-                AngleAndLimit(alpha, alphaLimit),
-                AngleAndLimit(beta, betaLimit),
-                AngleAndLimit(gamma, gammaLimit),
-                scale,
-                mirror
-            );
+                AngleAndLimit? alphaAngleLimit = AngleAndLimit(alpha, alphaLimit);
+                AngleAndLimit? betaAngleLimit = AngleAndLimit(beta, betaLimit);
+                AngleAndLimit? gammaAngleLimit = AngleAndLimit(gamma, gammaLimit);
+                
+                plotter.Angles(
+                    xyz,
+                    quaternion,
+                    alphaAngleLimit,
+                    betaAngleLimit,
+                    gammaAngleLimit,
+                    scale,
+                    mirror
+                );
 
-            return JsonResult.Ok;
+                return JsonResult.Ok;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

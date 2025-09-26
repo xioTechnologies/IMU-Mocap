@@ -81,7 +81,7 @@ namespace Viewer.Runtime.Json
 
             return JsonResult.Ok;
         }
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsKey(ReadOnlySpan<char> buffer, string literal) => buffer.SequenceEqual(literal.AsSpan());
         
