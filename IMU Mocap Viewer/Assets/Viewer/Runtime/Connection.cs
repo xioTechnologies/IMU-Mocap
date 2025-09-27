@@ -59,7 +59,12 @@ namespace Viewer.Runtime
             {
                 using (jsonParse.Auto())
                 {
-                    if (Paused == false) Parsing.ProcessPacket(plotter, receiveTask.Result);
+                    if (Paused == false) 
+                    {
+                        JsonResult result = Parsing.ProcessPacket(plotter, receiveTask.Result); 
+                        
+                        if (result != JsonResult.Ok) Debug.LogError(JsonZero.ResultToString(result));
+                    }
                 }
             }
             else

@@ -118,8 +118,6 @@ namespace Viewer.Runtime.Primitives
         {
             Plot(xyz, quaternion, angle, null, scale * 2f, genericColorLinear, genericAlphaLinear, false);
         }
-
-        private static ProfilerMarker AnglesMarker = new("Parsing.Angles.PlotAngles");
         
         public void PlotAngles(Vector3 xyz, Quaternion quaternion, AngleAndLimit? alpha, AngleAndLimit? beta, AngleAndLimit? gamma, float scale, bool mirror)
         {
@@ -157,7 +155,6 @@ namespace Viewer.Runtime.Primitives
 
         private void Plot(Vector3 xyz, Quaternion quaternion, float angle, (float min, float max)? range, float scale, Color color, Color alphaColor, bool flip)
         {
-
             float angleScale = scale;
             float thickness = PlotterSettings.AngleLineWidthInPixels;
 
@@ -175,16 +172,13 @@ namespace Viewer.Runtime.Primitives
 
             Vector3 offset = direction * (angleScale * 0.5f);
             
-            using (AnglesMarker.Auto())
-            {
-                Span<char> buffer = stackalloc char[16];
-                
-                angle.TryFormat(buffer, out int written, "F1");
-                
-                buffer[written++] = '°';
-                
-                labels.Plot(xyz + offset, buffer[..written], color, direction, labelMargin);
-            }
+            Span<char> buffer = stackalloc char[16];
+            
+            angle.TryFormat(buffer, out int written, "F1");
+            
+            buffer[written++] = '°';
+            
+            labels.Plot(xyz + offset, buffer[..written], color, direction, labelMargin);
         }
     }
 }

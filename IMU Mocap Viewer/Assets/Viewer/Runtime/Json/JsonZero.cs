@@ -47,7 +47,7 @@ namespace Viewer.Runtime.Json
     /// <summary>
     /// Zero-allocation JSON parser using ReadOnlySpan for streaming parsing.
     /// </summary>
-    public static class JsonZero
+    public static partial class JsonZero
     {
         /// <summary>
         /// Parses value type. The position is not modified.
@@ -295,9 +295,8 @@ namespace Viewer.Runtime.Json
             // Parse string
             int index = 0;
             while (position < json.Length)
-            {
-                // if (destination.Length > 0 && index >= destination.Length)
-                if (destination.Length > 0 && index > destination.Length)
+            {                
+                if (destination.IsEmpty == false && index >= destination.Length)
                     return JsonResult.StringTooLong;
 
                 char ch = json[position];
@@ -419,7 +418,7 @@ namespace Viewer.Runtime.Json
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void WriteToDestination(Span<char> destination, ref int index, char character)
         {
-            if (!destination.IsEmpty && index < destination.Length)
+            if (destination.IsEmpty == false && index < destination.Length)
             {
                 destination[index] = character;
             }
@@ -796,60 +795,6 @@ namespace Viewer.Runtime.Json
                 JsonResult.UnableToParseNumber => "Unable to parse number",
                 _ => ""
             };
-        }
-
-        // Helper method for parsing arrays of numbers into spans
-        /// <summary>
-        /// Parses a JSON array of numbers into a span. Returns the number of elements parsed.
-        /// </summary>
-        /// <param name="json">JSON span</param>
-        /// <param name="position">Current position</param>
-        /// <param name="destination">Destination span for parsed numbers</param>
-        /// <param name="count">Number of elements parsed</param>
-        /// <returns>Result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JsonResult ParseNumberArray(ReadOnlySpan<char> json, ref int position, Span<float> destination, out int count)
-        {
-            count = 0;
-
-            if (ParseArrayStart(json, ref position) != JsonResult.Ok)
-                return JsonResult.InvalidSyntax;
-
-            // Check for empty array
-            int savedPos = position;
-            if (ParseArrayEnd(json, ref savedPos) == JsonResult.Ok)
-            {
-                position = savedPos;
-                return JsonResult.Ok;
-            }
-
-            // Parse elements
-            while (count < destination.Length)
-            {
-                if (ParseNumber(json, ref position, out float number) != JsonResult.Ok)
-                    return JsonResult.InvalidSyntax;
-
-                destination[count] = number;
-                count++;
-
-                // Try comma or array end
-                savedPos = position;
-                if (ParseComma(json, ref savedPos) == JsonResult.Ok)
-                {
-                    position = savedPos;
-                    continue;
-                }
-
-                if (ParseArrayEnd(json, ref savedPos) == JsonResult.Ok)
-                {
-                    position = savedPos;
-                    return JsonResult.Ok;
-                }
-
-                return JsonResult.InvalidSyntax;
-            }
-
-            return JsonResult.Ok;
         }
     }
 }

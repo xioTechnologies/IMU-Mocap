@@ -17,12 +17,6 @@ namespace Viewer.Runtime.Primitives
         private readonly char[] buffer = new char[128]; 
         private int bufferLength;
 
-        public string Text
-        {
-            get => text.text;
-            set => text.text = value;
-        }
-
         public void SetText(ReadOnlySpan<char> textSpan)
         {
             if (bufferLength == textSpan.Length 

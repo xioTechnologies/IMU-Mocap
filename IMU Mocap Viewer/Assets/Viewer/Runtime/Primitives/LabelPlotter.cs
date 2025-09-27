@@ -34,15 +34,6 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear() => group.Clear();
 
-        public void Plot(Vector3 xyz, string text, Color color)
-        {
-            Label obj = group.Get();
-
-            obj.Position = xyz;
-            obj.Text = text;
-            obj.Color = color;
-        }
-
         public void Plot(Vector3 xyz, ReadOnlySpan<char> textSpan, Color color)
         {
             Label obj = group.Get();
