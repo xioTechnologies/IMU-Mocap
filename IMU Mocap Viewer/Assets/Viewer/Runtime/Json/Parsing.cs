@@ -51,19 +51,20 @@ namespace Viewer.Runtime.Json
 
             public JsonResult Finish() => JsonResult.Ok;
         }
-
+        
         private struct Text : IJsonObjectParser
         {
             public Plotter Plotter;
-
-            private string @string;
+            
+            private FixedString128 fixedString;
+            private string dynamicString;
             private float time;
 
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                if (JsonZero.IsKey(key, "string")) return JsonZero.ParseDynamicString(jsonSpan, ref position, out @string);
+                if (JsonZero.IsKey(key, "string")) return fixedString.Parse(jsonSpan, ref position, out int _, out dynamicString);
                 if (JsonZero.IsKey(key, "time")) return JsonZero.Parse(jsonSpan, ref position, out time);
 
                 return JsonZero.Parse(jsonSpan, ref position);
@@ -71,9 +72,10 @@ namespace Viewer.Runtime.Json
 
             public JsonResult Finish()
             {
-                if (@string == null) return JsonResult.MissingKey;
-
-                Plotter.Text(@string, time);
+                if (fixedString.HasValue == false) return JsonResult.MissingKey;
+                
+                if (dynamicString != null) Plotter.Text(dynamicString, time);
+                else Plotter.Text(fixedString.ToNewString(), time); 
 
                 return JsonResult.Ok;
             }
@@ -231,7 +233,6 @@ namespace Viewer.Runtime.Json
             public JsonResult Finish()
             {
                 if (xyz == null) return JsonResult.MissingKey;
-
                 if (size == null) return JsonResult.MissingKey;
 
                 Plotter.Dot(xyz.Value, size.Value);
@@ -332,11 +333,8 @@ namespace Viewer.Runtime.Json
 
         private struct Label : IJsonObjectParser
         {
-            public const int MaxLabelLength = 128;
+            private FixedString128 text;  
             
-            private unsafe fixed char textBuffer[MaxLabelLength];
-            private int? textLength;
-
             public Plotter Plotter;
             public int Layer;
 
@@ -347,24 +345,7 @@ namespace Viewer.Runtime.Json
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
                 if (JsonZero.IsKey(key, "xyz")) return JsonZero.Parse(jsonSpan, ref position, out xyz);
-                if (JsonZero.IsKey(key, "text"))
-                {
-                    unsafe
-                    {
-                        fixed (char* ptr = textBuffer)
-                        {
-                            Span<char> span = new Span<char>(ptr, MaxLabelLength);
-
-                            JsonResult result = JsonZero.Parse(jsonSpan, ref position, span, out int length);
-
-                            if (result != JsonResult.Ok) return result;
-
-                            textLength = length;
-
-                            return JsonResult.Ok;
-                        }
-                    }
-                }
+                if (JsonZero.IsKey(key, "text")) return text.ParseTruncate(jsonSpan, ref position, out int _);
 
                 return JsonZero.Parse(jsonSpan, ref position);
             }
@@ -372,16 +353,10 @@ namespace Viewer.Runtime.Json
             public JsonResult Finish()
             {
                 if (xyz == null) return JsonResult.MissingKey;
-                if (textLength == null) return JsonResult.MissingKey;
-
-                unsafe
-                {
-                    fixed (char* ptr = textBuffer)
-                    {
-                        Plotter.Label(xyz.Value, new ReadOnlySpan<char>(ptr, textLength.Value));
-                    }
-                }
-
+                if (text.HasValue == false) return JsonResult.MissingKey;
+                
+                Plotter.Label(xyz.Value, text.AsReadOnlySpan());
+                
                 return JsonResult.Ok;
             }
         }

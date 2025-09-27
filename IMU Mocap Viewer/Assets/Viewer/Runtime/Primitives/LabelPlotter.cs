@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Viewer.Runtime.Json;
 
 namespace Viewer.Runtime.Primitives
 {
@@ -34,7 +35,7 @@ namespace Viewer.Runtime.Primitives
 
         public void Clear() => group.Clear();
 
-        public void Plot(Vector3 xyz, ReadOnlySpan<char> textSpan, Color color)
+        public void Plot(Vector3 xyz, ReadOnlySpan<char> textSpan, Color color) 
         {
             Label obj = group.Get();
 

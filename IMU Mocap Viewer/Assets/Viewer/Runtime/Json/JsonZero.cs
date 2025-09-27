@@ -3,7 +3,7 @@
 using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Text;
+using UnityEngine;
 
 namespace Viewer.Runtime.Json
 {
@@ -141,11 +141,9 @@ namespace Viewer.Runtime.Json
         private static JsonResult CheckType(ReadOnlySpan<char> json, ref int position, JsonType expectedType)
         {
             JsonResult result = ParseType(json, ref position, out JsonType type);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
-            if (type != expectedType)
-                return JsonResult.UnexpectedType;
+            if (type != expectedType) return JsonResult.UnexpectedType;
 
             return JsonResult.Ok;
         }
@@ -160,9 +158,7 @@ namespace Viewer.Runtime.Json
         public static JsonResult ParseObjectStart(ReadOnlySpan<char> json, ref int position)
         {
             JsonResult result = CheckType(json, ref position, JsonType.Object);
-
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             position++;
 
@@ -181,10 +177,11 @@ namespace Viewer.Runtime.Json
         public static JsonResult ParseObjectEnd(ReadOnlySpan<char> json, ref int position)
         {
             SkipWhiteSpace(json, ref position);
-            if (position >= json.Length || json[position] != '}')
-                return JsonResult.MissingObjectEnd;
+
+            if (position >= json.Length || json[position] != '}') return JsonResult.MissingObjectEnd;
 
             position++;
+
             return JsonResult.Ok;
         }
 
@@ -198,11 +195,12 @@ namespace Viewer.Runtime.Json
         public static JsonResult ParseArrayStart(ReadOnlySpan<char> json, ref int position)
         {
             JsonResult result = CheckType(json, ref position, JsonType.Array);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             position++;
+
             SkipWhiteSpace(json, ref position);
+
             return JsonResult.Ok;
         }
 
@@ -216,10 +214,11 @@ namespace Viewer.Runtime.Json
         public static JsonResult ParseArrayEnd(ReadOnlySpan<char> json, ref int position)
         {
             SkipWhiteSpace(json, ref position);
-            if (position >= json.Length || json[position] != ']')
-                return JsonResult.MissingArrayEnd;
+
+            if (position >= json.Length || json[position] != ']') return JsonResult.MissingArrayEnd;
 
             position++;
+
             return JsonResult.Ok;
         }
 
@@ -233,10 +232,11 @@ namespace Viewer.Runtime.Json
         public static JsonResult ParseComma(ReadOnlySpan<char> json, ref int position)
         {
             SkipWhiteSpace(json, ref position);
-            if (position >= json.Length || json[position] != ',')
-                return JsonResult.MissingComma;
+
+            if (position >= json.Length || json[position] != ',') return JsonResult.MissingComma;
 
             position++;
+
             return JsonResult.Ok;
         }
 
@@ -260,15 +260,14 @@ namespace Viewer.Runtime.Json
 
             // Parse key
             JsonResult result = ParseString(json, ref position, destination, out numberOfBytes);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Parse colon
             SkipWhiteSpace(json, ref position);
-            if (position >= json.Length || json[position] != ':')
-                return JsonResult.MissingColon;
+            if (position >= json.Length || json[position] != ':') return JsonResult.MissingColon;
 
             position++;
+
             return JsonResult.Ok;
         }
 
@@ -287,31 +286,26 @@ namespace Viewer.Runtime.Json
 
             // Check type
             JsonResult result = CheckType(json, ref position, JsonType.String);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             position++; // Skip opening quote
 
             // Parse string
             int index = 0;
             while (position < json.Length)
-            {                
+            {
                 if (destination.IsEmpty == false && index >= destination.Length)
                     return JsonResult.StringTooLong;
 
                 char ch = json[position];
 
-                if (ch == '\0')
-                    return JsonResult.MissingStringEnd;
-
-                if (ch >= 0 && ch < 0x20)
-                    return JsonResult.InvalidStringCharacter; // control characters must be escaped
-
+                if (ch == '\0') return JsonResult.MissingStringEnd;
+                if (ch >= 0 && ch < 0x20) return JsonResult.InvalidStringCharacter; // control characters must be escaped
                 if (ch == '\\')
                 {
                     result = ParseEscapeSequence(json, ref position, destination, ref index);
-                    if (result != JsonResult.Ok)
-                        return result;
+                    if (result != JsonResult.Ok) return result;
+
                     continue;
                 }
 
@@ -323,6 +317,7 @@ namespace Viewer.Runtime.Json
                 }
 
                 WriteToDestination(destination, ref index, ch);
+
                 position++;
             }
 
@@ -340,8 +335,7 @@ namespace Viewer.Runtime.Json
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult ParseEscapeSequence(ReadOnlySpan<char> json, ref int position, Span<char> destination, ref int index)
         {
-            if (position + 1 >= json.Length)
-                return JsonResult.InvalidStringEscapeSequence;
+            if (position + 1 >= json.Length) return JsonResult.InvalidStringEscapeSequence;
 
             switch (json[position + 1])
             {
@@ -376,6 +370,7 @@ namespace Viewer.Runtime.Json
             }
 
             position += 2;
+
             return JsonResult.Ok;
         }
 
@@ -390,22 +385,21 @@ namespace Viewer.Runtime.Json
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult ParseHexEscapeSequence(ReadOnlySpan<char> json, ref int position, Span<char> destination, ref int index)
         {
-            if (position + 5 >= json.Length)
-                return JsonResult.InvalidStringHexEscapeSequence;
+            if (position + 5 >= json.Length) return JsonResult.InvalidStringHexEscapeSequence;
 
             for (int i = 2; i <= 5; i++)
             {
                 char ch = json[position + i];
-                if (!((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f')))
-                    return JsonResult.InvalidStringHexEscapeSequence;
+                if ((ch is >= '0' and <= '9' || ch is >= 'A' and <= 'F' || ch is >= 'a' and <= 'f') == false) return JsonResult.InvalidStringHexEscapeSequence;
             }
 
             ReadOnlySpan<char> hexSpan = json.Slice(position + 2, 4);
-            if (!int.TryParse(hexSpan, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int value))
-                return JsonResult.UnableToParseStringHexEscapeSequence;
+            if (int.TryParse(hexSpan, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int value) == false) return JsonResult.UnableToParseStringHexEscapeSequence;
 
             WriteToDestination(destination, ref index, (char)value);
+
             position += 6;
+
             return JsonResult.Ok;
         }
 
@@ -418,10 +412,7 @@ namespace Viewer.Runtime.Json
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void WriteToDestination(Span<char> destination, ref int index, char character)
         {
-            if (destination.IsEmpty == false && index < destination.Length)
-            {
-                destination[index] = character;
-            }
+            if (destination.IsEmpty == false && index < destination.Length) destination[index] = character;
 
             index++;
         }
@@ -440,8 +431,7 @@ namespace Viewer.Runtime.Json
 
             // Check type
             JsonResult result = CheckType(json, ref position, JsonType.Number);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             int startPos = position;
 
@@ -449,62 +439,49 @@ namespace Viewer.Runtime.Json
             if (position < json.Length && json[position] == '-')
             {
                 position++;
-                if (position >= json.Length || !char.IsDigit(json[position]))
-                    return JsonResult.InvalidNumberFormat; // minus sign must be followed by digit
+
+                if (position >= json.Length || char.IsDigit(json[position]) == false) return JsonResult.InvalidNumberFormat; // minus sign must be followed by digit
             }
 
             // Parse first zero
             if (position < json.Length && json[position] == '0')
             {
                 position++;
-                if (position < json.Length && json[position] == '0')
-                    return JsonResult.InvalidNumberFormat; // leading zeros are invalid
+
+                if (position < json.Length && json[position] == '0') return JsonResult.InvalidNumberFormat; // leading zeros are invalid
             }
 
             // Parse integer
-            while (position < json.Length && char.IsDigit(json[position]))
-            {
-                position++;
-            }
+            while (position < json.Length && char.IsDigit(json[position])) position++;
 
             // Parse fraction
             if (position < json.Length && json[position] == '.')
             {
                 position++;
-                if (position >= json.Length || !char.IsDigit(json[position]))
-                    return JsonResult.InvalidNumberFormat; // decimal point must be followed by digit
 
-                while (position < json.Length && char.IsDigit(json[position]))
-                {
-                    position++;
-                }
+                if (position >= json.Length || char.IsDigit(json[position]) == false) return JsonResult.InvalidNumberFormat; // decimal point must be followed by digit
+
+                while (position < json.Length && char.IsDigit(json[position])) position++;
             }
 
             // Parse exponent
             if (position < json.Length && (json[position] == 'e' || json[position] == 'E'))
             {
                 position++;
-                if (position < json.Length && (json[position] == '+' || json[position] == '-'))
-                {
-                    position++;
-                }
 
-                if (position >= json.Length || !char.IsDigit(json[position]))
-                    return JsonResult.InvalidNumberFormat; // exponent must be followed by digit
+                if (position < json.Length && (json[position] == '+' || json[position] == '-')) position++;
 
-                while (position < json.Length && char.IsDigit(json[position]))
-                {
-                    position++;
-                }
+                if (position >= json.Length || char.IsDigit(json[position]) == false) return JsonResult.InvalidNumberFormat; // exponent must be followed by digit
+
+                while (position < json.Length && char.IsDigit(json[position])) position++;
             }
 
             // Parse number string
             ReadOnlySpan<char> numberSpan = json.Slice(startPos, position - startPos);
-            if (numberSpan.Length >= 32)
-                return JsonResult.NumberTooLong;
 
-            if (!float.TryParse(numberSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out number))
-                return JsonResult.UnableToParseNumber;
+            if (numberSpan.Length >= 32) return JsonResult.NumberTooLong;
+
+            if (float.TryParse(numberSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out number) == false) return JsonResult.UnableToParseNumber;
 
             return JsonResult.Ok;
         }
@@ -523,13 +500,11 @@ namespace Viewer.Runtime.Json
 
             // Check type
             JsonResult result = CheckType(json, ref position, JsonType.Boolean);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Parse true
             ReadOnlySpan<char> trueSpan = "true".AsSpan();
-            if (position + trueSpan.Length <= json.Length &&
-                json.Slice(position, trueSpan.Length).SequenceEqual(trueSpan))
+            if (position + trueSpan.Length <= json.Length && json.Slice(position, trueSpan.Length).SequenceEqual(trueSpan))
             {
                 position += trueSpan.Length;
                 boolean = true;
@@ -538,8 +513,7 @@ namespace Viewer.Runtime.Json
 
             // Parse false
             ReadOnlySpan<char> falseSpan = "false".AsSpan();
-            if (position + falseSpan.Length <= json.Length &&
-                json.Slice(position, falseSpan.Length).SequenceEqual(falseSpan))
+            if (position + falseSpan.Length <= json.Length && json.Slice(position, falseSpan.Length).SequenceEqual(falseSpan))
             {
                 position += falseSpan.Length;
                 boolean = false;
@@ -560,13 +534,11 @@ namespace Viewer.Runtime.Json
         {
             // Check type
             JsonResult result = CheckType(json, ref position, JsonType.Null);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Parse null
             ReadOnlySpan<char> nullSpan = "null".AsSpan();
-            if (position + nullSpan.Length <= json.Length &&
-                json.Slice(position, nullSpan.Length).SequenceEqual(nullSpan))
+            if (position + nullSpan.Length <= json.Length && json.Slice(position, nullSpan.Length).SequenceEqual(nullSpan))
             {
                 position += nullSpan.Length;
                 return JsonResult.Ok;
@@ -599,7 +571,7 @@ namespace Viewer.Runtime.Json
             int position = 0;
             int indent = 0;
             JsonResult result = ParseValue(jsonSpan, ref position, true, ref indent);
-            Console.WriteLine(ResultToString(result));
+            Debug.Log(ResultToString(result));
         }
 
         /// <summary>
@@ -615,55 +587,49 @@ namespace Viewer.Runtime.Json
         {
             // Parse value type
             JsonResult result = ParseType(json, ref position, out JsonType type);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Print value type
             if (print)
             {
                 int actualIndent = 4 * indent;
-                string indentStr = new string(' ', actualIndent);
+                string indentStr = new(' ', actualIndent);
                 switch (type)
                 {
                     case JsonType.String:
-                        Console.WriteLine($"{indentStr}string");
+                        Debug.Log($"{indentStr}string");
                         break;
                     case JsonType.Number:
-                        Console.WriteLine($"{indentStr}number");
+                        Debug.Log($"{indentStr}number");
                         break;
                     case JsonType.Object:
-                        Console.WriteLine($"{indentStr}object");
+                        Debug.Log($"{indentStr}object");
                         break;
                     case JsonType.Array:
-                        Console.WriteLine($"{indentStr}array");
+                        Debug.Log($"{indentStr}array");
                         break;
                     case JsonType.Boolean:
-                        Console.WriteLine($"{indentStr}boolean");
+                        Debug.Log($"{indentStr}boolean");
                         break;
                     case JsonType.Null:
-                        Console.WriteLine($"{indentStr}null");
+                        Debug.Log($"{indentStr}null");
+                        break;
+                    default:
                         break;
                 }
             }
 
             // Parse value
-            switch (type)
+            return type switch
             {
-                case JsonType.String:
-                    return ParseString(json, ref position, Span<char>.Empty, out _);
-                case JsonType.Number:
-                    return ParseNumber(json, ref position, out _);
-                case JsonType.Object:
-                    return ParseObject(json, ref position, print, ref indent);
-                case JsonType.Array:
-                    return ParseArray(json, ref position, print, ref indent);
-                case JsonType.Boolean:
-                    return ParseBoolean(json, ref position, out _);
-                case JsonType.Null:
-                    return ParseNull(json, ref position);
-            }
-
-            return JsonResult.Ok;
+                JsonType.String => ParseString(json, ref position, Span<char>.Empty, out _),
+                JsonType.Number => ParseNumber(json, ref position, out _),
+                JsonType.Object => ParseObject(json, ref position, print, ref indent),
+                JsonType.Array => ParseArray(json, ref position, print, ref indent),
+                JsonType.Boolean => ParseBoolean(json, ref position, out _),
+                JsonType.Null => ParseNull(json, ref position),
+                _ => JsonResult.Ok
+            };
         }
 
         /// <summary>
@@ -679,13 +645,11 @@ namespace Viewer.Runtime.Json
         {
             // Parse object start
             JsonResult result = ParseObjectStart(json, ref position);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Parse object end (empty object)
             result = ParseObjectEnd(json, ref position);
-            if (result == JsonResult.Ok)
-                return JsonResult.Ok;
+            if (result == JsonResult.Ok) return JsonResult.Ok;
 
             // Loop through each key/value pair
             indent++;
@@ -696,23 +660,19 @@ namespace Viewer.Runtime.Json
             {
                 // Parse key
                 result = ParseKey(json, ref position, key, out _);
-                if (result != JsonResult.Ok)
-                    return result;
+                if (result != JsonResult.Ok) return result;
 
                 // Parse value
                 result = ParseValue(json, ref position, print, ref indent);
-                if (result != JsonResult.Ok)
-                    return result;
+                if (result != JsonResult.Ok) return result;
 
                 // Parse comma
                 result = ParseComma(json, ref position);
-                if (result == JsonResult.Ok)
-                    continue;
+                if (result == JsonResult.Ok) continue;
 
                 // Parse object end
                 result = ParseObjectEnd(json, ref position);
-                if (result != JsonResult.Ok)
-                    return result;
+                if (result != JsonResult.Ok) return result;
                 break;
             }
 
@@ -733,13 +693,11 @@ namespace Viewer.Runtime.Json
         {
             // Parse array start
             JsonResult result = ParseArrayStart(json, ref position);
-            if (result != JsonResult.Ok)
-                return result;
+            if (result != JsonResult.Ok) return result;
 
             // Parse array end (empty array)
             result = ParseArrayEnd(json, ref position);
-            if (result == JsonResult.Ok)
-                return JsonResult.Ok;
+            if (result == JsonResult.Ok) return JsonResult.Ok;
 
             // Loop through each value
             indent++;
@@ -747,18 +705,16 @@ namespace Viewer.Runtime.Json
             {
                 // Parse value
                 result = ParseValue(json, ref position, print, ref indent);
-                if (result != JsonResult.Ok)
-                    return result;
+                if (result != JsonResult.Ok) return result;
 
                 // Parse comma
                 result = ParseComma(json, ref position);
-                if (result == JsonResult.Ok)
-                    continue;
+                if (result == JsonResult.Ok) continue;
 
                 // Parse array end
                 result = ParseArrayEnd(json, ref position);
-                if (result != JsonResult.Ok)
-                    return result;
+                if (result != JsonResult.Ok) return result;
+
                 break;
             }
 

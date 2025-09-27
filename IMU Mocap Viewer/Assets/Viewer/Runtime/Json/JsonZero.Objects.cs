@@ -166,6 +166,14 @@ namespace Viewer.Runtime.Json
             
             return ParseString(jsonSpan, ref position, destination, out length);
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JsonResult MessureAndTryParse(ReadOnlySpan<char> jsonSpan, ref int position, Span<char> destination, out int length)
+        {
+            length = 0;
+            
+            return ParseString(jsonSpan, ref position, destination, out length);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult Parse(ReadOnlySpan<char> jsonSpan, ref int position, out Vector3? xyz)
@@ -299,10 +307,10 @@ namespace Viewer.Runtime.Json
             
             while (true)
             {
-                if (ParseNumber(jsonSpan, ref position, out float number) != JsonResult.Ok)
-                    return JsonResult.InvalidSyntax;
+                result = ParseNumber(jsonSpan, ref position, out float number);
+                if (result != JsonResult.Ok) return result;
 
-                if (destination.Length < count) destination[count] = number;
+                if (count < destination.Length) destination[count] = number;
                 count++;
                 
                 result = ParseComma(jsonSpan, ref position);
