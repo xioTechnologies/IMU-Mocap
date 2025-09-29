@@ -323,7 +323,7 @@ namespace Viewer.Runtime.Json
 
             return JsonResult.MissingStringEnd;
         }
-
+        
         /// <summary>
         /// Parse escape sequence. The position is advanced to the first character after the escape sequence.
         /// </summary>

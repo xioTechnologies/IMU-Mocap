@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
+using System.Buffers;
 
 namespace Viewer.Runtime.Json
 {
@@ -10,23 +11,34 @@ namespace Viewer.Runtime.Json
     {
         public static JsonResult ProcessPacket(Plotter plotter, UdpReceiveResult udpResult)
         {
-            Span<char> charBuffer = stackalloc char[udpResult.Buffer.Length];
-
-            int charCount = Encoding.UTF8.GetChars(udpResult.Buffer, charBuffer);
-
-            ReadOnlySpan<char> jsonSpan = charBuffer.Slice(0, charCount);
-
-            int position = 0;
-
-            Packet properties = new() { Plotter = plotter };
-
-            return JsonZero.ParseObject(jsonSpan, ref position, ref properties);
+            char[] rented = ArrayPool<char>.Shared.Rent(udpResult.Buffer.Length);
+            
+            try
+            {
+                Span<char> charSpan = rented.AsSpan();
+                
+                int charCount = Encoding.UTF8.GetChars(udpResult.Buffer.AsSpan(), charSpan);
+                
+                ReadOnlySpan<char> jsonSpan = charSpan[..charCount];
+                
+                int position = 0;
+                
+                Packet properties = new() { Plotter = plotter };
+                
+                return JsonZero.ParseObject(jsonSpan, ref position, ref properties);
+            }
+            finally
+            {
+                ArrayPool<char>.Shared.Return(rented);
+            }
         }
 
         private struct Packet : IJsonObjectParser
         {
             public Plotter Plotter;
 
+            public JsonResult Defaults() => JsonResult.Ok;
+            
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
@@ -56,15 +68,16 @@ namespace Viewer.Runtime.Json
         {
             public Plotter Plotter;
             
-            private FixedString128 fixedString;
-            private string dynamicString;
+            private FixedString1k fixedString;
             private float time;
+
+            public JsonResult Defaults() => JsonResult.Ok;
 
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                if (JsonZero.IsKey(key, "string")) return fixedString.Parse(jsonSpan, ref position, out int _, out dynamicString);
+                if (JsonZero.IsKey(key, "string")) return JsonZero.ParseTruncate(jsonSpan, ref position, out fixedString, out int _);
                 if (JsonZero.IsKey(key, "time")) return JsonZero.Parse(jsonSpan, ref position, out time);
 
                 return JsonZero.Parse(jsonSpan, ref position);
@@ -74,8 +87,7 @@ namespace Viewer.Runtime.Json
             {
                 if (fixedString.HasValue == false) return JsonResult.MissingKey;
                 
-                if (dynamicString != null) Plotter.Text(dynamicString, time);
-                else Plotter.Text(fixedString.ToNewString(), time); 
+                Plotter.Text(ref fixedString, time);
 
                 return JsonResult.Ok;
             }
@@ -87,17 +99,22 @@ namespace Viewer.Runtime.Json
 
             private int layer;
 
+            public JsonResult Defaults()
+            {
+                layer = 0;
+                
+                return JsonResult.Ok;
+            }
+
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position)
             {
                 Plotter.Clear();
 
-                JsonResult result = JsonZero.PeepProperty(jsonSpan, position, "layer", out int layerPosition);
-
+                JsonResult result = JsonZero.Peep(jsonSpan, position, "layer", out layer, 0);
+                
                 if (result == JsonResult.MissingKey) return JsonResult.Ok;
-
-                if (result != JsonResult.Ok) return result;
-
-                return JsonZero.Parse(jsonSpan, ref layerPosition, out layer, 0);
+                
+                return result;
             }
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
@@ -119,7 +136,9 @@ namespace Viewer.Runtime.Json
         {
             public Plotter Plotter;
             public int Layer;
-
+            
+            public JsonResult Defaults() => JsonResult.Ok;
+            
             public JsonResult Parse(ReadOnlySpan<char> type, ReadOnlySpan<char> jsonSpan, ref int position)
             {
                 if (JsonZero.IsKey(type, "line"))
@@ -189,7 +208,9 @@ namespace Viewer.Runtime.Json
 
             private Vector3? start;
             private Vector3? end;
-
+            
+            public JsonResult Defaults() => JsonResult.Ok;
+            
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
@@ -220,6 +241,8 @@ namespace Viewer.Runtime.Json
             private Vector3? xyz;
             private float? size;
 
+            public JsonResult Defaults() => JsonResult.Ok;
+            
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
@@ -248,6 +271,8 @@ namespace Viewer.Runtime.Json
 
             private Vector3? xyz;
 
+            public JsonResult Defaults() => JsonResult.Ok;
+            
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
@@ -275,7 +300,9 @@ namespace Viewer.Runtime.Json
             private Vector3? xyz;
             private Vector3? axis;
             private float? radius;
-
+            
+            public JsonResult Defaults() => JsonResult.Ok;
+            
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
@@ -308,6 +335,8 @@ namespace Viewer.Runtime.Json
             private Quaternion? quaternion;
             private float? scale;
 
+            public JsonResult Defaults() => JsonResult.Ok;
+            
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
@@ -340,12 +369,14 @@ namespace Viewer.Runtime.Json
 
             private Vector3? xyz;
 
+            public JsonResult Defaults() => JsonResult.Ok;
+            
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
                 if (JsonZero.IsKey(key, "xyz")) return JsonZero.Parse(jsonSpan, ref position, out xyz);
-                if (JsonZero.IsKey(key, "text")) return text.ParseTruncate(jsonSpan, ref position, out int _);
+                if (JsonZero.IsKey(key, "text")) return JsonZero.ParseTruncate(jsonSpan, ref position, out text, out int _);
 
                 return JsonZero.Parse(jsonSpan, ref position);
             }
@@ -371,6 +402,8 @@ namespace Viewer.Runtime.Json
             private float? angle;
             private float? scale;
 
+            public JsonResult Defaults() => JsonResult.Ok;
+            
             public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
@@ -415,12 +448,13 @@ namespace Viewer.Runtime.Json
             private float scale;
             private bool mirror;
 
-            public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position)
+            public JsonResult Defaults() 
             {
                 scale = 1; // set default scale  
-
-                return JsonResult.Ok;
+                return JsonResult.Ok; 
             }
+
+            public JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
             public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {

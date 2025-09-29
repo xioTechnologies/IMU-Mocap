@@ -99,11 +99,9 @@ namespace Viewer.Runtime
             labels.Plot(xyz, textSpan, PlotterSettings.LabelColor);
         }
 
-        public void Text(string value, float time)
+        public void Text(ref FixedString1k value, float time)
         {
-            Debug.Log("Show text: " + value + ", for " + time + " seconds");
-
-            UI.Text.Set(value, time);
+            UI.Text.Set(ref value, time);
         }
     }
 

@@ -6,8 +6,10 @@ namespace Viewer.Runtime.Json
 {
     public interface IJsonObjectParser
     {
+        JsonResult Defaults();
+
         JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position);
-        
+
         JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position);
 
         JsonResult Finish();
@@ -20,30 +22,27 @@ namespace Viewer.Runtime.Json
 
     public static partial class JsonZero
     {
-        public const int KeySize = 64;
-        private const int TypeSize = 16;
-        
         public static JsonResult ParseObject<TParser>(ReadOnlySpan<char> jsonSpan, ref int position, ref TParser parser) where TParser : struct, IJsonObjectParser
         {
-            // Allow parser to perform an optional pre-scan without affecting position
-            JsonResult result = parser.Peep(jsonSpan, position);
+            JsonResult result = parser.Defaults();
             if (result != JsonResult.Ok) return result;
             
+            // Allow parser to perform an optional pre-scan without affecting position
+            result = parser.Peep(jsonSpan, position);
+            if (result != JsonResult.Ok) return result;
+
             result = ParseObjectStart(jsonSpan, ref position);
             if (result != JsonResult.Ok) return result;
-            
+
             result = ParseObjectEnd(jsonSpan, ref position);
             if (result == JsonResult.Ok) return JsonResult.Ok;
-            
-            Span<char> keyBuffer = stackalloc char[KeySize];
+
             while (true)
             {
-                result = ParseKey(jsonSpan, ref position, keyBuffer, out int keyLength);
+                result = ParseKey(jsonSpan, ref position, out FixedString64 key);
                 if (result != JsonResult.Ok) return result;
 
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-                result = parser.Parse(key, jsonSpan, ref position);
+                result = parser.Parse(key.AsReadOnlySpan(), jsonSpan, ref position);
                 if (result != JsonResult.Ok) return result;
 
                 result = ParseComma(jsonSpan, ref position);
@@ -54,11 +53,11 @@ namespace Viewer.Runtime.Json
 
                 break;
             }
-            
+
             return parser.Finish();
         }
-        
-        public static JsonResult ParseDiscriminatedArray<TParser>(ReadOnlySpan<char> jsonSpan, ref int position, ref TParser parser) where TParser : struct, IJsonTypeDiscriminatingParser
+
+        public static JsonResult ParseObjectArray<TParser>(ReadOnlySpan<char> jsonSpan, ref int position, ref TParser parser) where TParser : struct, IJsonObjectParser
         {
             JsonResult result = ParseArrayStart(jsonSpan, ref position);
             if (result != JsonResult.Ok) return result;
@@ -66,21 +65,11 @@ namespace Viewer.Runtime.Json
             result = ParseArrayEnd(jsonSpan, ref position);
             if (result == JsonResult.Ok) return JsonResult.Ok;
 
-            Span<char> typeBuffer = stackalloc char[TypeSize];
-            
             while (true)
             {
-                result = PeepProperty(jsonSpan, position, "type", out int typePosition);
-                if (result != JsonResult.Ok) return result;
-                
-                result = ParseString(jsonSpan, ref typePosition, typeBuffer, out int typeLength);
+                result = ParseObject(jsonSpan, ref position, ref parser);
                 if (result != JsonResult.Ok) return result;
 
-                ReadOnlySpan<char> type = typeBuffer.Slice(0, typeLength);
-                
-                result = parser.Parse(type, jsonSpan, ref position);
-                if (result != JsonResult.Ok) return result;
-                
                 result = ParseComma(jsonSpan, ref position);
                 if (result == JsonResult.Ok) continue;
 
@@ -90,30 +79,81 @@ namespace Viewer.Runtime.Json
 
             return JsonResult.Ok;
         }
-        
+
+        public static JsonResult ParseDiscriminatedArray<TParser>(ReadOnlySpan<char> jsonSpan, ref int position, ref TParser parser) where TParser : struct, IJsonTypeDiscriminatingParser
+        {
+            JsonResult result = ParseArrayStart(jsonSpan, ref position);
+            if (result != JsonResult.Ok) return result;
+
+            result = ParseArrayEnd(jsonSpan, ref position);
+            if (result == JsonResult.Ok) return JsonResult.Ok;
+
+            while (true)
+            {
+                result = Peep(jsonSpan, position, "type", out FixedString64 type);
+                if (result != JsonResult.Ok) return result;
+
+                result = parser.Parse(type.AsReadOnlySpan(), jsonSpan, ref position);
+                if (result != JsonResult.Ok) return result;
+
+                result = ParseComma(jsonSpan, ref position);
+                if (result == JsonResult.Ok) continue;
+
+                result = ParseArrayEnd(jsonSpan, ref position);
+                if (result == JsonResult.Ok) break;
+            }
+
+            return JsonResult.Ok;
+        }
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JsonResult PeepProperty(ReadOnlySpan<char> jsonSpan, int position, string key, out int valuePosition)
+        public static JsonResult Peep(ReadOnlySpan<char> jsonSpan, int position, string key, out int value, int defaultValue)
+        {
+            value = defaultValue;
+
+            JsonResult result = PeepProperty(jsonSpan, position, key, out int valuePosition);
+            if (result != JsonResult.Ok) return result;
+
+            result = ParseNumber(jsonSpan, ref valuePosition, out float floatValue);
+            if (result != JsonResult.Ok) return result;
+
+            value = (int)floatValue;
+
+            return JsonResult.Ok;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JsonResult Peep<TFixedString>(ReadOnlySpan<char> jsonSpan, int position, string key, out TFixedString value) where TFixedString : struct, IFixedString
+        {
+            value = default;
+
+            JsonResult result = PeepProperty(jsonSpan, position, key, out int valuePosition);
+
+            if (result != JsonResult.Ok) return result;
+
+            return Parse(jsonSpan, ref valuePosition, out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static JsonResult PeepProperty(ReadOnlySpan<char> jsonSpan, int position, string key, out int valuePosition)
         {
             valuePosition = -1;
 
             JsonResult result = ParseObjectStart(jsonSpan, ref position);
             if (result != JsonResult.Ok) return result;
-            
+
             result = ParseObjectEnd(jsonSpan, ref position);
             if (result == JsonResult.Ok) return JsonResult.Ok;
-            
-            Span<char> keyBuffer = stackalloc char[KeySize];
 
             ReadOnlySpan<char> matcher = key.AsSpan();
 
             while (true)
             {
-                result = ParseKey(jsonSpan, ref position, keyBuffer, out int keyLength);
+                result = ParseKey(jsonSpan, ref position, out FixedString64 propertyKey);
                 if (result != JsonResult.Ok) return result;
 
-                ReadOnlySpan<char> propertyKey = keyBuffer.Slice(0, keyLength);
-
-                if (matcher.SequenceEqual(propertyKey) == true)
+                if (matcher.SequenceEqual(propertyKey.AsReadOnlySpan()) == true)
                 {
                     valuePosition = position;
 
@@ -134,23 +174,23 @@ namespace Viewer.Runtime.Json
 
             return JsonResult.MissingKey;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsKey(ReadOnlySpan<char> buffer, string literal) => buffer.SequenceEqual(literal.AsSpan());
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult Parse(ReadOnlySpan<char> jsonSpan, ref int position, out float value)
         {
             value = 0;
-            
+
             return ParseNumber(jsonSpan, ref position, out value);
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult Parse(ReadOnlySpan<char> jsonSpan, ref int position, out float? value)
         {
             value = null;
-            
+
             JsonResult result = ParseNumber(jsonSpan, ref position, out float floatValue);
             if (result != JsonResult.Ok) return result;
 
@@ -160,30 +200,14 @@ namespace Viewer.Runtime.Json
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JsonResult Parse(ReadOnlySpan<char> jsonSpan, ref int position, Span<char> destination, out int length)
-        {
-            length = 0;
-            
-            return ParseString(jsonSpan, ref position, destination, out length);
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JsonResult MessureAndTryParse(ReadOnlySpan<char> jsonSpan, ref int position, Span<char> destination, out int length)
-        {
-            length = 0;
-            
-            return ParseString(jsonSpan, ref position, destination, out length);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult Parse(ReadOnlySpan<char> jsonSpan, ref int position, out Vector3? xyz)
         {
             xyz = null;
-            
+
             Span<float> destination = stackalloc float[3];
             JsonResult result = ParseNumberArray(jsonSpan, ref position, destination, out int parsedLength);
             if (result != JsonResult.Ok) return result;
-            
+
             if (parsedLength != 3) return JsonResult.InvalidNumberFormat;
 
             xyz = new Vector3(destination[0], destination[2], destination[1]); // swizzle! 
@@ -199,34 +223,12 @@ namespace Viewer.Runtime.Json
             Span<float> destination = stackalloc float[4];
             JsonResult result = ParseNumberArray(jsonSpan, ref position, destination, out int parsedLength);
             if (result != JsonResult.Ok) return result;
-            
+
             if (parsedLength != 4) return JsonResult.InvalidNumberFormat;
 
             quaternion = new Quaternion(-destination[1], -destination[3], -destination[2], destination[0]).normalized; // swizzle! 
 
             return result;
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JsonResult ParseDynamicString(ReadOnlySpan<char> jsonSpan, ref int position, out string value)
-        {
-            value = null;
-            
-            int start = position;
- 
-            var result = ParseString(jsonSpan, ref position, Span<char>.Empty, out int len);
-            if (result != JsonResult.Ok) return result;
-
-            char[] buf = new char[len];
-
-            position = start;
-
-            result = ParseString(jsonSpan, ref position, buf.AsSpan(0, len), out int written);
-            if (result != JsonResult.Ok) return result;
-
-            value = new string(buf, 0, written); // can this come from a pool or something? is buffer owned by string at this point? 
-
-            return JsonResult.Ok;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -241,7 +243,7 @@ namespace Viewer.Runtime.Json
         public static JsonResult Parse(ReadOnlySpan<char> jsonSpan, ref int position, out int value, int @default = 0)
         {
             value = @default;
-            
+
             JsonResult result = ParseNumber(jsonSpan, ref position, out float floatValue);
             if (result != JsonResult.Ok) return result;
 
@@ -249,7 +251,7 @@ namespace Viewer.Runtime.Json
 
             return JsonResult.Ok;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JsonResult Parse(ReadOnlySpan<char> jsonSpan, ref int position, out bool value, bool @default = false)
         {
@@ -273,19 +275,18 @@ namespace Viewer.Runtime.Json
 
             return JsonResult.Ok;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JsonResult Parse(ReadOnlySpan<char> jsonSpan, ref int position, Span<float> destination, int length)
         {
             JsonResult result = ParseNumberArray(jsonSpan, ref position, destination, out int parsedLength);
             if (result != JsonResult.Ok) return result;
-            
+
             if (parsedLength != length) return JsonResult.InvalidNumberFormat;
 
             return result;
         }
-        
-        // Helper method for parsing arrays of numbers into spans
+
         /// <summary>
         /// Parses a JSON array of numbers into a span. Returns the number of elements parsed.
         /// </summary>
@@ -304,7 +305,7 @@ namespace Viewer.Runtime.Json
 
             result = ParseArrayEnd(jsonSpan, ref position);
             if (result == JsonResult.Ok) return JsonResult.Ok;
-            
+
             while (true)
             {
                 result = ParseNumber(jsonSpan, ref position, out float number);
@@ -312,7 +313,7 @@ namespace Viewer.Runtime.Json
 
                 if (count < destination.Length) destination[count] = number;
                 count++;
-                
+
                 result = ParseComma(jsonSpan, ref position);
                 if (result == JsonResult.Ok) continue;
 
@@ -321,6 +322,145 @@ namespace Viewer.Runtime.Json
             }
 
             return JsonResult.Ok;
+        }
+
+        public static JsonResult Parse<TFixedString>(ReadOnlySpan<char> jsonSpan, ref int position, out TFixedString fixedString) where TFixedString : struct, IFixedString
+        {
+            fixedString = default;
+
+            Span<char> span = fixedString.AsSpan();
+
+            JsonResult result = ParseString(jsonSpan, ref position, span, out int length);
+            if (result != JsonResult.Ok) return result;
+
+            fixedString.SetLength(Mathf.Min(length, fixedString.MaxLength));
+
+            return JsonResult.Ok;
+        }
+
+        public static JsonResult ParseTruncate<TFixedString>(ReadOnlySpan<char> jsonSpan, ref int position, out TFixedString fixedString, out int fullLength) where TFixedString : struct, IFixedString
+        {
+            fullLength = 0;
+
+            fixedString = default;
+
+            Span<char> span = fixedString.AsSpan();
+
+            JsonResult result = ParseStringTruncate(jsonSpan, ref position, span, out fullLength);
+            if (result != JsonResult.Ok) return result;
+
+            fixedString.SetLength(Mathf.Min(fullLength, fixedString.MaxLength));
+
+            return JsonResult.Ok;
+        }
+
+        public static JsonResult Parse<TFixedString>(ReadOnlySpan<char> jsonSpan, ref int position, out TFixedString fixedString, out string dynamicString) where TFixedString : struct, IFixedString
+        {
+            dynamicString = null;
+            fixedString = default;
+
+            int start = position;
+
+            Span<char> span = fixedString.AsSpan();
+
+            JsonResult result = ParseStringTruncate(jsonSpan, ref position, span, out int length);
+            if (result != JsonResult.Ok) return result;
+
+            fixedString.SetLength(Mathf.Min(length, fixedString.MaxLength));
+
+            if (length < fixedString.MaxLength) return JsonResult.Ok;
+
+            char[] buf = new char[length];
+
+            position = start;
+
+            result = ParseString(jsonSpan, ref position, buf.AsSpan(0, length), out int written);
+            if (result != JsonResult.Ok) return result;
+
+            dynamicString = new string(buf, 0, written); // can this come from a pool or something? is buffer owned by string at this point? 
+
+            return JsonResult.Ok;
+        }
+
+        /// <summary>
+        /// Parses the key in a JSON object. The position is advanced to the character after the colon that separates the key/value pair.
+        /// </summary>
+        /// <param name="json">JSON span</param>
+        /// <param name="position">Current position</param>
+        /// <param name="fixedString">Destination string</param>
+        /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JsonResult ParseKey<TFixedString>(ReadOnlySpan<char> json, ref int position, out TFixedString fixedString) where TFixedString : struct, IFixedString
+        {
+            fixedString = default;
+
+            // Check type
+            if (CheckType(json, ref position, JsonType.String) != JsonResult.Ok)
+            {
+                return JsonResult.MissingKey;
+            }
+
+            // Parse key
+            JsonResult result = Parse(json, ref position, out fixedString);
+            if (result != JsonResult.Ok) return result;
+
+            // Parse colon
+            SkipWhiteSpace(json, ref position);
+            if (position >= json.Length || json[position] != ':') return JsonResult.MissingColon;
+
+            position++;
+
+            return JsonResult.Ok;
+        }
+
+        /// <summary>
+        /// Parse string. The position is advanced to the first character after the string.
+        /// </summary>
+        /// <param name="json">JSON span</param>
+        /// <param name="position">Current position</param>
+        /// <param name="destination">Destination span</param>
+        /// <param name="numberOfBytes">Number of characters written</param>
+        /// <returns>Result</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static JsonResult ParseStringTruncate(ReadOnlySpan<char> json, ref int position, Span<char> destination, out int numberOfBytes)
+        {
+            numberOfBytes = 0;
+
+            // Check type
+            JsonResult result = CheckType(json, ref position, JsonType.String);
+            if (result != JsonResult.Ok) return result;
+
+            position++; // Skip opening quote
+
+            // Parse string
+            int index = 0;
+            while (position < json.Length)
+            {
+                char ch = json[position];
+
+                if (ch == '\0') return JsonResult.MissingStringEnd;
+                if (ch >= 0 && ch < 0x20) return JsonResult.InvalidStringCharacter; // control characters must be escaped
+                if (ch == '\\')
+                {
+                    result = ParseEscapeSequence(json, ref position, destination, ref index);
+                    if (result != JsonResult.Ok) return result;
+
+                    continue;
+                }
+
+                if (ch == '"')
+                {
+                    position++;
+                    numberOfBytes = index;
+                    return JsonResult.Ok;
+                }
+
+                WriteToDestination(destination, ref index, ch);
+
+                position++;
+            }
+
+            return JsonResult.MissingStringEnd;
         }
     }
 }
