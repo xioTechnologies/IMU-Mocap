@@ -1,6 +1,6 @@
 # Joint rotations
 
-Rotations in ~~strikethrough~~ do not typically occur in the human body or wheelchair. Vernacular descriptions in parentheses describe rotations from a T-pose starting position, with palms facing down.
+Rotations in ~~strikethrough~~ do not typically occur in the human body or wheelchair. Vernacular descriptions in parentheses describe rotations from a T-pose starting position, with palms facing down. Alpha and gamma angles may range between +/-180 degrees; beta angles must not exceed or approach +/-90 degrees.
 
 ## Body
 
