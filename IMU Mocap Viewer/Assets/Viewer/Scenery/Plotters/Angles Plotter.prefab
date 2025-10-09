@@ -48,20 +48,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   labels: {fileID: 2326682793454951326}
+  labelMargin: 20
   maxCount: 1000
   rangeMesh: {fileID: 4300000, guid: ecff023cde0cb47449b42e11fd62e8ea, type: 2}
   needleMesh: {fileID: 4300000, guid: f69652e3a5ca8f54ea1a1681a29a4186, type: 2}
+  needleScale: 2
   valueMesh: {fileID: 4300000, guid: a76106411b01e8d4d9686b23ccfb6bd8, type: 2}
   material: {fileID: 2100000, guid: 4820586623e9f0e4da92d4931bb83b5b, type: 2}
-  valueAlpha: 0.2
   lineOrder: 7
   valueOrder: 7
-  needleScale: 2
-  xColor: {r: 1, g: 0.6117647, b: 0.6666667, a: 1}
+  xColor: {r: 0.3529412, g: 0.9843137, b: 0.94509804, a: 1}
   yColor: {r: 1, g: 1, b: 0, a: 1}
-  zColor: {r: 0.3529412, g: 0.9843137, b: 0.94509804, a: 1}
+  zColor: {r: 1, g: 0.6117647, b: 0.6666667, a: 1}
   genericColor: {r: 0.89411765, g: 0.89411765, b: 0.89411765, a: 1}
-  labelMargin: 20
+  valueAlpha: 0.2
 --- !u!114 &1381233583315264217
 MonoBehaviour:
   m_ObjectHideFlags: 0
