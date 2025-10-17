@@ -41,7 +41,7 @@ while True:
 
         imumocap.set_pose(root, frame)
 
-        viewer.send(
+        viewer.send_frame(
             [
                 *imumocap.viewer.link_to_primitives(root),
                 *imumocap.viewer.joints_to_primitives(joints, "Left"),

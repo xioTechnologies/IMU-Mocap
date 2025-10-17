@@ -35,13 +35,13 @@ while True:
     time.sleep(1 / 30)  # 30 fps
 
     if any([i.button_pressed for i in imus.values()]):
-        print("Please hold the calibration pose")
+        viewer.send_text("Please Hold the Calibration Pose")
 
         time.sleep(2)
 
         calibrated_heading = imumocap.solvers.calibrate(model.root, {n: i.matrix for n, i in imus.items()}, mounting=Mounting.Z_BACKWARDS)
 
-        print("Calibrated")
+        viewer.send_text("Calibrated", 2)
 
     imumocap.set_pose_from_imus(model.root, {n: i.matrix for n, i in imus.items()}, -calibrated_heading)
 
@@ -50,7 +50,7 @@ while True:
 
     imumocap.solvers.floor(model.root)
 
-    viewer.send(
+    viewer.send_frame(
         [
             *imumocap.viewer.link_to_primitives(model.root),
             *imumocap.viewer.joints_to_primitives(model.joints, "Left"),

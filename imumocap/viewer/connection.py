@@ -16,9 +16,13 @@ class Connection:
     def __del__(self) -> None:
         self.__socket.close()
 
-    def send(self, primitives: list[Primitive]) -> None:
-        json = "[" + ",".join([str(p) for p in primitives]) + "]"
+    def send_text(self, text: str, seconds: float = 0.0) -> None:
+        self.__send(f'{{"text":{{"text":"{text}","seconds":{seconds}}}}}')
 
+    def send_frame(self, primitives: list[Primitive], layer: int = 0) -> None:
+        self.__send(f'{{"frame":{{"layer":{layer},"primitives":[{",".join([str(p) for p in primitives])}]}}}}')
+
+    def __send(self, json: str) -> None:
         data = json.encode("ascii")
 
         if len(data) > self.__buffer_size:

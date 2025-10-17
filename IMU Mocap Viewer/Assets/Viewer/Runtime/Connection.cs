@@ -1,14 +1,16 @@
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using Unity.Profiling;
 using UnityEngine;
+using Viewer.Runtime.Json;
 
 namespace Viewer.Runtime
 {
     public sealed class Connection : MonoBehaviour
     {
+        private ProfilerMarker jsonParse = new(nameof(Connection));
+
         [SerializeField] private Plotter plotter;
 
         [SerializeField] private int listenPort = 6000;
@@ -55,7 +57,10 @@ namespace Viewer.Runtime
 
             if (receiveTask.IsCompletedSuccessfully)
             {
-                ProcessPacket(receiveTask.Result);
+                using (jsonParse.Auto())
+                {
+                    if (Paused == false) Parsing.ProcessPacket(plotter, receiveTask.Result);
+                }
             }
             else
             {
@@ -63,125 +68,12 @@ namespace Viewer.Runtime
             }
 
             StartReceivingData();
-
-            return;
-
-            void StartReceivingData()
-            {
-                receiveTask = listener.ReceiveAsync();
-                isReceivingData = true;
-            }
-
-            void ProcessPacket(UdpReceiveResult result)
-            {
-                if (Paused) return;
-
-                PlotObject[] objects = JsonConvert.DeserializeObject<PlotObject[]>(Encoding.ASCII.GetString(result.Buffer));
-
-                plotter.Clear();
-
-                foreach (PlotObject obj in objects)
-                {
-                    switch (obj.Type)
-                    {
-                        case "line":
-                            plotter.Line(SwizzleFromArray3(obj.Start), SwizzleFromArray3(obj.End));
-                            break;
-
-                        case "circle":
-                            plotter.Circle(SwizzleFromArray3(obj.Xyz), SwizzleFromArray3(obj.Axis), obj.Radius);
-                            break;
-
-                        case "dot":
-                            plotter.Dot(SwizzleFromArray3(obj.Xyz), obj.Size);
-                            break;
-
-                        case "axes":
-                            plotter.Axes(SwizzleFromArray3(obj.Xyz), SwizzleFromArray4(obj.Quaternion), obj.Scale);
-                            break;
-
-                        case "label":
-                            plotter.Label(SwizzleFromArray3(obj.Xyz), obj.Text);
-                            break;
-
-                        case "angles":
-                            plotter.Angles(
-                                SwizzleFromArray3(obj.Xyz),
-                                SwizzleFromArray4(obj.Quaternion),
-                                AngleAndLimit(obj.Alpha, obj.AlphaLimit),
-                                AngleAndLimit(obj.Beta, obj.BetaLimit),
-                                AngleAndLimit(obj.Gamma, obj.GammaLimit),
-                                obj.Scale,
-                                obj.Mirror
-                            );
-                            break;
-
-                        case "angle":
-                            plotter.Angle(SwizzleFromArray3(obj.Xyz), SwizzleFromArray4(obj.Quaternion), obj.Angle, obj.Scale);
-                            break;
-
-                        case "pedestal":
-                            plotter.Pedestal(SwizzleFromArray3(obj.Xyz));
-                            break;
-
-                        default:
-                            Debug.LogError("Unknown primitive type: " + obj.Type);
-                            break;
-                    }
-                }
-            }
         }
 
-        private static AngleAndLimit? AngleAndLimit(float? angle, float[] limit) => angle.HasValue ? new AngleAndLimit(angle.Value, limit) : null;
-
-        private static Vector3 SwizzleFromArray3(float[] array)
+        void StartReceivingData()
         {
-            if (array == null) return Vector3.zero;
-            if (array.Length != 3) return Vector3.zero;
-
-            return new Vector3(array[0], array[1], array[2])._xzy();
-        }
-
-        private static Quaternion SwizzleFromArray4(float[] array)
-        {
-            if (array == null) return Quaternion.identity;
-            if (array.Length != 4) return Quaternion.identity;
-
-            return Swizzle(new Quaternion(array[1], array[2], array[3], array[0]));
-        }
-
-        private static Quaternion Swizzle(Quaternion wxyz) => new Quaternion(-wxyz.x, -wxyz.z, -wxyz.y, wxyz.w).normalized;
-
-        private struct PlotObject
-        {
-            public string Type;
-            public float[] Start;
-            public float[] End;
-            public float[] Xyz;
-            public float[] Axis;
-            public float Radius;
-            public float Size;
-            public float[] Quaternion;
-            public float Scale;
-
-            [JsonProperty(PropertyName = "alpha")] public float? Alpha;
-            [JsonProperty(PropertyName = "beta")] public float? Beta;
-            [JsonProperty(PropertyName = "gamma")] public float? Gamma;
-
-            [JsonProperty(PropertyName = "alpha_limit")]
-            public float[] AlphaLimit;
-
-            [JsonProperty(PropertyName = "beta_limit")]
-            public float[] BetaLimit;
-
-            [JsonProperty(PropertyName = "gamma_limit")]
-            public float[] GammaLimit;
-
-            public bool Mirror;
-
-            public string Text;
-
-            public float Angle;
+            receiveTask = listener.ReceiveAsync();
+            isReceivingData = true;
         }
     }
 }
