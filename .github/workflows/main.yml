@@ -210,9 +210,6 @@ jobs:
           smctl windows certsync
         shell: cmd
 
-      - name: Install Inno Setup
-        run: choco install innosetup
-
       - name: Skip *DoNotShip files
         run: Get-ChildItem -Recurse -Directory -Filter "*DoNotShip" | Remove-Item -Recurse -Force
 
