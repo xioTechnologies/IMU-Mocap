@@ -53,7 +53,7 @@ class Imu:
         self.__quaternion = np.array([message.w, message.x, message.y, message.z])
 
     def __notification_callback(self, message: ximu3.NotificationMessage) -> None:
-        if message.string == "Button pressed.":
+        if "Button pressed" in message.string:
             self.__button_pressed = True
 
     @property
