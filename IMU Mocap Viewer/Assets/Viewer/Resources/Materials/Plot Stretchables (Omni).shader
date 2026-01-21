@@ -158,7 +158,7 @@
             CBUFFER_END
 
             void GetInstanceData(in Attributes input, out float4x4 transform, out float thickness, out float4 nearColor,
-                                                                             out float4 farColor)
+                                 out float4 farColor)
             {
                 transform = GetObjectToWorldMatrix();
                 thickness = _Thickness;

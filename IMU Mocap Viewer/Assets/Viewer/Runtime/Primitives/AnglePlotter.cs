@@ -1,3 +1,5 @@
+using System;
+using Unity.Profiling;
 using UnityEngine;
 using Viewer.Runtime.Primitives.Batching;
 
@@ -168,7 +170,13 @@ namespace Viewer.Runtime.Primitives
 
             Vector3 offset = direction * (angleScale * 0.5f);
 
-            labels.Plot(xyz + offset, color, $"{angle:F1}°", direction, labelMargin);
+            Span<char> buffer = stackalloc char[16];
+
+            angle.TryFormat(buffer, out int written, "F1");
+
+            buffer[written++] = '°';
+
+            labels.Plot(xyz + offset, buffer[..written], color, direction, labelMargin);
         }
     }
 }

@@ -1,834 +1,506 @@
-﻿using System;
+using System;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
+using System.Buffers;
 
 namespace Viewer.Runtime.Json
 {
     public static class Parsing
     {
-        private const int KeySize = 32;
-
         public static JsonResult ProcessPacket(Plotter plotter, UdpReceiveResult udpResult)
         {
-            Span<char> charBuffer = stackalloc char[udpResult.Buffer.Length];
+            char[] rented = ArrayPool<char>.Shared.Rent(udpResult.Buffer.Length);
 
-            int charCount = Encoding.ASCII.GetChars(udpResult.Buffer, charBuffer);
-
-            ReadOnlySpan<char> jsonSpan = charBuffer.Slice(0, charCount);
-
-            int position = 0;
-
-            if (Json99.ParseObjectStart(jsonSpan, ref position) != JsonResult.Ok)
+            try
             {
-                return JsonResult.UnexpectedType;
+                Span<char> charSpan = rented.AsSpan();
+
+                int charCount = Encoding.UTF8.GetChars(udpResult.Buffer.AsSpan(), charSpan);
+
+                ReadOnlySpan<char> jsonSpan = charSpan[..charCount];
+
+                int position = 0;
+
+                Packet members = new() { Plotter = plotter };
+
+                return JsonZero.ParseObject(jsonSpan, ref position, ref members);
             }
-
-            Span<char> keyBuffer = stackalloc char[KeySize];
-
-            bool first = true;
-
-            while (true)
+            finally
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, first, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
-                first = false;
-
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-                if (IsKey(key, "frame"))
-                {
-                    JsonResult result = Frame(plotter, jsonSpan, ref position);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    continue;
-                }
-
-                if (IsKey(key, "text"))
-                {
-                    JsonResult result = Text(plotter, jsonSpan, ref position);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    continue;
-                }
-
-                Json99.Parse(jsonSpan, ref position);
+                ArrayPool<char>.Shared.Return(rented);
             }
-
-            return JsonResult.Ok;
         }
 
-        private static JsonResult Frame(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
+        private struct Packet : IJsonObjectParser
         {
-            JsonResult result = Json99.ParseObjectStart(jsonSpan, ref position);
+            public Plotter Plotter;
 
-            if (result != JsonResult.Ok) return result;
+            public JsonResult Defaults() => JsonResult.Ok;
 
-            plotter.Clear();
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
 
-            Span<char> keyBuffer = stackalloc char[KeySize];
-
-            int layer = 0;
-            bool first = true;
-
-            while (true)
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, first, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
-                first = false;
-
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-                // layer must come first 
-                if (IsKey(key, "layer"))
+                if (JsonZero.IsKey(key, "frame"))
                 {
-                    result = Json99.ParseNumber(jsonSpan, ref position, out float layerNumber);
+                    Frame parser = new() { Plotter = Plotter };
 
-                    if (result != JsonResult.Ok) return result;
-
-                    layer = (int)layerNumber;
-
-                    continue;
+                    return JsonZero.ParseObject(jsonSpan, ref position, ref parser);
                 }
 
-                if (IsKey(key, "primitives"))
+                if (JsonZero.IsKey(key, "text"))
                 {
-                    result = Primitives(plotter, layer, jsonSpan, ref position);
+                    Text parser = new() { Plotter = Plotter };
 
-                    if (result != JsonResult.Ok) return result;
-
-                    continue;
+                    return JsonZero.ParseObject(jsonSpan, ref position, ref parser);
                 }
 
-                Json99.Parse(jsonSpan, ref position);
+
+                return JsonZero.Parse(jsonSpan, ref position);
             }
 
-            return JsonResult.Ok;
+            public JsonResult Finish() => JsonResult.Ok;
         }
 
-        private static JsonResult Primitives(Plotter plotter, int layer, ReadOnlySpan<char> jsonSpan, ref int position)
+        private struct Text : IJsonObjectParser
         {
-            JsonResult result = JsonResult.Ok;
+            public Plotter Plotter;
 
-            result = Json99.ParseArrayStart(jsonSpan, ref position);
-            if (result != JsonResult.Ok) return result;
+            private FixedString1k fixedString;
+            private float time;
 
-            result = Json99.ParseArrayEnd(jsonSpan, ref position);
-            if (result == JsonResult.Ok) return result;
+            public JsonResult Defaults() => JsonResult.Ok;
 
-            while (true)
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
+
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                result = Primitive(plotter, layer, jsonSpan, ref position);
-                if (result != JsonResult.Ok) return result;
+                if (JsonZero.IsKey(key, "string")) return JsonZero.ParseTruncate(jsonSpan, ref position, out fixedString, out int _);
+                if (JsonZero.IsKey(key, "time")) return JsonZero.Parse(jsonSpan, ref position, out time);
 
-                result = Json99.ParseComma(jsonSpan, ref position);
-                if (result == JsonResult.Ok) continue;
-
-                result = Json99.ParseArrayEnd(jsonSpan, ref position);
-                if (result == JsonResult.Ok) return JsonResult.Ok;
+                return JsonZero.Parse(jsonSpan, ref position);
             }
 
-            return JsonResult.Ok;
-        }
-
-        private static JsonResult Primitive(Plotter plotter, int layer, ReadOnlySpan<char> jsonSpan, ref int position)
-        {
-            // Ensure we are at the start of an object for this primitive
-            JsonResult result = Json99.ParseObjectStart(jsonSpan, ref position);
-
-            if (result != JsonResult.Ok) return result;
-
-            Span<char> keyBuffer = stackalloc char[KeySize];
-
-            JsonResult? propertySetupResult = TryBeginProperty(jsonSpan, ref position, true, keyBuffer, out int keyLength);
-            if (propertySetupResult == null) return JsonResult.InvalidSyntax;
-            if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
-
-            ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-            if (key.SequenceEqual("type".AsSpan()) == false) return JsonResult.InvalidSyntax; // First key should always be type
-
-            Span<char> typeBuffer = stackalloc char[16];
-
-            result = Json99.ParseString(jsonSpan, ref position, typeBuffer, out int typeLength);
-
-            if (result != JsonResult.Ok) return result;
-
-            ReadOnlySpan<char> type = typeBuffer.Slice(0, typeLength);
-
-            if (IsKey(type, "line")) return Line(plotter, jsonSpan, ref position);
-
-            if (IsKey(type, "circle")) return Circle(plotter, jsonSpan, ref position);
-
-            if (IsKey(type, "dot")) return Dot(plotter, jsonSpan, ref position);
-
-            if (IsKey(type, "axes")) return Axes(plotter, jsonSpan, ref position);
-
-            if (IsKey(type, "label")) return Label(plotter, jsonSpan, ref position);
-
-            if (IsKey(type, "angles")) return Angles(plotter, jsonSpan, ref position);
-
-            if (IsKey(type, "angle")) return Angle(plotter, jsonSpan, ref position);
-
-            if (IsKey(type, "pedestal")) return Pedestal(plotter, jsonSpan, ref position);
-
-            Debug.LogError($"Unknown primitive type: {type.ToString()}");
-
-            return SkipRemainder(jsonSpan, ref position);
-        }
-
-        private static JsonResult Text(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
-        {
-            JsonResult result = Json99.ParseObjectStart(jsonSpan, ref position);
-
-            if (result != JsonResult.Ok) return result;
-
-            Span<char> keyBuffer = stackalloc char[KeySize];
-
-            string value = null;
-            float time = 0;
-            bool first = true;
-
-            while (true)
+            public JsonResult Finish()
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, first, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
-                first = false;
+                if (fixedString.HasValue == false) return JsonResult.MissingKey;
 
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
+                Plotter.Text(ref fixedString, time);
 
-                if (IsKey(key, "text"))
-                {
-                    result = ParseDynamicString(jsonSpan, ref position, out value);
+                return JsonResult.Ok;
+            }
+        }
 
-                    if (result != JsonResult.Ok) return result;
+        private struct Frame : IJsonObjectParser
+        {
+            public Plotter Plotter;
 
-                    continue;
-                }
+            private int layer;
 
-                if (IsKey(key, "seconds"))
-                {
-                    result = Json99.ParseNumber(jsonSpan, ref position, out time);
+            public JsonResult Defaults()
+            {
+                layer = 0;
 
-                    if (result != JsonResult.Ok) return result;
-
-                    continue;
-                }
-
-                Json99.Parse(jsonSpan, ref position);
+                return JsonResult.Ok;
             }
 
-            if (value != null) plotter.Text(value, time);
-
-            return JsonResult.Ok;
-        }
-
-        static JsonResult Line(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
-        {
-            Span<float> start = stackalloc float[3];
-            Span<float> end = stackalloc float[3];
-            Span<char> keyBuffer = stackalloc char[KeySize];
-            bool hasStart = false, hasEnd = false;
-
-            while (true)
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position)
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, false, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
+                Plotter.Clear();
 
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
+                JsonResult result = JsonZero.Peek(jsonSpan, position, "layer", out layer, 0);
 
-                if (IsKey(key, "start"))
-                {
-                    var result = ParseNumberArrayProperty(jsonSpan, ref position, start, 3);
+                if (result == JsonResult.MissingKey) return JsonResult.Ok;
 
-                    if (result != JsonResult.Ok) return result;
-
-                    hasStart = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "end"))
-                {
-                    var result = ParseNumberArrayProperty(jsonSpan, ref position, end, 3);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasEnd = true;
-
-                    continue;
-                }
-
-                Json99.Parse(jsonSpan, ref position); // Skip unknown field
+                return result;
             }
 
-            if (hasStart && hasEnd) plotter.Line(SwizzleFromSpan3(start), SwizzleFromSpan3(end));
-
-            return JsonResult.Ok;
-        }
-
-        private static JsonResult Dot(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
-        {
-            Span<float> xyz = stackalloc float[3];
-            Span<char> keyBuffer = stackalloc char[KeySize];
-            float size = 0;
-            bool hasXyz = false, hasSize = false;
-
-            while (true)
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, false, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
-
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-                if (IsKey(key, "xyz"))
+                if (JsonZero.IsKey(key, "primitives"))
                 {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, xyz, 3);
+                    Primitives parser = new() { Plotter = Plotter, Layer = layer };
 
-                    if (result != JsonResult.Ok) return result;
-
-                    hasXyz = true;
-
-                    continue;
+                    return JsonZero.ParseDiscriminatedArray(jsonSpan, ref position, ref parser);
                 }
 
-                if (IsKey(key, "size"))
-                {
-                    JsonResult result = Json99.ParseNumber(jsonSpan, ref position, out size);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasSize = true;
-
-                    continue;
-                }
-
-                Json99.Parse(jsonSpan, ref position); // Skip unknown field
+                return JsonZero.Parse(jsonSpan, ref position);
             }
 
-            if (hasXyz && hasSize) plotter.Dot(SwizzleFromSpan3(xyz), size);
-
-            return JsonResult.Ok;
+            public JsonResult Finish() => JsonResult.Ok;
         }
 
-        private static JsonResult Pedestal(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
+        private struct Primitives : IJsonTypeDiscriminatingParser
         {
-            Span<float> xyz = stackalloc float[3];
-            Span<char> keyBuffer = stackalloc char[KeySize];
-            bool hasXyz = false;
+            public Plotter Plotter;
+            public int Layer;
 
-            while (true)
+            public JsonResult Defaults() => JsonResult.Ok;
+
+            public JsonResult Parse(ReadOnlySpan<char> type, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, false, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
-
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-                if (IsKey(key, "xyz"))
+                if (JsonZero.IsKey(type, "line"))
                 {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, xyz, 3);
+                    Line parser = new() { Plotter = Plotter, Layer = Layer };
 
-                    if (result != JsonResult.Ok) return result;
-
-                    hasXyz = true;
-
-                    continue;
+                    return JsonZero.ParseObject(jsonSpan, ref position, ref parser);
                 }
 
-                Json99.Parse(jsonSpan, ref position); // Skip unknown field
+                if (JsonZero.IsKey(type, "circle"))
+                {
+                    Circle parser = new() { Plotter = Plotter, Layer = Layer };
+
+                    return JsonZero.ParseObject(jsonSpan, ref position, ref parser);
+                }
+
+                if (JsonZero.IsKey(type, "dot"))
+                {
+                    Dot parser = new() { Plotter = Plotter, Layer = Layer };
+
+                    return JsonZero.ParseObject(jsonSpan, ref position, ref parser);
+                }
+
+                if (JsonZero.IsKey(type, "axes"))
+                {
+                    Axes parser = new() { Plotter = Plotter, Layer = Layer };
+
+                    return JsonZero.ParseObject(jsonSpan, ref position, ref parser);
+                }
+
+                if (JsonZero.IsKey(type, "label"))
+                {
+                    Label parser = new() { Plotter = Plotter, Layer = Layer };
+
+                    return JsonZero.ParseObject(jsonSpan, ref position, ref parser);
+                }
+
+                if (JsonZero.IsKey(type, "angles"))
+                {
+                    Angles parser = new() { Plotter = Plotter, Layer = Layer };
+
+                    return JsonZero.ParseObject(jsonSpan, ref position, ref parser);
+                }
+
+                if (JsonZero.IsKey(type, "angle"))
+                {
+                    Angle parser = new() { Plotter = Plotter, Layer = Layer };
+
+                    return JsonZero.ParseObject(jsonSpan, ref position, ref parser);
+                }
+
+                if (JsonZero.IsKey(type, "pedestal"))
+                {
+                    Pedestal parser = new() { Plotter = Plotter, Layer = Layer };
+
+                    return JsonZero.ParseObject(jsonSpan, ref position, ref parser);
+                }
+
+                return JsonZero.Parse(jsonSpan, ref position);
             }
-
-            if (hasXyz) plotter.Pedestal(SwizzleFromSpan3(xyz));
-
-            return JsonResult.Ok;
         }
 
-        private static JsonResult Circle(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
+        private struct Line : IJsonObjectParser
         {
-            Span<float> xyz = stackalloc float[3];
-            Span<float> axis = stackalloc float[3];
-            Span<char> keyBuffer = stackalloc char[KeySize];
-            float radius = 0;
-            bool hasXyz = false, hasAxis = false, hasRadius = false;
+            public Plotter Plotter;
+            public int Layer;
 
-            while (true)
+            private Vector3? start;
+            private Vector3? end;
+
+            public JsonResult Defaults() => JsonResult.Ok;
+
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
+
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, false, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
+                if (JsonZero.IsKey(key, "start")) return JsonZero.Parse(jsonSpan, ref position, out start);
+                if (JsonZero.IsKey(key, "end")) return JsonZero.Parse(jsonSpan, ref position, out end);
 
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-                if (IsKey(key, "xyz"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, xyz, 3);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasXyz = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "axis"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, axis, 3);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasAxis = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "radius"))
-                {
-                    JsonResult result = Json99.ParseNumber(jsonSpan, ref position, out radius);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasRadius = true;
-
-                    continue;
-                }
-
-                Json99.Parse(jsonSpan, ref position); // Skip unknown field
+                return JsonZero.Parse(jsonSpan, ref position);
             }
 
-            // Call plotter if we have required fields
-            if (hasXyz && hasAxis && hasRadius) plotter.Circle(SwizzleFromSpan3(xyz), SwizzleFromSpan3(axis), radius);
+            public JsonResult Finish()
+            {
+                if (start == null) return JsonResult.MissingKey;
 
-            return JsonResult.Ok;
+                if (end == null) return JsonResult.MissingKey;
+
+                Plotter.Line(start.Value, end.Value);
+
+                return JsonResult.Ok;
+            }
         }
 
-        private static JsonResult Axes(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
+        private struct Dot : IJsonObjectParser
         {
-            Span<float> xyz = stackalloc float[3];
-            Span<float> quaternion = stackalloc float[4];
-            Span<char> keyBuffer = stackalloc char[KeySize];
-            float scale = 0;
-            bool hasXyz = false, hasQuaternion = false, hasScale = false;
+            public Plotter Plotter;
+            public int Layer;
 
-            while (true)
+            private Vector3? xyz;
+            private float? size;
+
+            public JsonResult Defaults() => JsonResult.Ok;
+
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
+
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, false, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
+                if (JsonZero.IsKey(key, "xyz")) return JsonZero.Parse(jsonSpan, ref position, out xyz);
+                if (JsonZero.IsKey(key, "size")) return JsonZero.Parse(jsonSpan, ref position, out size);
 
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-                if (IsKey(key, "xyz"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, xyz, 3);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasXyz = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "quaternion"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, quaternion, 4);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasQuaternion = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "scale"))
-                {
-                    JsonResult result = Json99.ParseNumber(jsonSpan, ref position, out scale);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasScale = true;
-
-                    continue;
-                }
-
-                Json99.Parse(jsonSpan, ref position); // Skip unknown field
+                return JsonZero.Parse(jsonSpan, ref position);
             }
 
-            // Call plotter if we have required fields
-            if (hasXyz && hasQuaternion && hasScale) plotter.Axes(SwizzleFromSpan3(xyz), SwizzleFromSpan4(quaternion), scale);
+            public JsonResult Finish()
+            {
+                if (xyz == null) return JsonResult.MissingKey;
+                if (size == null) return JsonResult.MissingKey;
 
-            return JsonResult.Ok;
+                Plotter.Dot(xyz.Value, size.Value);
+
+                return JsonResult.Ok;
+            }
         }
 
-        private static JsonResult Label(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
+        private struct Pedestal : IJsonObjectParser
         {
-            Span<float> xyz = stackalloc float[3];
-            Span<char> textBuffer = stackalloc char[128];
-            Span<char> keyBuffer = stackalloc char[KeySize];
-            bool hasXyz = false, hasText = false;
-            int textLength = 0;
+            public Plotter Plotter;
+            public int Layer;
 
-            while (true)
+            private Vector3? xyz;
+
+            public JsonResult Defaults() => JsonResult.Ok;
+
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
+
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, false, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
+                if (JsonZero.IsKey(key, "xyz")) return JsonZero.Parse(jsonSpan, ref position, out xyz);
 
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-                if (IsKey(key, "xyz"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, xyz, 3);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasXyz = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "text"))
-                {
-                    JsonResult result = Json99.ParseString(jsonSpan, ref position, textBuffer, out textLength);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasText = true;
-
-                    continue;
-                }
-
-                Json99.Parse(jsonSpan, ref position); // Skip unknown field
+                return JsonZero.Parse(jsonSpan, ref position);
             }
 
-            if (hasXyz && hasText) plotter.Label(SwizzleFromSpan3(xyz), textBuffer.Slice(0, textLength));
+            public JsonResult Finish()
+            {
+                if (xyz == null) return JsonResult.MissingKey;
 
-            return JsonResult.Ok;
+                Plotter.Pedestal(xyz.Value);
+
+                return JsonResult.Ok;
+            }
         }
 
-        private static JsonResult Angle(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
+        private struct Circle : IJsonObjectParser
         {
-            Span<float> xyz = stackalloc float[3];
-            Span<float> quaternion = stackalloc float[4];
-            Span<char> keyBuffer = stackalloc char[KeySize];
-            float angle = 0, scale = 0;
-            bool hasXyz = false, hasQuaternion = false, hasAngle = false, hasScale = false;
+            public Plotter Plotter;
+            public int Layer;
 
-            while (true)
+            private Vector3? xyz;
+            private Vector3? axis;
+            private float? radius;
+
+            public JsonResult Defaults() => JsonResult.Ok;
+
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
+
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, false, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
+                if (JsonZero.IsKey(key, "xyz")) return JsonZero.Parse(jsonSpan, ref position, out xyz);
+                if (JsonZero.IsKey(key, "axis")) return JsonZero.Parse(jsonSpan, ref position, out axis);
+                if (JsonZero.IsKey(key, "radius")) return JsonZero.Parse(jsonSpan, ref position, out radius);
 
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-                if (IsKey(key, "xyz"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, xyz, 3);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasXyz = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "quaternion"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, quaternion, 4);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasQuaternion = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "angle"))
-                {
-                    JsonResult result = Json99.ParseNumber(jsonSpan, ref position, out angle);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasAngle = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "scale"))
-                {
-                    JsonResult result = Json99.ParseNumber(jsonSpan, ref position, out scale);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasScale = true;
-
-                    continue;
-                }
-
-                Json99.Parse(jsonSpan, ref position); // Skip unknown field
+                return JsonZero.Parse(jsonSpan, ref position);
             }
 
-            if (hasXyz && hasQuaternion && hasAngle && hasScale) plotter.Angle(SwizzleFromSpan3(xyz), SwizzleFromSpan4(quaternion), angle, scale);
+            public JsonResult Finish()
+            {
+                if (xyz == null) return JsonResult.MissingKey;
+                if (axis == null) return JsonResult.MissingKey;
+                if (radius == null) return JsonResult.MissingKey;
 
-            return JsonResult.Ok;
+                Plotter.Circle(xyz.Value, axis.Value, radius.Value);
+
+                return JsonResult.Ok;
+            }
         }
 
-        private static JsonResult Angles(Plotter plotter, ReadOnlySpan<char> jsonSpan, ref int position)
+        private struct Axes : IJsonObjectParser
         {
-            Span<float> xyz = stackalloc float[3];
-            Span<float> quaternion = stackalloc float[4];
-            Span<float> alphaLimit = stackalloc float[2];
-            Span<float> betaLimit = stackalloc float[2];
-            Span<float> gammaLimit = stackalloc float[2];
-            Span<char> keyBuffer = stackalloc char[KeySize];
-            float? alpha = null, beta = null, gamma = null;
-            float scale = 1;
-            bool mirror = false;
-            bool hasXyz = false, hasQuaternion = false, hasScale = false;
-            bool hasAlphaLimit = false, hasBetaLimit = false, hasGammaLimit = false;
+            public Plotter Plotter;
+            public int Layer;
 
-            while (true)
+            private Vector3? xyz;
+            private Quaternion? quaternion;
+            private float? scale;
+
+            public JsonResult Defaults() => JsonResult.Ok;
+
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
+
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
             {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, false, keyBuffer, out int keyLength);
-                if (propertySetupResult == null) break;
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
+                if (JsonZero.IsKey(key, "xyz")) return JsonZero.Parse(jsonSpan, ref position, out xyz);
+                if (JsonZero.IsKey(key, "quaternion")) return JsonZero.Parse(jsonSpan, ref position, out quaternion);
+                if (JsonZero.IsKey(key, "scale")) return JsonZero.Parse(jsonSpan, ref position, out scale);
 
-                ReadOnlySpan<char> key = keyBuffer.Slice(0, keyLength);
-
-                if (IsKey(key, "xyz"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, xyz, 3);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasXyz = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "quaternion"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, quaternion, 4);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasQuaternion = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "alpha"))
-                {
-                    JsonResult result = ParseNullableNumber(jsonSpan, ref position, ref alpha);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    continue;
-                }
-
-                if (IsKey(key, "beta"))
-                {
-                    JsonResult result = ParseNullableNumber(jsonSpan, ref position, ref beta);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    continue;
-                }
-
-                if (IsKey(key, "gamma"))
-                {
-                    JsonResult result = ParseNullableNumber(jsonSpan, ref position, ref gamma);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    continue;
-                }
-
-                if (IsKey(key, "alpha_limit"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, alphaLimit, 2);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasAlphaLimit = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "beta_limit"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, betaLimit, 2);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasBetaLimit = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "gamma_limit"))
-                {
-                    JsonResult result = ParseNumberArrayProperty(jsonSpan, ref position, gammaLimit, 2);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasGammaLimit = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "scale"))
-                {
-                    JsonResult result = Json99.ParseNumber(jsonSpan, ref position, out scale);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    hasScale = true;
-
-                    continue;
-                }
-
-                if (IsKey(key, "mirror"))
-                {
-                    JsonResult result = Json99.ParseBoolean(jsonSpan, ref position, out mirror);
-
-                    if (result != JsonResult.Ok) return result;
-
-                    continue;
-                }
-
-                Json99.Parse(jsonSpan, ref position); // Skip unknown field
+                return JsonZero.Parse(jsonSpan, ref position);
             }
 
-            // Call plotter if we have required fields
-            if (hasXyz && hasQuaternion && hasScale)
-                plotter.Angles(
-                    SwizzleFromSpan3(xyz),
-                    SwizzleFromSpan4(quaternion),
-                    AngleAndLimitFromSpan(alpha, alphaLimit, hasAlphaLimit),
-                    AngleAndLimitFromSpan(beta, betaLimit, hasBetaLimit),
-                    AngleAndLimitFromSpan(gamma, gammaLimit, hasGammaLimit),
+            public JsonResult Finish()
+            {
+                if (xyz == null) return JsonResult.MissingKey;
+                if (quaternion == null) return JsonResult.MissingKey;
+                if (scale == null) return JsonResult.MissingKey;
+
+                Plotter.Axes(xyz.Value, quaternion.Value, scale.Value);
+
+                return JsonResult.Ok;
+            }
+        }
+
+        private struct Label : IJsonObjectParser
+        {
+            private FixedString128 text;
+
+            public Plotter Plotter;
+            public int Layer;
+
+            private Vector3? xyz;
+
+            public JsonResult Defaults() => JsonResult.Ok;
+
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
+
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
+            {
+                if (JsonZero.IsKey(key, "xyz")) return JsonZero.Parse(jsonSpan, ref position, out xyz);
+                if (JsonZero.IsKey(key, "text")) return JsonZero.ParseTruncate(jsonSpan, ref position, out text, out int _);
+
+                return JsonZero.Parse(jsonSpan, ref position);
+            }
+
+            public JsonResult Finish()
+            {
+                if (xyz == null) return JsonResult.MissingKey;
+                if (text.HasValue == false) return JsonResult.MissingKey;
+
+                Plotter.Label(xyz.Value, text.AsReadOnlySpan());
+
+                return JsonResult.Ok;
+            }
+        }
+
+        private struct Angle : IJsonObjectParser
+        {
+            public Plotter Plotter;
+            public int Layer;
+
+            private Vector3? xyz;
+            private Quaternion? quaternion;
+            private float? angle;
+            private float? scale;
+
+            public JsonResult Defaults() => JsonResult.Ok;
+
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
+
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
+            {
+                if (JsonZero.IsKey(key, "xyz")) return JsonZero.Parse(jsonSpan, ref position, out xyz);
+                if (JsonZero.IsKey(key, "quaternion")) return JsonZero.Parse(jsonSpan, ref position, out quaternion);
+                if (JsonZero.IsKey(key, "angle")) return JsonZero.Parse(jsonSpan, ref position, out angle);
+                if (JsonZero.IsKey(key, "scale")) return JsonZero.Parse(jsonSpan, ref position, out scale);
+
+                return JsonZero.Parse(jsonSpan, ref position);
+            }
+
+            public JsonResult Finish()
+            {
+                if (xyz == null) return JsonResult.MissingKey;
+                if (quaternion == null) return JsonResult.MissingKey;
+                if (angle == null) return JsonResult.MissingKey;
+                if (scale == null) return JsonResult.MissingKey;
+
+                Plotter.Angle(xyz.Value, quaternion.Value, angle.Value, scale.Value);
+
+                return JsonResult.Ok;
+            }
+        }
+
+        private struct Angles : IJsonObjectParser
+        {
+            public Plotter Plotter;
+            public int Layer;
+
+            private Vector3? xyz;
+            private Quaternion? quaternion;
+
+            private float? alpha;
+            private float? beta;
+            private float? gamma;
+
+            private (float min, float max)? alphaLimit;
+            private (float min, float max)? betaLimit;
+            private (float min, float max)? gammaLimit;
+
+            private float scale;
+            private bool mirror;
+
+            public JsonResult Defaults()
+            {
+                scale = 1; // set default scale  
+                return JsonResult.Ok;
+            }
+
+            public JsonResult Peek(ReadOnlySpan<char> jsonSpan, int position) => JsonResult.Ok;
+
+            public JsonResult Parse(ReadOnlySpan<char> key, ReadOnlySpan<char> jsonSpan, ref int position)
+            {
+                if (JsonZero.IsKey(key, "xyz")) return JsonZero.Parse(jsonSpan, ref position, out xyz);
+                if (JsonZero.IsKey(key, "quaternion")) return JsonZero.Parse(jsonSpan, ref position, out quaternion);
+                if (JsonZero.IsKey(key, "alpha")) return JsonZero.Parse(jsonSpan, ref position, out alpha);
+                if (JsonZero.IsKey(key, "beta")) return JsonZero.Parse(jsonSpan, ref position, out beta);
+                if (JsonZero.IsKey(key, "gamma")) return JsonZero.Parse(jsonSpan, ref position, out gamma);
+                if (JsonZero.IsKey(key, "alpha_limit")) return JsonZero.Parse(jsonSpan, ref position, out alphaLimit);
+                if (JsonZero.IsKey(key, "beta_limit")) return JsonZero.Parse(jsonSpan, ref position, out betaLimit);
+                if (JsonZero.IsKey(key, "gamma_limit")) return JsonZero.Parse(jsonSpan, ref position, out gammaLimit);
+                if (JsonZero.IsKey(key, "mirror")) return JsonZero.Parse(jsonSpan, ref position, out mirror, false);
+                if (JsonZero.IsKey(key, "scale")) return JsonZero.Parse(jsonSpan, ref position, out scale, 1f);
+
+                return JsonZero.Parse(jsonSpan, ref position);
+            }
+
+            public JsonResult Finish()
+            {
+                if (xyz == null) return JsonResult.MissingKey;
+                if (quaternion == null) return JsonResult.MissingKey;
+
+                AngleAndLimit? alphaAngleLimit = AngleAndLimit(alpha, alphaLimit);
+                AngleAndLimit? betaAngleLimit = AngleAndLimit(beta, betaLimit);
+                AngleAndLimit? gammaAngleLimit = AngleAndLimit(gamma, gammaLimit);
+
+                Plotter.Angles(
+                    xyz.Value,
+                    quaternion.Value,
+                    alphaAngleLimit,
+                    betaAngleLimit,
+                    gammaAngleLimit,
                     scale,
                     mirror
                 );
 
-            return JsonResult.Ok;
-        }
-
-
-        private static bool IsKey(ReadOnlySpan<char> buffer, string literal)
-        {
-            return buffer.SequenceEqual(literal.AsSpan());
-        }
-
-        private static JsonResult SkipRemainder(ReadOnlySpan<char> jsonSpan, ref int position)
-        {
-            Span<char> keyBuffer = stackalloc char[KeySize];
-
-            while (true)
-            {
-                var propertySetupResult = TryBeginProperty(jsonSpan, ref position, false, keyBuffer, out _);
-
-                if (propertySetupResult == null) return JsonResult.Ok;
-
-                if (propertySetupResult.Value != JsonResult.Ok) return propertySetupResult.Value;
-
-                // Skip value
-                Json99.Parse(jsonSpan, ref position);
-            }
-        }
-
-        private static Vector3 SwizzleFromSpan3(ReadOnlySpan<float> span)
-        {
-            if (span.Length != 3) return Vector3.zero;
-
-            return new Vector3(span[0], span[2], span[1]); // swizzle! 
-        }
-
-        private static Quaternion SwizzleFromSpan4(ReadOnlySpan<float> span)
-        {
-            if (span.Length != 4) return Quaternion.identity;
-
-            return new Quaternion(-span[1], -span[3], -span[2], span[0]).normalized; // swizzle! 
-        }
-
-        private static AngleAndLimit? AngleAndLimitFromSpan(float? angle, ReadOnlySpan<float> limitSpan, bool hasLimit)
-        {
-            if (angle.HasValue == false) return null;
-
-            if (hasLimit == false || limitSpan.Length != 2) return new AngleAndLimit(angle.Value, null);
-
-            return new AngleAndLimit(angle.Value, (limitSpan[0], limitSpan[1]));
-        }
-
-        private static JsonResult? TryBeginProperty(ReadOnlySpan<char> jsonSpan, ref int position, bool firstProperty, Span<char> keyBuffer, out int keyLength)
-        {
-            keyLength = 0;
-
-            if (Json99.ParseObjectEnd(jsonSpan, ref position) == JsonResult.Ok) return null;
-
-            if (firstProperty == false && Json99.ParseComma(jsonSpan, ref position) != JsonResult.Ok) return JsonResult.MissingComma;
-
-            if (Json99.ParseKey(jsonSpan, ref position, keyBuffer, out keyLength) != JsonResult.Ok) return JsonResult.MissingKey;
-
-            return JsonResult.Ok;
-        }
-
-        private static JsonResult ParseNumberArrayProperty(ReadOnlySpan<char> jsonSpan, ref int position, Span<float> destination, int expectedLength)
-        {
-            var result = Json99.ParseNumberArray(jsonSpan, ref position, destination, out int length);
-
-            if (result != JsonResult.Ok) return result;
-
-            if (length != expectedLength) return JsonResult.UnexpectedType;
-
-            return JsonResult.Ok;
-        }
-
-        private static JsonResult ParseNullableNumber(ReadOnlySpan<char> jsonSpan, ref int position, ref float? value)
-        {
-            if (Json99.ParseNull(jsonSpan, ref position) == JsonResult.Ok)
-            {
-                value = null;
                 return JsonResult.Ok;
             }
 
-            var result = Json99.ParseNumber(jsonSpan, ref position, out float number);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private static AngleAndLimit? AngleAndLimit(float? angle, (float min, float max)? limits)
+            {
+                if (angle.HasValue == false) return null;
 
-            if (result == JsonResult.Ok) value = number;
-
-            return result;
-        }
-
-        private static JsonResult ParseDynamicString(ReadOnlySpan<char> jsonSpan, ref int position, out string value)
-        {
-            value = null;
-
-            int start = position;
-
-            var result = Json99.ParseString(jsonSpan, ref position, Span<char>.Empty, out int len);
-
-            if (result != JsonResult.Ok) return result;
-
-            char[] buf = new char[len];
-
-            position = start;
-
-            result = Json99.ParseString(jsonSpan, ref position, buf.AsSpan(0, len), out int written);
-
-            if (result != JsonResult.Ok) return result;
-
-            value = new string(buf, 0, written);
-
-            return JsonResult.Ok;
+                return new AngleAndLimit(angle.Value, limits);
+            }
         }
     }
 }
