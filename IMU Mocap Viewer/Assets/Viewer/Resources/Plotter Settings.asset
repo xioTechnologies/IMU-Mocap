@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d6bf0cc590304d47981022b0682aa922, type: 3}
   m_Name: Plotter Settings
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Viewer.Runtime::Viewer.Runtime.PlotterSettings
   uiScale: 1
   labelColor: {r: 0.89411765, g: 0.89411765, b: 0.89411765, a: 1}
   labelSizeInPoints: 14

@@ -1,0 +1,4 @@
+﻿<Solution>
+  <Project Path="Viewer.Runtime.csproj" />
+  <Project Path="Viewer.Editor.csproj" />
+</Solution>
