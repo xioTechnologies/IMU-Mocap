@@ -8,16 +8,13 @@ class Imu:
     __quaternion = np.array([1, 0, 0, 0])
     __button_pressed = False
 
-    def __init__(self, connection_info: ximu3.UdpConnectionInfo) -> None:
-        self.__connection = ximu3.Connection(connection_info)
+    def __init__(self, config: ximu3.UdpConnectionConfig) -> None:
+        self.__connection = ximu3.Connection(config)
 
-        if self.__connection.open() != ximu3.RESULT_OK:
-            raise Exception(f"Unable to open {connection_info.to_string()}")
+        self.__connection.open()
 
-        ping_response = self.__connection.ping()  # send something so that device starts sending to computer's IP address
-
-        if ping_response.result != ximu3.RESULT_OK:
-            raise Exception(f"Ping failed for {connection_info.to_string()}")
+        if not self.__connection.ping():  # send something so that device starts sending to computer's IP address
+            raise Exception(f"Ping failed for {config}")
 
         self.__connection.add_quaternion_callback(self.__quaternion_callback)
         self.__connection.add_notification_callback(self.__notification_callback)
@@ -37,17 +34,15 @@ class Imu:
 
         command = f'{{"{key}":{value}}}'
 
-        responses = self.__connection.send_commands([command], 2, 500)
+        response = self.__connection.send_command(command, 2, 500)
 
-        if not responses:
-            raise Exception(f"No response. {command} sent to {self.__connection.get_info().to_string()}")
-
-        response = ximu3.CommandMessage.parse(responses[0])
+        if not response:
+            raise Exception(f"No response. {command} sent to {self.__connection.get_config()}")
 
         if response.error:
-            raise Exception(f"{response.error}. {command} sent to {self.__connection.get_info().to_string()}")
+            raise Exception(f"{response.error}. {command} sent to {self.__connection.get_config()}")
 
-        return response.value
+        return response.value.strip('"')
 
     def __quaternion_callback(self, message: ximu3.QuaternionMessage) -> None:
         self.__quaternion = np.array([message.w, message.x, message.y, message.z])
@@ -71,7 +66,10 @@ class Imu:
 
 def setup(names: list[str]) -> dict[str, Imu]:
     while True:
-        messages = ximu3.NetworkAnnouncement().get_messages_after_short_delay()
+        try:
+            messages = ximu3.NetworkAnnouncement().get_messages_after_short_delay()
+        except Exception:
+            pass
 
         verified = _verify(names, messages)
 
@@ -86,7 +84,7 @@ def setup(names: list[str]) -> dict[str, Imu]:
 
     messages = [m for m in messages if m.device_name in names]
 
-    return {m.device_name: Imu(m.to_udp_connection_info()) for m in messages}
+    return {m.device_name: Imu(m.to_udp_connection_config()) for m in messages}
 
 
 def _verify(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) -> bool:
@@ -112,7 +110,7 @@ def _verify(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) 
         for message in messages:
             device_name = message.device_name
             serial_number = message.serial_number
-            connection_info = message.to_udp_connection_info().to_string()
+            connection_config = str(message.to_udp_connection_config())
             rssi = f"Wi-Fi {message.rssi}%"
 
             if message.charging_status == ximu3.CHARGING_STATUS_NOT_CONNECTED:
@@ -120,7 +118,7 @@ def _verify(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) 
             else:
                 battery = ximu3.charging_status_to_string(message.charging_status)
 
-            print(f"{colorama.Fore.LIGHTBLACK_EX}{device_name:<24}{serial_number:<12}{connection_info:<32}{rssi:<16}{battery}{colorama.Style.RESET_ALL}")
+            print(f"{colorama.Fore.LIGHTBLACK_EX}{device_name:<24}{serial_number:<12}{connection_config:<32}{rssi:<16}{battery}{colorama.Style.RESET_ALL}")
 
     if len(assigned) > 0:
         print_devices("Assigned", assigned)
@@ -152,7 +150,7 @@ def _yes_or_no(question: str) -> bool:
 
 
 def _assign(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) -> None:
-    imus = [Imu(m.to_udp_connection_info()) for m in messages]
+    imus = [Imu(m.to_udp_connection_config()) for m in messages]
 
     for imu in imus:
         imu.send_command("color", "#FF6600")  # orange LED
@@ -167,7 +165,7 @@ def _assign(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) 
             if len(selected) == 0:
                 continue
 
-            if selected[0].send_command("device_name") != '"Unassigned"':
+            if selected[0].send_command("device_name") != "Unassigned":
                 continue
 
             selected[0].send_command("color")  # restore normal LED behavior
