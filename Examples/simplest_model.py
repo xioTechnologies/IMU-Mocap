@@ -11,7 +11,7 @@ lower_arm = Link("Forearm", Matrix(y=1))
 upper_arm = Link("Upper Arm", Matrix(y=1)).connect(lower_arm)
 
 # Create animation frames
-frames = []
+frames: list[dict[str, imumocap.Matrix]] = []
 
 for angle in [120 * np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     lower_arm.joint = Matrix(rot_z=angle)

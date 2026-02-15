@@ -13,7 +13,7 @@ class Link:
         self.__end = end  # link end relative to origin
         self.__imu = Matrix(xyz=end.xyz / 2)  # IMU relative to origin
         self.__wheel_axis = Matrix(xyz=wheel_axis.xyz) if wheel_axis else None  # direction defined by wheel_axis.xyz
-        self.__links = []  # [(link, matrix), ...] where matrix is the origin of the next link relative to the end of this link
+        self.__links: list[tuple[Link, Matrix]] = []  # [(link, matrix), ...] where matrix is the origin of the next link relative to the end of this link
         self.__is_root = True
 
         if wheel_axis and not np.isclose(np.dot(self.__end.xyz, self.__wheel_axis.xyz), 0):

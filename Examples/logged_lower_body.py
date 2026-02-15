@@ -30,7 +30,7 @@ model = example_models.LowerBody()
 imumocap.solvers.calibrate(model.root, {n: Matrix(quaternion=q[0, :]) for n, q in imus.items()}, mounting=Mounting.Z_BACKWARDS)
 
 # Create animation frames
-frames = []
+frames: list[dict[str, imumocap.Matrix]] = []
 
 for index in range(number_of_samples):
     imumocap.set_pose_from_imus(model.root, {n: Matrix(quaternion=q[index, :]) for n, q in imus.items()})
