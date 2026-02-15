@@ -36,7 +36,7 @@ class Circle(Primitive):
 @dataclass(frozen=True)
 class Dot(Primitive):
     xyz: np.ndarray
-    size: float = 1.0
+    size: float = 1
 
     def __str__(self) -> str:
         return f'{{"type":"dot","xyz":{_xyz(self.xyz)},"size":{_number(self.size)}}}'
@@ -45,7 +45,7 @@ class Dot(Primitive):
 @dataclass(frozen=True)
 class Axes(Primitive):
     matrix: Matrix
-    scale: float = 1.0
+    scale: float = 1
 
     def __str__(self) -> str:
         return f'{{"type":"axes","xyz":{_xyz(self.matrix.xyz)},"quaternion":{_quaternion(self.matrix.quaternion)},"scale":{_number(self.scale)}}}'
@@ -56,7 +56,7 @@ class Angle(Primitive):
     matrix: Matrix
     angle: float
     limit: tuple[float, float] | None = None
-    scale: float = 1.0
+    scale: float = 1
 
     def __str__(self) -> str:
         key_values = [
@@ -80,7 +80,7 @@ class Angles(Primitive):
     alpha_limit: tuple[float, float] | None = None
     beta_limit: tuple[float, float] | None = None
     gamma_limit: tuple[float, float] | None = None
-    scale: float = 1.0
+    scale: float = 1
     mirror: bool = False
 
     def __str__(self) -> str:

@@ -9,7 +9,7 @@ def get_pose(root: Link) -> dict[str, Matrix]:
 def set_pose(
     root: Link,
     pose: dict[str, Matrix],  # {<link name>: <link joint matrix>, ...}
-    heading_offset: float = 0.0,
+    heading_offset: float = 0,
 ) -> None:
     links = {l.name: l for l in root.flatten()}
 
@@ -22,7 +22,7 @@ def set_pose(
 def set_pose_from_imus(
     root: Link,
     imus: dict[str, Matrix],  # {<link name>: <IMU measurement>, ...}
-    heading_offset: float = 0.0,
+    heading_offset: float = 0,
 ) -> None:
     alignment = Matrix(rot_z=heading_offset)
 

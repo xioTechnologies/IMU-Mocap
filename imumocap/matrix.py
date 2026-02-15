@@ -26,7 +26,7 @@ class Matrix:
             rot_x, rot_y, rot_z = tuple(rot_xyz)
 
         if matrix is not None:
-            matrix = np.array(matrix)
+            matrix = np.array(matrix, dtype=float)
 
             if matrix.shape != (4, 4):
                 raise ValueError(f"Matrix shape {matrix.shape} is not (4, 4)")
