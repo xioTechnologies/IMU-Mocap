@@ -32,7 +32,7 @@ while True:
 
         time.sleep(2)
 
-        calibrated_heading = imumocap.solvers.calibrate(model.root, {n: i.matrix for n, i in imus.items()}, mounting=Mounting.Z_FORWARDS)
+        calibrated_heading = imumocap.solvers.calibrate(model.root, {n: i.matrix for n, i in imus.items()}, mounting=Mounting.Z_FORWARD)
 
         viewer.send_text("Calibrated", 2)
 

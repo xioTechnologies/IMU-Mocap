@@ -8,19 +8,21 @@ from ..matrix import Matrix
 #
 # Mounting describes the orientation of the IMU attached to the root link. If
 # mounting is specified then this IMU must be physically aligned so that one of
-# its principal axes points precisely forwards or backwards. This axis may be
+# its principal axes points precisely forward or backward. This axis may be
 # inclined (e.g. tilted up or down) but must not have any component pointing
-# left or right. If mounting is not specified then the heading of the
-# replicated pose must match the heading of the predefined calibration pose.
+# left or right. The forward direction of the predefined calibration pose must
+# be aligned with the world X axis. If mounting is not specified then the
+# heading of the replicated pose must match the heading of the predefined
+# calibration pose.
 
 
 class Mounting(Enum):
-    X_FORWARDS = Matrix.align_px_py_pz()
-    X_BACKWARDS = Matrix.align_nx_ny_pz()
-    Y_FORWARDS = Matrix.align_py_nx_pz()
-    Y_BACKWARDS = Matrix.align_ny_px_pz()
-    Z_FORWARDS = Matrix.align_pz_ny_px()
-    Z_BACKWARDS = Matrix.align_nz_py_px()
+    X_FORWARD = Matrix.align_px_py_pz()
+    X_BACKWARD = Matrix.align_nx_ny_pz()
+    Y_FORWARD = Matrix.align_py_nx_pz()
+    Y_BACKWARD = Matrix.align_ny_px_pz()
+    Z_FORWARD = Matrix.align_pz_ny_px()
+    Z_BACKWARD = Matrix.align_nz_py_px()
 
 
 def calibrate(

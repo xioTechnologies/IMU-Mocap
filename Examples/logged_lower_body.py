@@ -27,7 +27,7 @@ imus = {d.device_name: d.quaternion.quaternion.wxyz for d in devices}
 model = example_models.LowerBody()
 
 # Calibrate IMU alignment (logged data must start in calibration pose)
-imumocap.solvers.calibrate(model.root, {n: Matrix(quaternion=q[0, :]) for n, q in imus.items()}, mounting=Mounting.Z_BACKWARDS)
+imumocap.solvers.calibrate(model.root, {n: Matrix(quaternion=q[0, :]) for n, q in imus.items()}, mounting=Mounting.Z_BACKWARD)
 
 # Create animation frames
 frames: list[dict[str, imumocap.Matrix]] = []
