@@ -37,6 +37,7 @@ class Link:
             self.__joint = joint
         else:
             self.__joint = Matrix(xyz=self.__joint.xyz, rotation=joint.rotation)  # ignore joint.xyz
+
         self.__update()
 
     @property
@@ -84,7 +85,7 @@ class Link:
         return self.__origin * self.__joint
 
     def set_joint_world(self, joint_world: Matrix) -> None:
-        self.joint = self.__origin.T * joint_world  # transpose can be used instead of inverse because joint.xyz ignored
+        self.joint = self.__origin.inverse * joint_world
 
     def get_end_world(self) -> Matrix:
         return self.__origin * self.__joint * self.__end
@@ -93,10 +94,10 @@ class Link:
         return self.__origin * self.__joint * self.__imu
 
     def set_imu_world(self, imu_world: Matrix) -> None:
-        self.imu = self.__joint.T * self.__origin.T * imu_world  # transpose can be used instead of inverse because imu.xyz ignored
+        self.imu = self.__joint.inverse * self.__origin.inverse * imu_world
 
     def set_joint_from_imu_world(self, imu_world: Matrix) -> None:
-        self.joint = self.__origin.T * imu_world * self.__imu.T  # transpose can be used instead of inverse because joint.xyz ignored
+        self.joint = self.__origin.inverse * imu_world * self.__imu.inverse
 
     def get_wheel_axis_world(self) -> Matrix | None:
         return Matrix(rotation=(self.__origin * self.__joint).rotation) * self.__wheel_axis if self.__wheel_axis else None
