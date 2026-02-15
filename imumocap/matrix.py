@@ -191,8 +191,8 @@ class Matrix:
         return rot_x, rot_y, rot_z
 
     @property
-    def T(self) -> Matrix:
-        return Matrix(matrix=self.__matrix.T)
+    def inverse(self) -> Matrix:
+        return Matrix(rotation=self.rotation.T, xyz=-self.rotation.T @ self.xyz)
 
     def copy(self) -> Matrix:
         return Matrix(matrix=self.__matrix)
@@ -213,7 +213,7 @@ class Matrix:
         q0 = Matrix(rotation=m0.rotation).quaternion
         q1 = Matrix(rotation=m1.rotation).quaternion
 
-        q_delta = (Matrix(rotation=m0.rotation).T * Matrix(rotation=m1.rotation)).quaternion
+        q_delta = (Matrix(rotation=m0.rotation).inverse * Matrix(rotation=m1.rotation)).quaternion
 
         theta = 2 * np.arccos(np.clip(q_delta[0], -1, 1))
 

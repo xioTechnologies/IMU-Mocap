@@ -47,9 +47,9 @@ class Joint:
         return self.__gamma_limit
 
     def get(self) -> tuple[float, float, float]:
-        gamma, beta, alpha = (self.__alignment.T * self.__link.joint * self.__alignment).rot_xyz
+        gamma, beta, alpha = (self.__alignment.inverse * self.__link.joint * self.__alignment).rot_xyz
 
         return alpha, beta, gamma
 
     def set(self, alpha: float = 0, beta: float = 0, gamma: float = 0) -> None:
-        self.__link.joint = self.__alignment * Matrix(rot_x=gamma, rot_y=beta, rot_z=alpha) * self.__alignment.T
+        self.__link.joint = self.__alignment * Matrix(rot_x=gamma, rot_y=beta, rot_z=alpha) * self.__alignment.inverse
