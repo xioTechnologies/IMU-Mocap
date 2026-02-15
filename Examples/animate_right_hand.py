@@ -12,7 +12,7 @@ dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 model = example_models.RightHand()
 
 # Create animation frames
-frames = []
+frames: list[dict[str, imumocap.Matrix]] = []
 
 for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     model.joints["Right I Distal"].set(45 * a)

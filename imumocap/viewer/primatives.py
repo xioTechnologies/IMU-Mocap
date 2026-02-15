@@ -167,7 +167,7 @@ def joints_to_primitives(
     joints: dict[str, Joint],
     mirror: str | None = None,  # angles are mirrored if the joint name contains this string
 ) -> list[Primitive]:
-    primitives = []
+    primitives: list[Primitive] = []
 
     for name, joint in joints.items():
         alpha, beta, gamma = joint.get()
