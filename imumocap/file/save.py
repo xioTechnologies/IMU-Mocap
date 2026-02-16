@@ -83,8 +83,8 @@ def _angles(joint: Joint) -> str:
     return f'{{ "alpha": {_number(alpha)}, "beta": {_number(beta)}, "gamma": {_number(gamma)} }}'
 
 
-def _number(value: float, precision: int = 9) -> str:
-    string = f"{value:.{precision}f}".rstrip("0").rstrip(".")
+def _number(value: float) -> str:
+    string = f"{value:.9f}".rstrip("0").rstrip(".")
 
     return "0" if string == "-0" else string
 
