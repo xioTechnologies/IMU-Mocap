@@ -14,42 +14,39 @@ dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 # Import IMU data
 devices = ximu3csv.read("Logged Lower Body", ximu3csv.DataMessageType.QUATERNION)
 
-# Resample IMU data and arrange as dictionary of device names
 FPS = 30
 
 devices = ximu3csv.resample(devices, FPS)
 
-number_of_samples = len(devices[0].quaternion.timestamp)
-
-imus = {d.device_name: d.quaternion.quaternion.wxyz for d in devices}
+imus_frames = [{d.device_name: Matrix(quaternion=d.quaternion.quaternion.wxyz[i]) for d in devices} for i, _ in enumerate(devices[0].quaternion.timestamp)]
 
 # Load model
 model = example_models.LowerBody()
 
 # Calibrate IMU alignment (logged data must start in calibration pose)
-imumocap.solvers.calibrate(model.root, {n: Matrix(quaternion=q[0, :]) for n, q in imus.items()}, mounting=Mounting.Z_BACKWARD)
+imumocap.solvers.calibrate(model.root, imus_frames[0], mounting=Mounting.Z_BACKWARD)
 
 # Create animation frames
-frames: list[dict[str, imumocap.Matrix]] = []
+pose_frames: list[dict[str, imumocap.Matrix]] = []
 
-for index in range(number_of_samples):
-    imumocap.set_pose_from_imus(model.root, {n: Matrix(quaternion=q[index, :]) for n, q in imus.items()})
+for imus_frame in imus_frames:
+    imumocap.set_pose_from_imus(model.root, imus_frame)
 
     imumocap.solvers.floor(model.root)
 
-    frames.append(imumocap.get_pose(model.root))
+    pose_frames.append(imumocap.get_pose(model.root))
 
 # Plot
-imumocap.plot(model.root, frames, block=not dont_block)
+imumocap.plot(model.root, pose_frames, block=not dont_block)
 
 # Stream to IMU Mocap Viewer
 viewer = imumocap.viewer.Connection()
 
 while True:
-    for frame in frames:
+    for pose_frame in pose_frames:
         time.sleep(1 / FPS)
 
-        imumocap.set_pose(model.root, frame)
+        imumocap.set_pose(model.root, pose_frame)
 
         viewer.send_frame(
             [
