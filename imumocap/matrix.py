@@ -197,14 +197,17 @@ class Matrix:
     def copy(self) -> Matrix:
         return Matrix(matrix=self.__matrix)
 
+    def __repr__(self) -> str:
+        return repr(self.__matrix)
+
+    def __str__(self) -> str:
+        return np.array2string(self.__matrix, precision=3, suppress_small=True)
+
     def __getitem__(self, key):
         return self.__matrix[key]
 
     def __mul__(self, other: Matrix) -> Matrix:
         return Matrix(matrix=self.__matrix @ other.__matrix)
-
-    def __repr__(self) -> str:
-        return str(self.__matrix)
 
     @staticmethod
     def slerp(m0: Matrix, m1: Matrix, n: int) -> list[Matrix]:
