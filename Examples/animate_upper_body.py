@@ -3,8 +3,8 @@ import time
 
 import example_models
 import imumocap
-import imumocap.viewer
 import imumocap.solvers
+import imumocap.viewer
 import numpy as np
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
@@ -50,7 +50,7 @@ while True:
         viewer.send_frame(
             [
                 *imumocap.viewer.link_to_primitives(model.root),
-                *imumocap.viewer.joints_to_primitives(model.joints, "Left"),
+                *imumocap.viewer.joints_to_primitives(model.joints, mirror="Left"),
             ]
         )
 
