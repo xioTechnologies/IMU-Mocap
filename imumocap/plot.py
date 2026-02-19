@@ -24,39 +24,39 @@ def plot(
     links = root.flatten()
 
     # Create figure
-    figure = plt.figure(figsize=figsize, dpi=dpi)
+    fig = plt.figure(figsize=figsize, dpi=dpi)
 
-    axes = plt.axes(projection="3d")
+    ax = plt.axes(projection="3d")
 
     plt.subplots_adjust(top=0.95, bottom=0, left=0, right=1)
 
     if hide_tick_labels:
-        axes.set_xticklabels([])
-        axes.set_yticklabels([])
-        axes.set_zticklabels([])
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        ax.set_zticklabels([])
 
     # Create quivers, markers, and labels
-    link_quivers = axes.quiver([], [], [], [], [], [], color="tab:gray", zorder=-np.inf, label="Link")
+    link_quivers = ax.quiver([], [], [], [], [], [], color="tab:gray", zorder=-np.inf, label="Link")
 
-    x_quivers = axes.quiver([], [], [], [], [], [], color="tab:red", label="X")
-    y_quivers = axes.quiver([], [], [], [], [], [], color="tab:green", label="Y")
-    z_quivers = axes.quiver([], [], [], [], [], [], color="tab:blue", label="Z")
+    x_quivers = ax.quiver([], [], [], [], [], [], color="tab:red", label="X")
+    y_quivers = ax.quiver([], [], [], [], [], [], color="tab:green", label="Y")
+    z_quivers = ax.quiver([], [], [], [], [], [], color="tab:blue", label="Z")
 
-    (joint_markers,) = axes.plot([], [], [], "ko", markersize=4, zorder=np.inf, label="Joint")
+    (joint_markers,) = ax.plot([], [], [], "ko", markersize=4, zorder=np.inf, label="Joint")
 
-    (imu_markers,) = axes.plot([], [], [], "ko", markersize=2, zorder=np.inf, label="IMU")
+    (imu_markers,) = ax.plot([], [], [], "ko", markersize=2, zorder=np.inf, label="IMU")
 
-    labels = [axes.text(*l.get_imu_world().xyz, l.name, zorder=np.inf) for l in links]
+    labels = [ax.text(*l.get_imu_world().xyz, l.name, zorder=np.inf) for l in links]
 
     # Create index text
     if frames is not None:
         index_text = plt.figtext(0.99, 0.01, "", horizontalalignment="right")
 
     # Show legend
-    axes.legend(loc="upper left", frameon=0)
+    ax.legend(loc="upper left", frameon=0)
 
     # Set view
-    axes.view_init(elev=elev, azim=azim)
+    ax.view_init(elev=elev, azim=azim)
 
     # Update plot
     def update(index: int | None = None) -> None:
@@ -128,11 +128,11 @@ def plot(
             )
         )
 
-        axes.set_xlim3d(np.min(all_xyz[:, 0]), np.max(all_xyz[:, 0]))
-        axes.set_ylim3d(np.min(all_xyz[:, 1]), np.max(all_xyz[:, 1]))
-        axes.set_zlim3d(np.min(all_xyz[:, 2]), np.max(all_xyz[:, 2]))
+        ax.set_xlim3d(np.min(all_xyz[:, 0]), np.max(all_xyz[:, 0]))
+        ax.set_ylim3d(np.min(all_xyz[:, 1]), np.max(all_xyz[:, 1]))
+        ax.set_zlim3d(np.min(all_xyz[:, 2]), np.max(all_xyz[:, 2]))
 
-        axes.set_box_aspect(np.ptp(all_xyz, axis=0))
+        ax.set_box_aspect(np.ptp(all_xyz, axis=0))
 
     # Static plot
     if frames is None:
@@ -141,7 +141,7 @@ def plot(
         return
 
     # Animation
-    anim = animation.FuncAnimation(figure, update, frames=len(frames), interval=1000 / fps, repeat=False, blit=False)
+    anim = animation.FuncAnimation(fig, update, frames=len(frames), interval=1000 / fps, repeat=False, blit=False)
 
     if file_name:
         anim.save(file_name, writer=animation.PillowWriter(fps), dpi="figure", progress_callback=lambda i, n: print(f"Saving frame {i + 1} of {n}"))
