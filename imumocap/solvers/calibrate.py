@@ -27,8 +27,8 @@ class Mounting(Enum):
 
 def calibrate(
     root: Link,
-    imus: dict[str, Matrix],  # {<link name>: <IMU measurment>, ...}
-    pose: dict[str, Matrix] = {},  # {<link name>: <link joint matrix>, ...}
+    imus: dict[str, Matrix],  # {<link name>: <IMU measurement>, ...}
+    pose: dict[str, Matrix] | None = None,  # {<link name>: <link joint matrix>, ...}
     mounting: Mounting | None = None,
 ) -> float | None:
     if not root.is_root:
@@ -39,8 +39,12 @@ def calibrate(
     for link in links.values():
         link.joint = Matrix()
 
+    pose = pose or {}
+
     for name, matrix in pose.items():
         links[name].joint = matrix
+
+    heading = None
 
     if mounting:
         heading = (imus[root.name] * mounting.value).rot_xyz[2]
@@ -50,5 +54,4 @@ def calibrate(
     for name, matrix in imus.items():
         links[name].set_imu_world(matrix)
 
-    if mounting:
-        return heading
+    return heading
