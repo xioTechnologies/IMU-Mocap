@@ -1,7 +1,7 @@
 from enum import Enum
 
-from ..link import Link
 from ..matrix import Matrix
+from ..model import Imus, Model, Pose
 
 # Calibrates the alignment of all IMUs by comparing a predefined calibration
 # pose with the IMU measurements while the subject replicates the pose.
@@ -29,32 +29,27 @@ class Mounting(Enum):
 
 
 def calibrate(
-    root: Link,
-    imus: dict[str, Matrix],  # {<link name>: <IMU measurement>, ...}
-    pose: dict[str, Matrix] | None = None,  # {<link name>: <link joint matrix>, ...}
+    model: Model,
+    imus: Imus,
+    pose: Pose | None = None,
     mounting: Mounting | None = None,
 ) -> float | None:
-    if not root.is_root:
-        raise ValueError(f"{root.name} is not the root")
-
-    links = {l.name: l for l in root.flatten()}
-
-    for link in links.values():
+    for link in model.links.values():
         link.joint = Matrix()
 
     pose = pose or {}
 
     for name, matrix in pose.items():
-        links[name].joint = matrix
+        model.links[name].joint = matrix
 
     heading = None
 
     if mounting:
-        heading = (imus[root.name] * mounting.value).rot_xyz[2]
+        heading = (imus[model.root.name] * mounting.value).rot_xyz[2]
 
-        root.joint = Matrix(rotation=(Matrix(rot_z=heading) * root.joint).rotation, xyz=root.joint.xyz)
+        model.root.joint = Matrix(rotation=(Matrix(rot_z=heading) * model.root.joint).rotation, xyz=model.root.joint.xyz)
 
     for name, matrix in imus.items():
-        links[name].set_imu_world(matrix)
+        model.links[name].set_imu_world(matrix)
 
     return heading

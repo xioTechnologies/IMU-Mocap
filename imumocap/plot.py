@@ -4,14 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
 
-from .link import Link
 from .matrix import Matrix
-from .pose import set_pose
+from .model import Model, Pose
 
 
 def plot(
-    root: Link,
-    frames: list[dict[str, Matrix]] | None = None,  # [{<link name>: <link joint matrix>, ...}, ...]
+    model: Model,
+    frames: list[Pose] | None = None,
     fps: float = 30,  # animation frames per second
     file_name: str = "",  # must be .gif
     elev: float | None = None,  # see mpl_toolkits.mplot3d.axes3d.Axes3D.view_init
@@ -21,7 +20,7 @@ def plot(
     hide_tick_labels: bool = True,  # hides the tick labels
     block: bool | None = None,  # see matplotlib.pyplot.show
 ) -> None:
-    links = root.flatten()
+    links = model.links.values()
 
     # Create figure
     fig = plt.figure(figsize=figsize, dpi=dpi)
@@ -62,7 +61,7 @@ def plot(
     def update(index: int | None = None) -> None:
         # Set pose
         if index is not None:
-            set_pose(root, frames[index])
+            model.set_pose(frames[index])
 
         # Set link quivers
         joints = np.array([l.get_joint_world() for l in links])

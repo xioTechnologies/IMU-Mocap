@@ -1,18 +1,19 @@
 import sys
 
-import example_models
 import imumocap
 import imumocap.file
+
+import models
 
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
 # Load model
-model = example_models.Body()
+model = models.Factory().body()
 
 # Save and load model
-imumocap.file.save_model("save_and_load_model.json", model.root, model.joints)
+imumocap.file.save_model("save_and_load_model.json", model)
 
-root, joints = imumocap.file.load_model("save_and_load_model.json")
+model = imumocap.file.load_model("save_and_load_model.json")
 
 # Plot
-imumocap.plot(root, block=not dont_block)
+imumocap.plot(model, block=not dont_block)

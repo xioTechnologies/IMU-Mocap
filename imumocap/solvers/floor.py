@@ -2,16 +2,14 @@ import numpy as np
 
 from ..link import Link
 from ..matrix import Matrix
+from ..model import Model
 
 # Sets the height of the root so that the lowest part of the model is in
 # contact with the floor.
 
 
-def floor(root: Link) -> None:
-    links = root.flatten()
-
-    if not root.is_root:
-        raise ValueError(f"{root.name} is not the root")
+def floor(model: Model) -> None:
+    links = model.links.values()
 
     joints_z = np.array([l.get_joint_world().z for l in links])
 
@@ -21,7 +19,7 @@ def floor(root: Link) -> None:
 
     min_z = np.min(np.concatenate((joints_z, ends_z, wheels_z)))
 
-    root.joint = Matrix(xyz=root.joint.xyz - [0, 0, min_z], rotation=root.joint.rotation)
+    model.root.joint = Matrix(xyz=model.root.joint.xyz - [0, 0, min_z], rotation=model.root.joint.rotation)
 
 
 def _wheel_lowest_point(link: Link) -> np.ndarray:

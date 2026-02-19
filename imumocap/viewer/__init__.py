@@ -9,4 +9,5 @@ from .primatives import (
     Line,
     joints_to_primitives,
     link_to_primitives,
+    model_to_primitives,
 )

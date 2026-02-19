@@ -3,9 +3,9 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ..joint import Joint
 from ..link import Link
 from ..matrix import Matrix
+from ..model import Joints, Model
 
 
 class Primitive(ABC):
@@ -132,10 +132,10 @@ def _quaternion(quaternion: np.ndarray) -> str:
     return f"[{_number(quaternion[0])},{_number(quaternion[1])},{_number(quaternion[2])},{_number(quaternion[3])}]"
 
 
-def link_to_primitives(root: Link) -> list[Primitive]:
-    primitives = [Pedestal(root.get_joint_world().xyz)]
+def link_to_primitives(root: Link) -> list[Primitive]:  # TODO: rename to links_to_primitives and make parameter list[Link]
+    primitives: list[Primitive] = []
 
-    for link in root.flatten():
+    for link in Model.flatten(root):
         joint = link.get_joint_world()
         end = link.get_end_world()
 
@@ -164,7 +164,7 @@ def link_to_primitives(root: Link) -> list[Primitive]:
 
 
 def joints_to_primitives(
-    joints: dict[str, Joint],
+    joints: Joints,
     mirror: str | None = None,  # angles are mirrored if the joint name contains this string
 ) -> list[Primitive]:
     primitives: list[Primitive] = []
@@ -195,3 +195,14 @@ def joints_to_primitives(
         primitives.append(Label(joint_world.xyz, name))
 
     return primitives
+
+
+def model_to_primitives(
+    model: Model,
+    mirror: str | None = None,
+) -> list[Primitive]:
+    return [
+        Pedestal(model.root.get_joint_world().xyz),
+        *link_to_primitives(model.root),
+        *joints_to_primitives(model.joints, mirror),
+    ]
