@@ -1,3 +1,5 @@
+from typing import Any
+
 import colorama
 import numpy as np
 import ximu3
@@ -22,7 +24,7 @@ class Imu:
     def close(self) -> None:
         self.__connection.close()
 
-    def send_command(self, key: str, value=None) -> str:
+    def send_command(self, key: str, value: Any = None) -> str:
         if value is None:
             value = "null"
         elif type(value) is bool:
