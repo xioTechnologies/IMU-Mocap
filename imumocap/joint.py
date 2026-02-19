@@ -2,9 +2,9 @@ from .link import Link
 from .matrix import Matrix
 
 # An interface to get and set Link joint matrix rotations as the three angles:
-# alpha, beta, and gamma. The rotation follows the ZYX Euler sequence: alpha ->
-# beta -> gamma. Alpha and gamma angles may range between +/-180 degrees; beta
-# angles must not exceed or approach +/-90 degrees.
+# alpha, beta, and gamma. The rotation follows the ZYX Euler sequence: alpha,
+# beta, and then gamma. Alpha and gamma angles may range between +/-180
+# degrees; beta angles must not exceed or approach +/-90 degrees.
 #
 # The alignment of these angles should be chosen to best express the actual
 # rotation of a given joint and to ensure that each angle does not exceed its
