@@ -10,13 +10,15 @@ dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 lower_arm = Link("Forearm", Matrix(y=1))
 upper_arm = Link("Upper Arm", Matrix(y=1)).connect(lower_arm)
 
+model = imumocap.Model(upper_arm)
+
 # Create animation frames
-frames: list[dict[str, imumocap.Matrix]] = []
+frames: list[imumocap.Pose] = []
 
 for angle in [120 * np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     lower_arm.joint = Matrix(rot_z=angle)
 
-    frames.append(imumocap.get_pose(upper_arm))
+    frames.append(model.get_pose())
 
 # Plot
-imumocap.plot(upper_arm, frames, block=not dont_block)
+imumocap.plot(model, frames, block=not dont_block)

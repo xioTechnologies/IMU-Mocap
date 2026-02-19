@@ -2,6 +2,7 @@ from enum import Enum
 
 from ..link import Link
 from ..matrix import Matrix
+from ..model import Imus, Pose
 
 # Calibrates the alignment of all IMUs by comparing a predefined calibration
 # pose with the IMU measurements while the subject replicates the pose.
@@ -30,8 +31,8 @@ class Mounting(Enum):
 
 def calibrate(
     root: Link,
-    imus: dict[str, Matrix],  # {<link name>: <IMU measurement>, ...}
-    pose: dict[str, Matrix] | None = None,  # {<link name>: <link joint matrix>, ...}
+    imus: Imus,
+    pose: Pose | None = None,
     mounting: Mounting | None = None,
 ) -> float | None:
     if not root.is_root:

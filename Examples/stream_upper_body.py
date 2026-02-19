@@ -1,14 +1,15 @@
 import time
 
-import example_models
 import imumocap
 import imumocap.solvers
 import imumocap.viewer
-import ximu3s
 from imumocap.solvers import Mounting
 
+import models
+import ximu3s
+
 # Load model
-model = example_models.UpperBody()
+model = models.Factory().upper_body()
 
 # Connect to and configure IMUs
 ignored = [
@@ -17,7 +18,7 @@ ignored = [
     model.right_shoulder.name,
 ]  # there are no IMUs on these parts of the body
 
-imus = ximu3s.setup([l.name for l in model.root.flatten() if l.name not in ignored])
+imus = ximu3s.setup([link.name for link in model.root.flatten() if link.name not in ignored])
 
 # Stream to IMU Mocap Viewer
 viewer = imumocap.viewer.Connection()
@@ -36,7 +37,7 @@ while True:
 
         viewer.send_text("Calibrated", 2)
 
-    imumocap.set_pose_from_imus(model.root, {n: i.matrix for n, i in imus.items()}, -calibrated_heading)
+    model.set_pose_from_imus({n: i.matrix for n, i in imus.items()}, -calibrated_heading)
 
     imumocap.solvers.interpolate([model.upper_torso, model.neck, model.head])
 

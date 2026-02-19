@@ -13,7 +13,7 @@ dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 root, joints = imumocap.file.load_model("model.json")
 
 # Create animation frames
-frames: list[dict[str, imumocap.Matrix]] = []
+frames: list[imumocap.Pose] = []
 
 for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     joints["Neck"].set(a * 15)

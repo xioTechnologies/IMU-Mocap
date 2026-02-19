@@ -1,14 +1,15 @@
 import time
 
-import example_models
 import imumocap
 import imumocap.solvers
 import imumocap.viewer
-import ximu3s
 from imumocap.solvers import Mounting
 
+import models
+import ximu3s
+
 # Load model
-model = example_models.Body()
+model = models.Factory().body()
 
 # Connect to and configure IMUs
 ignored = [
@@ -43,7 +44,7 @@ while True:
 
         viewer.send_text("Calibrated", 2)
 
-    imumocap.set_pose_from_imus(model.root, {n: i.matrix for n, i in imus.items()}, -calibrated_heading)
+    model.set_pose_from_imus({n: i.matrix for n, i in imus.items()}, -calibrated_heading)
 
     imumocap.solvers.interpolate([model.pelvis, model.lower_lumbar, model.upper_lumbar, model.lower_torso, model.upper_torso])
     imumocap.solvers.interpolate([model.upper_torso, model.neck, model.head])

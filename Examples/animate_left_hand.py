@@ -1,18 +1,19 @@
 import sys
 import time
 
-import example_models
 import imumocap
 import imumocap.viewer
 import numpy as np
 
+import models
+
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
 # Load model
-model = example_models.LeftHand()
+model = models.Factory().left_hand()
 
 # Create animation frames
-frames: list[dict[str, imumocap.Matrix]] = []
+frames: list[imumocap.Pose] = []
 
 for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     model.joints["Left I Distal"].set(45 * a)
@@ -35,10 +36,10 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     model.joints["Left V Middle"].set(90 * a)
     model.joints["Left V Proximal"].set(90 * a)
 
-    frames.append(imumocap.get_pose(model.root))
+    frames.append(model.get_pose())
 
 # Plot
-imumocap.plot(model.root, frames, block=not dont_block)
+imumocap.plot(model, frames, block=not dont_block)
 
 # Stream to IMU Mocap Viewer
 viewer = imumocap.viewer.Connection()
@@ -47,7 +48,7 @@ while True:
     for frame in frames:
         time.sleep(1 / 30)  # 30 fps
 
-        imumocap.set_pose(model.root, frame)
+        model.set_pose(frame)
 
         viewer.send_frame(
             [

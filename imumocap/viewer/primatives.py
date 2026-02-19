@@ -3,9 +3,9 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ..joint import Joint
 from ..link import Link
 from ..matrix import Matrix
+from ..model import Joints
 
 
 class Primitive(ABC):
@@ -164,7 +164,7 @@ def link_to_primitives(root: Link) -> list[Primitive]:
 
 
 def joints_to_primitives(
-    joints: dict[str, Joint],
+    joints: Joints,
     mirror: str | None = None,  # angles are mirrored if the joint name contains this string
 ) -> list[Primitive]:
     primitives: list[Primitive] = []

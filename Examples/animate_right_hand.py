@@ -1,18 +1,19 @@
 import sys
 import time
 
-import example_models
 import imumocap
 import imumocap.viewer
 import numpy as np
 
+import models
+
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
 # Load model
-model = example_models.RightHand()
+model = models.Factory().right_hand()
 
 # Create animation frames
-frames: list[dict[str, imumocap.Matrix]] = []
+frames: list[imumocap.Pose] = []
 
 for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     model.joints["Right I Distal"].set(45 * a)

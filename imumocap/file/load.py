@@ -6,9 +6,10 @@ import numpy as np
 from ..joint import Joint
 from ..link import Link
 from ..matrix import Matrix
+from ..model import Joints
 
 
-def load_model(path: str) -> tuple[Link, dict[str, Joint] | None]:
+def load_model(path: str) -> tuple[Link, Joints | None]:
     model = _load_model(path)
 
     root = _load_link(model["root"])
@@ -21,7 +22,7 @@ def load_model(path: str) -> tuple[Link, dict[str, Joint] | None]:
     return root, joints
 
 
-def load_pose(path: str, joints: dict[str, Joint]) -> None:
+def load_pose(path: str, joints: Joints) -> None:
     model = _load_model(path)
 
     _load_pose(model["pose"], joints)
@@ -57,7 +58,7 @@ def _matrix(value: list) -> Matrix:
     return Matrix(np.array(value))
 
 
-def _load_joints(value: dict[str, Any], root: Link) -> dict[str, Joint]:
+def _load_joints(value: dict[str, Any], root: Link) -> Joints:
     links = {l.name: l for l in root.flatten()}
 
     return {
@@ -72,7 +73,7 @@ def _load_joints(value: dict[str, Any], root: Link) -> dict[str, Joint]:
     }
 
 
-def _load_pose(value: dict[str, Any], joints: dict[str, Joint]) -> None:
+def _load_pose(value: dict[str, Any], joints: Joints) -> None:
     pose = {n: (a["alpha"], a["beta"], a["gamma"]) for n, a in value.items()}
 
     for name, angles in pose.items():
