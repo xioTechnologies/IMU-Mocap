@@ -90,6 +90,16 @@ def setup(names: list[str]) -> dict[str, Imu]:
 
 
 def _verify(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) -> bool:
+
+    # 1. asigned[] = messages but only items that match names
+
+    # 2. remove duplicates from asigned
+
+    # 3. unasigned = messages - asigned
+
+    # 4. missing = names - asigned
+
+
     colorama.init()
 
     # Map names to network announcement messages
