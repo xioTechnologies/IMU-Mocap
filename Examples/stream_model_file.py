@@ -6,7 +6,7 @@ import imumocap.solvers
 import imumocap.viewer
 from imumocap.solvers import Mounting
 
-import ximu3s
+import hardware
 
 # Load model
 model = imumocap.file.load_model("stream_model_file.json")
@@ -14,7 +14,7 @@ model = imumocap.file.load_model("stream_model_file.json")
 calibration_pose = model.get_pose()
 
 # Connect to and configure IMUs
-imus = ximu3s.setup([l.name for l in model.links.values() if l.name])
+suit = hardware.Ximu3s(model)
 
 # Stream to IMU Mocap Viewer
 viewer = imumocap.viewer.Connection()
@@ -24,16 +24,16 @@ calibrated_heading = 0
 while True:
     time.sleep(1 / 30)  # 30 fps
 
-    if any([i.button_pressed for i in imus.values()]):
+    if suit.get_button_pressed():
         viewer.send_text("Please Hold the Calibration Pose")
 
         time.sleep(2)
 
-        calibrated_heading = imumocap.solvers.calibrate(model, {n: i.matrix for n, i in imus.items()}, calibration_pose, Mounting.Z_FORWARD)
+        calibrated_heading = imumocap.solvers.calibrate(model, suit.get_imus(), calibration_pose, Mounting.Z_FORWARD)
 
         viewer.send_text("Calibrated", 2)
 
-    model.set_pose_from_imus({n: i.matrix for n, i in imus.items()}, -calibrated_heading)
+    model.set_pose_from_imus(suit.get_imus(), -calibrated_heading)
 
     imumocap.solvers.translate(model, [0, 0, 0.5])
 

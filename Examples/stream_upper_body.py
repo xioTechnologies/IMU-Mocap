@@ -5,20 +5,21 @@ import imumocap.solvers
 import imumocap.viewer
 from imumocap.solvers import Mounting
 
+import hardware
 import models
-import ximu3s
 
 # Load model
 model = models.Factory().upper_body()
 
 # Connect to and configure IMUs
-ignored = [
-    "Neck",
-    "Left Shoulder",
-    "Right Shoulder",
-]  # there are no IMUs on these parts of the body
-
-imus = ximu3s.setup([l.name for l in model.links.values() if l.name not in ignored])
+suit = hardware.Ximu3s(
+    model,
+    ignored=[
+        "Neck",
+        "Left Shoulder",
+        "Right Shoulder",
+    ],  # there are no IMUs on these links
+)
 
 # Stream to IMU Mocap Viewer
 viewer = imumocap.viewer.Connection()
@@ -28,16 +29,16 @@ calibrated_heading = 0
 while True:
     time.sleep(1 / 30)  # 30 fps
 
-    if any([i.button_pressed for i in imus.values()]):
+    if suit.get_button_pressed():
         viewer.send_text("Please Hold the Calibration Pose")
 
         time.sleep(2)
 
-        calibrated_heading = imumocap.solvers.calibrate(model, {n: i.matrix for n, i in imus.items()}, mounting=Mounting.Z_FORWARD)
+        calibrated_heading = imumocap.solvers.calibrate(model, suit.get_imus(), mounting=Mounting.Z_FORWARD)
 
         viewer.send_text("Calibrated", 2)
 
-    model.set_pose_from_imus({n: i.matrix for n, i in imus.items()}, -calibrated_heading)
+    model.set_pose_from_imus(suit.get_imus(), -calibrated_heading)
 
     imumocap.solvers.interpolate(
         [
