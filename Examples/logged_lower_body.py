@@ -12,7 +12,7 @@ from imumocap.solvers import Mounting
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
 # Import IMU data
-devices = ximu3csv.read("Logged Lower Body", ximu3csv.DataMessageType.QUATERNION)
+devices = ximu3csv.read("logged_lower_body", ximu3csv.DataMessageType.QUATERNION)
 
 FPS = 30
 
