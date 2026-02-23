@@ -8,7 +8,7 @@ import ximu3s
 from imumocap.solvers import Mounting
 
 # Load model
-root, joints = imumocap.file.load_model("model.json")
+root, joints = imumocap.file.load_model("stream_model_file.json")
 
 calibration_pose = imumocap.get_pose(root)
 
