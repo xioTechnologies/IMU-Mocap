@@ -31,8 +31,8 @@ def _load_model(path: str) -> dict[str, Any]:
     try:
         with open(path) as file:
             model = json.load(file)
-    except Exception as e:
-        raise ValueError(f"Unable to load {path}. {e}")
+    except Exception as ex:
+        raise ValueError(f"Unable to load {path}. {ex}")
 
     if not isinstance(model, dict):
         raise ValueError(f"{path} is not a JSON object")
