@@ -11,9 +11,9 @@ dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 model = models.Factory().body()
 
 # Save and load pose
-imumocap.file.save_pose("save_and_load_pose.json", model.joints)
+imumocap.file.save_pose("save_and_load_pose.json", model)
 
-imumocap.file.load_pose("save_and_load_pose.json", model.joints)
+imumocap.file.load_pose("save_and_load_pose.json", model)
 
 # Plot
 imumocap.plot(model, block=not dont_block)

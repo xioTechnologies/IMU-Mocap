@@ -10,7 +10,7 @@ def save_model(path: str, model: Model) -> None:
     key_values = [
         f'"root": {_link(model.root)}',
         None if model.joints is None else f'"joints": {_joints(model.joints)}',
-        None if model.joints is None else f'"pose": {_pose(model.joints)}',
+        f'"pose": {_pose(model)}',
     ]
 
     raw_json = f"{{ {', '.join([k for k in key_values if k])} }}"
@@ -19,8 +19,8 @@ def save_model(path: str, model: Model) -> None:
         file.write(_format_json(raw_json))
 
 
-def save_pose(path: str, joints: Joints) -> None:
-    raw_json = f'{{ "pose": {_pose(joints)} }}'
+def save_pose(path: str, model: Model) -> None:
+    raw_json = f'{{ "pose": {_pose(model)} }}'
 
     with open(path, "w") as file:
         file.write(_format_json(raw_json))
@@ -74,14 +74,8 @@ def _limit(limit: tuple[float, float] | None) -> str:
     return "null" if limit is None else f"[ {_number(limit[0])}, {_number(limit[1])} ]"
 
 
-def _pose(joints: Joints) -> str:
-    return "{ " + ", ".join([f'"{n}": {_angles(j)}' for n, j in joints.items()]) + " }"
-
-
-def _angles(joint: Joint) -> str:
-    alpha, beta, gamma = joint.get()
-
-    return f'{{ "alpha": {_number(alpha)}, "beta": {_number(beta)}, "gamma": {_number(gamma)} }}'
+def _pose(model: Model) -> str:
+    return "{ " + ", ".join([f'"{n}": {_matrix(l.joint)}' for n, l in model.links.items()]) + " }"
 
 
 def _number(value: float) -> str:

@@ -6,7 +6,7 @@ import numpy as np
 from ..joint import Joint
 from ..link import Link
 from ..matrix import Matrix
-from ..model import Joints, Model
+from ..model import Joints, Model, Pose
 
 
 def load_model(path: str) -> Model:
@@ -17,15 +17,17 @@ def load_model(path: str) -> Model:
     joints = _load_joints(model["joints"], root) if "joints" in model else None
 
     if "pose" in model:
-        _load_pose(model["pose"], joints)
+        _load_pose(model["pose"], {l.name: l for l in Model.flatten(root)})
 
     return Model(root, joints)
 
 
-def load_pose(path: str, joints: Joints) -> None:
-    model = _load_model(path)
+def load_pose(path: str, model: Model) -> Pose:
+    raw_json = _load_model(path)
 
-    _load_pose(model["pose"], joints)
+    _load_pose(raw_json["pose"], model.links)
+
+    return model.get_pose()
 
 
 def _load_model(path: str) -> dict[str, Any]:
@@ -73,8 +75,8 @@ def _load_joints(value: dict[str, Any], root: Link) -> Joints:
     }
 
 
-def _load_pose(value: dict[str, Any], joints: Joints) -> None:
-    pose = {n: (a["alpha"], a["beta"], a["gamma"]) for n, a in value.items()}
+def _load_pose(value: dict[str, Any], links: dict[str, Link]) -> None:
+    pose = {n: _matrix(a) for n, a in value.items()}
 
-    for name, angles in pose.items():
-        joints[name].set(*angles)
+    for name, matrix in pose.items():
+        links[name].joint = matrix
