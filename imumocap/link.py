@@ -101,11 +101,3 @@ class Link:
 
     def get_wheel_axis_world(self) -> Matrix | None:
         return Matrix(rotation=(self.__origin * self.__joint).rotation) * self.__wheel_axis if self.__wheel_axis else None
-
-    def flatten(self) -> list[Link]:
-        links = [self]
-
-        for link, _ in self.__links:
-            links += link.flatten()
-
-        return links

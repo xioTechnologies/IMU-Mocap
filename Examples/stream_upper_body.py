@@ -1,23 +1,24 @@
 import time
 
-import example_models
 import imumocap
 import imumocap.solvers
 import imumocap.viewer
-import ximu3s
 from imumocap.solvers import Mounting
 
+import models
+import ximu3s
+
 # Load model
-model = example_models.UpperBody()
+model = models.Factory().upper_body()
 
 # Connect to and configure IMUs
 ignored = [
-    model.neck.name,
-    model.left_shoulder.name,
-    model.right_shoulder.name,
+    "Neck",
+    "Left Shoulder",
+    "Right Shoulder",
 ]  # there are no IMUs on these parts of the body
 
-imus = ximu3s.setup([l.name for l in model.root.flatten() if l.name not in ignored])
+imus = ximu3s.setup([l.name for l in model.links.values() if l.name not in ignored])
 
 # Stream to IMU Mocap Viewer
 viewer = imumocap.viewer.Connection()
@@ -32,19 +33,20 @@ while True:
 
         time.sleep(2)
 
-        calibrated_heading = imumocap.solvers.calibrate(model.root, {n: i.matrix for n, i in imus.items()}, mounting=Mounting.Z_FORWARD)
+        calibrated_heading = imumocap.solvers.calibrate(model, {n: i.matrix for n, i in imus.items()}, mounting=Mounting.Z_FORWARD)
 
         viewer.send_text("Calibrated", 2)
 
-    imumocap.set_pose_from_imus(model.root, {n: i.matrix for n, i in imus.items()}, -calibrated_heading)
+    model.set_pose_from_imus({n: i.matrix for n, i in imus.items()}, -calibrated_heading)
 
-    imumocap.solvers.interpolate([model.upper_torso, model.neck, model.head])
-
-    imumocap.solvers.translate(model.root, [0, 0, 0.5])
-
-    viewer.send_frame(
+    imumocap.solvers.interpolate(
         [
-            *imumocap.viewer.link_to_primitives(model.root),
-            *imumocap.viewer.joints_to_primitives(model.joints, mirror="Left"),
+            model.links["Upper Torso"],
+            model.links["Neck"],
+            model.links["Head"],
         ]
     )
+
+    imumocap.solvers.translate(model, [0, 0, 0.5])
+
+    viewer.send_frame(imumocap.viewer.model_to_primitives(model, mirror="Left"))

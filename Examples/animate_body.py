@@ -1,19 +1,20 @@
 import sys
 import time
 
-import example_models
 import imumocap
 import imumocap.solvers
 import imumocap.viewer
 import numpy as np
 
+import models
+
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
 # Load model
-model = example_models.Body()
+model = models.Factory().body()
 
 # Create animation frames
-frames: list[dict[str, imumocap.Matrix]] = []
+frames: list[imumocap.Pose] = []
 
 for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
     model.joints["Head"].set(a * 15)
@@ -46,12 +47,12 @@ for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
 
     model.joints["Pelvis"].set(gamma=a * -25)  # root joint connects the model to the world
 
-    imumocap.solvers.floor(model.root)
+    imumocap.solvers.floor(model)
 
-    frames.append(imumocap.get_pose(model.root))
+    frames.append(model.get_pose())
 
 # Plot
-imumocap.plot(model.root, frames, block=not dont_block)
+imumocap.plot(model, frames, block=not dont_block)
 
 # Stream to IMU Mocap Viewer
 viewer = imumocap.viewer.Connection()
@@ -60,14 +61,9 @@ while True:
     for frame in frames:
         time.sleep(1 / 30)  # 30 fps
 
-        imumocap.set_pose(model.root, frame)
+        model.set_pose(frame)
 
-        viewer.send_frame(
-            [
-                *imumocap.viewer.link_to_primitives(model.root),
-                *imumocap.viewer.joints_to_primitives(model.joints, mirror="Left"),
-            ]
-        )
+        viewer.send_frame(imumocap.viewer.model_to_primitives(model, mirror="Left"))
 
     if dont_block:
         break

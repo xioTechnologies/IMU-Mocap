@@ -1,13 +1,10 @@
 import numpy as np
 
-from ..link import Link
 from ..matrix import Matrix
+from ..model import Model
 
 # Translates the root link relative to the world.
 
 
-def translate(root: Link, xyz: np.ndarray) -> None:
-    if not root.is_root:
-        raise ValueError(f"{root.name} is not the root")
-
-    root.joint = Matrix(xyz=xyz, rotation=root.joint.rotation)
+def translate(model: Model, xyz: np.ndarray) -> None:
+    model.root.joint = Matrix(xyz=xyz, rotation=model.root.joint.rotation)

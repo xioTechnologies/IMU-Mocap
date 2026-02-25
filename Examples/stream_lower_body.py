@@ -1,22 +1,23 @@
 import time
 
-import example_models
 import imumocap
 import imumocap.solvers
 import imumocap.viewer
-import ximu3s
 from imumocap.solvers import Mounting
 
+import models
+import ximu3s
+
 # Load model
-model = example_models.LowerBody()
+model = models.Factory().lower_body()
 
 # Connect to and configure IMUs
 ignored = [
-    model.left_toe.name,
-    model.right_toe.name,
+    "Left Toe",
+    "Right Toe",
 ]  # there are no IMUs on the toes
 
-imus = ximu3s.setup([l.name for l in model.root.flatten() if l.name not in ignored])
+imus = ximu3s.setup([l.name for l in model.links.values() if l.name not in ignored])
 
 # Stream to IMU Mocap Viewer
 viewer = imumocap.viewer.Connection()
@@ -31,17 +32,12 @@ while True:
 
         time.sleep(2)
 
-        calibrated_heading = imumocap.solvers.calibrate(model.root, {n: i.matrix for n, i in imus.items()}, mounting=Mounting.Z_BACKWARD)
+        calibrated_heading = imumocap.solvers.calibrate(model, {n: i.matrix for n, i in imus.items()}, mounting=Mounting.Z_BACKWARD)
 
         viewer.send_text("Calibrated", 2)
 
-    imumocap.set_pose_from_imus(model.root, {n: i.matrix for n, i in imus.items()}, -calibrated_heading)
+    model.set_pose_from_imus({n: i.matrix for n, i in imus.items()}, -calibrated_heading)
 
-    imumocap.solvers.floor(model.root)
+    imumocap.solvers.floor(model)
 
-    viewer.send_frame(
-        [
-            *imumocap.viewer.link_to_primitives(model.root),
-            *imumocap.viewer.joints_to_primitives(model.joints, mirror="Left"),
-        ]
-    )
+    viewer.send_frame(imumocap.viewer.model_to_primitives(model, mirror="Left"))
