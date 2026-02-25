@@ -10,7 +10,7 @@ import numpy as np
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
 # Load model
-root, joints = imumocap.file.load_model("model.json")
+root, joints = imumocap.file.load_model("animate_model_file.json")
 
 # Create animation frames
 frames: list[dict[str, imumocap.Matrix]] = []
