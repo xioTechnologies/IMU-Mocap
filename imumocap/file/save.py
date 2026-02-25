@@ -13,7 +13,7 @@ def save_model(path: str, model: Model) -> None:
         f'"pose": {_pose(model)}',
     ]
 
-    raw_json = f"{{ {', '.join([k for k in key_values if k])} }}"
+    raw_json = "{ " + f"{', '.join([k for k in key_values if k])}" + " }"
 
     with open(path, "w") as file:
         file.write(_format_json(raw_json))
