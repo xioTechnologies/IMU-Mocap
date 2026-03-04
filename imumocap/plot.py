@@ -69,12 +69,12 @@ def plot(
 
         link_quiver_segments = [[tuple(j.xyz), tuple(e.xyz)] for j, e in zip(joints, ends)]
 
-        for joint, end, next_links in zip(joints, ends, [l.links for l in links]):
+        for joint, end, next_links in zip(joints, ends, (l.links for l in links)):
             for next_joint in [n.get_joint_world() for n, _ in next_links]:
                 link_quiver_segments.append([tuple(joint.xyz), tuple(next_joint.xyz)])
                 link_quiver_segments.append([tuple(end.xyz), tuple(next_joint.xyz)])
 
-        for joint, end, wheel_axis in zip(joints, ends, [l.get_wheel_axis_world() for l in links]):
+        for joint, end, wheel_axis in zip(joints, ends, (l.get_wheel_axis_world() for l in links)):
             if wheel_axis:
                 chords = [joint.xyz + (Matrix(axis_angle=(wheel_axis.xyz, a)) * Matrix(xyz=end.xyz - joint.xyz)).xyz for a in np.linspace(0, 360, 36)]
 

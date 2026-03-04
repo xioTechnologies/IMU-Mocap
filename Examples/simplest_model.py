@@ -15,7 +15,7 @@ model = imumocap.Model(upper_arm)
 # Create animation frames
 frames: list[imumocap.Pose] = []
 
-for angle in [120 * np.sin(t) for t in np.linspace(0, np.pi, 100)]:
+for angle in (120 * np.sin(t) for t in np.linspace(0, np.pi, 100)):
     lower_arm.joint = Matrix(rot_z=angle)
 
     frames.append(model.get_pose())

@@ -16,7 +16,7 @@ model = models.Factory().upper_body()
 # Create animation frames
 frames: list[imumocap.Pose] = []
 
-for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
+for a in (np.sin(t) for t in np.linspace(0, np.pi, 100)):
     model.joints["Head"].set(a * 15)
     model.joints["Neck"].set(a * 15)
 

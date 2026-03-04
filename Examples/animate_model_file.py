@@ -15,7 +15,7 @@ model = imumocap.file.load_model("animate_model_file.json")
 # Create animation frames
 frames: list[imumocap.Pose] = []
 
-for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
+for a in (np.sin(t) for t in np.linspace(0, np.pi, 100)):
     model.joints["Neck"].set(a * 15)
 
     model.joints["Left Elbow"].set(alpha=a * 60, gamma=a * -120)

@@ -15,7 +15,7 @@ model = models.Factory().right_hand()
 # Create animation frames
 frames: list[imumocap.Pose] = []
 
-for a in [np.sin(t) for t in np.linspace(0, np.pi, 100)]:
+for a in (np.sin(t) for t in np.linspace(0, np.pi, 100)):
     model.joints["Right I Distal"].set(45 * a)
     model.joints["Right I Proximal"].set(45 * a)
     model.joints["Right I Metacarpal"].set(45 * a)
