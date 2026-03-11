@@ -53,3 +53,21 @@ class Joint:
 
     def set(self, alpha: float = 0, beta: float = 0, gamma: float = 0) -> None:
         self.__link.joint = self.__alignment * Matrix(rot_x=gamma, rot_y=beta, rot_z=alpha) * self.__alignment.inverse
+
+    def get_error(self) -> float:
+        alpha, beta, gamma = self.get()
+
+        def limit_error(value: float, limit: tuple[float, float] | None) -> float:
+            if limit is None:
+                return 0.0
+            if value < limit[0]:
+                return value - limit[0]
+            if value > limit[1]:
+                return value - limit[1]
+            return 0.0
+
+        alpha_error = limit_error(alpha, self.__alpha_limit)
+        beta_error = limit_error(beta, self.__beta_limit)
+        gamma_error = limit_error(gamma, self.__gamma_limit)
+
+        return alpha_error**2 + beta_error**2 + gamma_error**2

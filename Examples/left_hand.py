@@ -12,17 +12,20 @@ from scipy.optimize import minimize
 from scipy.spatial.transform import Rotation as R
 
 # Load model
-model = imumocap.file.load_model("left_hand_model.json")
+# model = imumocap.file.load_model("left_hand_model.json")
+model = imumocap.file.load_model("left_hand_single_finger_model.json")
 
 calibration_pose = model.get_pose()
 
 # Connect to IMUs
-twintig_connection = ximu3_helpers.quick_connect("Twintig")
+twintig_connection = ximu3_helpers.quick_connect("Twintig")  # , keep_open=True
 
 imu_connections = ximu3_helpers.mux_connect(twintig_connection, 20, dictionary=True)
 
+imu_connections = {n: imu for n, imu in imu_connections.items() if n in model.links.keys()}
+
 for connection in [twintig_connection] + [c for c in imu_connections.values()]:
-    connection.send_command('{"color":"#04000F"}')
+    connection.send_command('{"color":"#040F00"}')
 
 
 def get_imus() -> imumocap.Imus:
@@ -71,10 +74,31 @@ def apply(
 
 def update(
     model: Model,
+    imus: imumocap.Imus,
     joints: imumocap.Joints,
     heading_trims: HeadingTrims,
+    # calibrated_heading: float,
 ) -> HeadingTrims:
-    return heading_trims
+    names = list(heading_trims.keys())
+
+    # og_heading _trim = const
+
+    def objective(x: list[float]) -> float:
+        candidate_trims: HeadingTrims = {n: Matrix(rot_z=x_val) for n, x_val in zip(names, x)}
+
+        # combine with og_heading _trim
+
+        model.set_pose_from_imus(apply(imus, candidate_trims))  # , -calibrated_heading)
+
+        return sum(j.get_error() for j in joints.values())
+
+    x0 = [heading_trims[n].rot_xyz[2] for n in names]
+
+    result = minimize(objective, x0)  # valid only when combined with og_heading _trim
+
+    # result = result combined with og_heading _trim
+
+    return {n: Matrix(rot_z=result.x[i]) for i, n in enumerate(names)}
 
 
 # Calibrate
@@ -93,10 +117,20 @@ print("Calibrated")
 # Stream to IMU Mocap Viewer
 viewer = imumocap.viewer.Connection()
 
+counter = 0
+
 while True:
     time.sleep(1 / 30)  # 30 fps
 
-    imus = apply(get_imus(), heading_trims)
+    counter += 1
+
+    raw_imus = get_imus()
+
+    if counter > 100:
+        counter = 0
+        heading_trims = update(model, model.joints, heading_trims, raw_imus)  # , calibrated_heading)
+
+    imus = apply(raw_imus, heading_trims)
 
     model.set_pose_from_imus(imus, -calibrated_heading)
 
