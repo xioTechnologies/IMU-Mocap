@@ -97,7 +97,7 @@ class Link:
         self.imu = self.__joint.inverse * self.__origin.inverse * imu_world
 
     def set_joint_from_imu_world(self, imu_world: Matrix) -> None:
-        self.joint = self.__origin.inverse * imu_world * self.__imu.inverse
+        self.joint = self.__origin.inverse * imu_world * Matrix(rotation=self.__imu.inverse.rotation)
 
     def get_wheel_axis_world(self) -> Matrix | None:
         return Matrix(rotation=(self.__origin * self.__joint).rotation) * self.__wheel_axis if self.__wheel_axis else None
