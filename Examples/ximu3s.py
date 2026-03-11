@@ -1,6 +1,6 @@
 from typing import Any
 
-import colorama
+import cliny as cli
 import numpy as np
 import ximu3
 from imumocap import Matrix
@@ -79,7 +79,7 @@ def setup(names: list[str]) -> dict[str, Imu]:
             input("No devices found. Press Enter to try again.")
             continue
 
-        if _yes_or_no("Would you like to reassign all devices?") and _yes_or_no("Are you sure?"):
+        if cli.yes_or_no("Would you like to reassign all devices?") and cli.yes_or_no("Are you sure?"):
             _assign(names, messages)
         elif verified:
             break
@@ -90,8 +90,6 @@ def setup(names: list[str]) -> dict[str, Imu]:
 
 
 def _verify(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) -> bool:
-    colorama.init()
-
     # Map names to network announcement messages
     names_map = {s: None for s in names}
 
@@ -120,7 +118,7 @@ def _verify(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) 
             else:
                 battery = ximu3.charging_status_to_string(message.charging_status)
 
-            print(f"{colorama.Fore.LIGHTBLACK_EX}{device_name:<24}{serial_number:<12}{connection_config:<32}{rssi:<16}{battery}{colorama.Style.RESET_ALL}")
+            cli.print_muted(f"{device_name:<24}{serial_number:<12}{connection_config:<32}{rssi:<16}{battery}")
 
     if len(assigned) > 0:
         print_devices("Assigned", assigned)
@@ -132,23 +130,12 @@ def _verify(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) 
     missing = [n for n, m in names_map.items() if not m]
 
     if len(missing) > 0:
-        print(f"{colorama.Fore.RED}Missing ({len(missing)}): {', '.join(missing)}{colorama.Style.RESET_ALL}")
+        cli.print_error(f"Missing ({len(missing)}): {', '.join(missing)}")
         return False
 
-    print(f"{colorama.Fore.GREEN}Setup complete{colorama.Style.RESET_ALL}")
+    cli.print_success("Setup complete")
 
     return True
-
-
-def _yes_or_no(question: str) -> bool:
-    while True:
-        key = input(question + " [Y/N]\n")
-
-        if key == "y" or key == "Y":
-            return True
-
-        if key == "n" or key == "N":
-            return False
 
 
 def _assign(names: list[str], messages: list[ximu3.NetworkAnnouncementMessage]) -> None:
