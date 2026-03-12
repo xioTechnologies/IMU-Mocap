@@ -75,30 +75,30 @@ def apply(
 def update(
     model: Model,
     imus: imumocap.Imus,
-    joints: imumocap.Joints,
     heading_trims: HeadingTrims,
     # calibrated_heading: float,
 ) -> HeadingTrims:
     names = list(heading_trims.keys())
-
-    # og_heading _trim = const
+    
+    og_heading_trims = heading_trims 
 
     def objective(x: list[float]) -> float:
-        candidate_trims: HeadingTrims = {n: Matrix(rot_z=x_val) for n, x_val in zip(names, x)}
+        offset_trims: HeadingTrims = {n: Matrix(rot_z=x_val) for n, x_val in zip(names, x)}
 
-        # combine with og_heading _trim
+        candidate_trims: HeadingTrims = {n: offset_trims[n] * og_heading_trims[n] for n in names}  # combine with og_heading _trim
 
         model.set_pose_from_imus(apply(imus, candidate_trims))  # , -calibrated_heading)
 
-        return sum(j.get_error() for j in joints.values())
+        return sum(j.get_error() for j in model.joints.values())
 
     x0 = [heading_trims[n].rot_xyz[2] for n in names]
+    # x0 = [0 for _ in names]
 
     result = minimize(objective, x0)  # valid only when combined with og_heading _trim
 
     # result = result combined with og_heading _trim
 
-    return {n: Matrix(rot_z=result.x[i]) for i, n in enumerate(names)}
+    return {n: Matrix(rot_z=x) * og_heading_trims[n] for n, x in zip(names, result.x)}
 
 
 # Calibrate
@@ -128,7 +128,7 @@ while True:
 
     if counter > 100:
         counter = 0
-        heading_trims = update(model, model.joints, heading_trims, raw_imus)  # , calibrated_heading)
+        heading_trims = update(model, raw_imus, heading_trims)  # , calibrated_heading)
 
     imus = apply(raw_imus, heading_trims)
 
