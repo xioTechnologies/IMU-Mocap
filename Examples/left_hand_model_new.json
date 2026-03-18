@@ -1147,6 +1147,38 @@
         ]
     },
     "joints": {
+        "Carpus IMU": {
+            "link": "Carpus IMU",
+            "alignment": [
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            "alpha_limit": null,
+            "beta_limit": null,
+            "gamma_limit": null
+        },
         "I Distal IMU": {
             "link": "I Distal IMU",
             "alignment": [
@@ -1215,8 +1247,8 @@
             ],
             "alpha_limit": null,
             "beta_limit": [
-                0,
-                0
+                -20,
+                20
             ],
             "gamma_limit": [
                 0,
@@ -1251,9 +1283,18 @@
                     1
                 ]
             ],
-            "alpha_limit": null,
-            "beta_limit": null,
-            "gamma_limit": null
+            "alpha_limit": [
+                -20,
+                20
+            ],
+            "beta_limit": [
+                -20,
+                20
+            ],
+            "gamma_limit": [
+                0,
+                0
+            ]
         },
         "II Distal IMU": {
             "link": "II Distal IMU",
@@ -1361,8 +1402,8 @@
             ],
             "alpha_limit": null,
             "beta_limit": [
-                0,
-                0
+                -20,
+                20
             ],
             "gamma_limit": [
                 0,
@@ -1397,9 +1438,18 @@
                     1
                 ]
             ],
-            "alpha_limit": null,
-            "beta_limit": null,
-            "gamma_limit": null
+            "alpha_limit": [
+                -20,
+                20
+            ],
+            "beta_limit": [
+                -20,
+                20
+            ],
+            "gamma_limit": [
+                0,
+                0
+            ]
         },
         "III Distal IMU": {
             "link": "III Distal IMU",
@@ -1507,8 +1557,8 @@
             ],
             "alpha_limit": null,
             "beta_limit": [
-                0,
-                0
+                -20,
+                20
             ],
             "gamma_limit": [
                 0,
@@ -1543,9 +1593,18 @@
                     1
                 ]
             ],
-            "alpha_limit": null,
-            "beta_limit": null,
-            "gamma_limit": null
+            "alpha_limit": [
+                -20,
+                20
+            ],
+            "beta_limit": [
+                -20,
+                20
+            ],
+            "gamma_limit": [
+                0,
+                0
+            ]
         },
         "IV Distal IMU": {
             "link": "IV Distal IMU",
@@ -1653,8 +1712,8 @@
             ],
             "alpha_limit": null,
             "beta_limit": [
-                0,
-                0
+                -20,
+                20
             ],
             "gamma_limit": [
                 0,
@@ -1689,9 +1748,18 @@
                     1
                 ]
             ],
-            "alpha_limit": null,
-            "beta_limit": null,
-            "gamma_limit": null
+            "alpha_limit": [
+                -20,
+                20
+            ],
+            "beta_limit": [
+                -20,
+                20
+            ],
+            "gamma_limit": [
+                0,
+                0
+            ]
         },
         "V Distal IMU": {
             "link": "V Distal IMU",
@@ -1799,8 +1867,8 @@
             ],
             "alpha_limit": null,
             "beta_limit": [
-                0,
-                0
+                -20,
+                20
             ],
             "gamma_limit": [
                 0,
@@ -1835,41 +1903,18 @@
                     1
                 ]
             ],
-            "alpha_limit": null,
-            "beta_limit": null,
-            "gamma_limit": null
-        },
-        "Carpus": {
-            "link": "Carpus IMU",
-            "alignment": [
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    1
-                ]
+            "alpha_limit": [
+                -20,
+                20
             ],
-            "alpha_limit": null,
-            "beta_limit": null,
-            "gamma_limit": null
+            "beta_limit": [
+                -20,
+                20
+            ],
+            "gamma_limit": [
+                0,
+                0
+            ]
         }
     },
     "pose": {

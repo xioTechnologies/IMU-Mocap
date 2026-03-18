@@ -13,7 +13,8 @@ from scipy.spatial.transform import Rotation as R
 
 # Load model
 # model = imumocap.file.load_model("left_hand_model.json")
-model = imumocap.file.load_model("left_hand_single_finger_model.json")
+model = imumocap.file.load_model("left_hand_model_new.json")
+# model = imumocap.file.load_model("left_hand_single_finger_model.json")
 
 calibration_pose = model.get_pose()
 
