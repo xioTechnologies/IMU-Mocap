@@ -43,13 +43,13 @@ class Model:
         return {n: l.joint for n, l in self.links.items()}
 
     def set_pose(self, pose: Pose, heading_offset: float = 0) -> None:
-        for name, matrix in pose.items():
-            self.links[name].joint = matrix
+        for link in (l for l in self.__links.values() if l.name in pose):
+            link.joint = pose[link.name]
 
         self.__root.joint = Matrix(xyz=self.__root.joint.xyz, rotation=(Matrix(rot_z=heading_offset) * self.__root.joint).rotation)
 
     def set_pose_from_imus(self, imus: Imus, heading_offset: float = 0) -> None:
         alignment = Matrix(rot_z=heading_offset)
 
-        for name, matrix in imus.items():
-            self.links[name].set_joint_from_imu_world(alignment * matrix)
+        for link in (l for l in self.__links.values() if l.name in imus):
+            link.set_joint_from_imu_world(alignment * imus[link.name])
