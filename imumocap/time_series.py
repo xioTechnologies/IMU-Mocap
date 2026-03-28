@@ -9,16 +9,17 @@ import numpy as np
 from .matrix import Matrix
 from .model import Imus, Model, Pose
 
-# Time series dataclasses are anchored by a 'seconds' array of monotonically-
-# increasing timestamps from which 'sample_period' and 'sample_rate' are derived.
-# Subclasses extend this with additional fields. Fields of type list, np.ndarray,
-# and dict[str, np.ndarray] must represent time series data with lengths matching
-# 'seconds'. Fields of other types may be used arbitrarily.
+# Time series dataclasses are anchored by a 'seconds' array of uniformly-
+# spaced timestamps from which 'duration', 'sample_period', and 'sample_rate'
+# are derived. Subclasses extend this with additional fields. Fields of type
+# list, np.ndarray, and dict[str, np.ndarray] must represent time series data
+# with lengths matching 'seconds'. Fields of other types may be used
+# arbitrarily.
 
 # TODO: Consider verifying approximately uniform timestamps in __post_init__
 
 # TODO: Should 'zero' and 'crop' modify self or return a deep copy? The current
-# implementaiton is a broken mix of the two.
+# implementation is a broken mix of the two.
 
 # TODO: Regardless of whether modifying self or return a deep copy, the methods
 # should support fluent chaining. e.g. data = TimeSeries().crop().zero()
@@ -31,11 +32,13 @@ class TimeSeries(ABC):
     __PICKLE_EXTENSION = ".pkl"
 
     seconds: np.ndarray
+    duration: float = field(init=False, default=None)
     sample_period: float = field(init=False, default=None)
     sample_rate: float = field(init=False, default=None)
 
     def __post_init__(self) -> None:
         self.seconds = np.array(self.seconds)
+        self.duration = self.seconds[-1] - self.seconds[0]
         self.sample_period = np.median(np.diff(self.seconds))
         self.sample_rate = 1 / self.sample_period
 
@@ -94,11 +97,11 @@ class TimeSeries(ABC):
 @dataclass
 class ImusTimeSeries(TimeSeries):
     names: tuple[str, ...]
-    gyroscope: dict[str, np.ndarray] | None = None
-    accelerometer: dict[str, np.ndarray] | None = None
-    magnetometer: dict[str, np.ndarray] | None = None
-    quaternion: dict[str, np.ndarray] | None = None
-    button: dict[str, np.ndarray] | None = None
+    gyroscope: dict[str, np.ndarray] | None = None  # {<link name>: <ndarray(n, 3)>, ...} where the columns are x, y, z
+    accelerometer: dict[str, np.ndarray] | None = None  # {<link name>: <ndarray(n, 3)>, ...} where the columns are x, y, z
+    magnetometer: dict[str, np.ndarray] | None = None  # {<link name>: <ndarray(n, 3)>, ...} where the columns are x, y, z
+    quaternion: dict[str, np.ndarray] | None = None  # {<link name>: <ndarray(n, 4)>, ...} where the columns are w, x, y, z
+    button: dict[str, np.ndarray] | None = None  # {<link name>: <ndarray(n, 1)>, ...} where the True indicates pressed
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -151,7 +154,7 @@ class PoseTimeSeries(TimeSeries):
 @dataclass
 class JointsTimeSeries(TimeSeries):
     names: tuple[str, ...]
-    angles: dict[str, np.ndarray] | None = None
+    angles: dict[str, np.ndarray] | None = None  # {<joint name>: <ndarray(n, 3)>, ...} where the columns are alpha, beta, gamma
 
     def __post_init__(self) -> None:
         super().__post_init__()
