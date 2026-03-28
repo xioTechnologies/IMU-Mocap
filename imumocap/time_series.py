@@ -26,6 +26,8 @@ from .model import Imus, Model, Pose
 
 # TODO: Should 'crop' parameters be 'start_index', 'start_seconds', etc. ?
 
+# TODO: If path is just a file name then resolve absolute path
+
 
 @dataclass
 class TimeSeries(ABC):

@@ -5,6 +5,10 @@ from ..link import Link
 from ..matrix import Matrix
 from ..model import Joints, Model
 
+# TODO: Change path to Path type
+
+# TODO: If path is just a file name then resolve absolute path
+
 
 def save_model(path: str, model: Model) -> None:
     key_values = [
