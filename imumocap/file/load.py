@@ -9,6 +9,10 @@ from ..link import Link
 from ..matrix import Matrix
 from ..model import Joints, Model, Pose
 
+# TODO: Change path to Path type
+
+# TODO: If path is just a file name then resolve absolute path
+
 
 def load_model(path: Path) -> Model:
     path = Path(path)

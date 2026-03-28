@@ -6,6 +6,10 @@ from ..link import Link
 from ..matrix import Matrix
 from ..model import Joints, Model
 
+# TODO: Change path to Path type
+
+# TODO: If path is just a file name then resolve absolute path
+
 
 def save_model(path: Path, model: Model) -> None:
     path = Path(path)
