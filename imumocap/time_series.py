@@ -74,7 +74,7 @@ class TimeSeries(ABC):
     def save(self, path: Path | None = None) -> None:
         path = Path(path or type(self).__name__)
 
-        path = Path(path).with_suffix(TimeSeries.__PICKLE_EXTENSION)
+        path = path.with_suffix(TimeSeries.__PICKLE_EXTENSION)
 
         with open(path, "wb") as file:
             pickle.dump(self, file)
@@ -83,7 +83,7 @@ class TimeSeries(ABC):
     def load(cls, path: Path | None = None) -> Self:
         path = Path(path or cls.__name__)
 
-        path = Path(path).with_suffix(TimeSeries.__PICKLE_EXTENSION)
+        path = path.with_suffix(TimeSeries.__PICKLE_EXTENSION)
 
         with open(path, "rb") as file:
             obj = pickle.load(file)
@@ -101,7 +101,7 @@ class ImusTimeSeries(TimeSeries):
     accelerometer: dict[str, np.ndarray] | None = None  # {<link name>: <ndarray(n, 3)>, ...} where the columns are x, y, z
     magnetometer: dict[str, np.ndarray] | None = None  # {<link name>: <ndarray(n, 3)>, ...} where the columns are x, y, z
     quaternion: dict[str, np.ndarray] | None = None  # {<link name>: <ndarray(n, 4)>, ...} where the columns are w, x, y, z
-    button: dict[str, np.ndarray] | None = None  # {<link name>: <ndarray(n, 1)>, ...} where the True indicates pressed
+    button: dict[str, np.ndarray] | None = None  # {<link name>: <ndarray(n,)>, ...} where True indicates pressed
 
     def __post_init__(self) -> None:
         super().__post_init__()
