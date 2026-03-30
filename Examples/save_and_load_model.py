@@ -8,12 +8,12 @@ import models
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
 # Load model
-model = models.Factory().body()
+model = models.Factory().left_hand()
 
 # Save and load model
-imumocap.file.save_model("save_and_load_model.json", model)
+imumocap.file.save_model("left_hand_model.json", model)
 
-model = imumocap.file.load_model("save_and_load_model.json")
+# model = imumocap.file.load_model("save_and_load_model.json")
 
-# Plot
-imumocap.plot(model, block=not dont_block)
+# # Plot
+# imumocap.plot(model, block=not dont_block)

@@ -13,7 +13,7 @@ from scipy.spatial.transform import Rotation as R
 
 # Load model
 # model = imumocap.file.load_model("left_hand_model.json")
-model = imumocap.file.load_model("left_hand_model_new.json")
+model = imumocap.file.load_model("right_hand_model_new.json")
 # model = imumocap.file.load_model("left_hand_single_finger_model.json")
 
 calibration_pose = model.get_pose()
@@ -111,7 +111,7 @@ imus_b = get_imus()
 
 heading_trims = zero(model, imus_a, imus_b)
 
-calibrated_heading = imumocap.solvers.calibrate(model, apply(imus_a, heading_trims), calibration_pose, imumocap.solvers.Mounting.Y_BACKWARD)
+calibrated_heading = imumocap.solvers.calibrate(model, apply(imus_a, heading_trims), calibration_pose, imumocap.solvers.Mounting.Y_FORWARD)
 
 print("Calibrated")
 
@@ -127,12 +127,12 @@ while True:
 
     raw_imus = get_imus()
 
-    if counter > 100:
-        counter = 0
-        heading_trims = update(model, raw_imus, heading_trims)  # , calibrated_heading)
+    # if counter > 100:
+    #     counter = 0
+    #     heading_trims = update(model, raw_imus, heading_trims)  # , calibrated_heading)
 
     imus = apply(raw_imus, heading_trims)
 
     model.set_pose_from_imus(imus, -calibrated_heading)
 
-    viewer.send_frame(imumocap.viewer.model_to_primitives(model, mirror="Left"))
+    viewer.send_frame(imumocap.viewer.model_to_primitives(model))
