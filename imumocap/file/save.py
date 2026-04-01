@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from ..joint import Joint
 from ..link import Link
@@ -6,7 +7,12 @@ from ..matrix import Matrix
 from ..model import Joints, Model
 
 
-def save_model(path: str, model: Model) -> None:
+def save_model(path: Path, model: Model) -> None:
+    path = Path(path)
+
+    if not path.is_absolute():
+        path = Path(__import__("__main__").__file__).parent / path
+
     key_values = [
         f'"root": {_link(model.root)}',
         None if model.joints is None else f'"joints": {_joints(model.joints)}',
@@ -19,7 +25,12 @@ def save_model(path: str, model: Model) -> None:
         file.write(_format_json(raw_json))
 
 
-def save_pose(path: str, model: Model) -> None:
+def save_pose(path: Path, model: Model) -> None:
+    path = Path(path)
+
+    if not path.is_absolute():
+        path = Path(__import__("__main__").__file__).parent / path
+
     raw_json = f'{{ "pose": {_pose(model)} }}'
 
     with open(path, "w") as file:
