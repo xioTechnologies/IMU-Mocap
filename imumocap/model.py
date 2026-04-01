@@ -2,6 +2,8 @@ from .joint import Joint
 from .link import Link
 from .matrix import Matrix
 
+type Calibration = dict[str, Matrix]  # {<link name>: <link IMU matrix>, ...}
+
 type Joints = dict[str, Joint]  # {<joint name>: <Joint>, ...}
 
 type Pose = dict[str, Matrix]  # {<link name>: <link joint matrix>, ...}
@@ -56,3 +58,10 @@ class Model:
 
         for link in (l for l in self.links.values() if l.name in imus):
             link.set_joint_from_imu_world(alignment * imus[link.name])
+
+    def get_calibration(self) -> Calibration:
+        return {n: l.imu for n, l in self.links.items()}
+
+    def set_calibration(self, calibration: Calibration) -> None:
+        for link in (l for l in self.links.values() if l.name in calibration):
+            link.imu = calibration[link.name]

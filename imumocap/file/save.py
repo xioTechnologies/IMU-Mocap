@@ -13,10 +13,13 @@ def save_model(path: Path, model: Model) -> None:
     if not path.is_absolute():
         path = Path(__import__("__main__").__file__).parent / path
 
+    path = path.with_suffix(".json")
+
     key_values = [
         f'"root": {_link(model.root)}',
         None if model.joints is None else f'"joints": {_joints(model.joints)}',
         f'"pose": {_pose(model)}',
+        f'"calibration": {_calibration(model)}',
     ]
 
     raw_json = "{ " + f"{', '.join([k for k in key_values if k])}" + " }"
@@ -31,7 +34,23 @@ def save_pose(path: Path, model: Model) -> None:
     if not path.is_absolute():
         path = Path(__import__("__main__").__file__).parent / path
 
+    path = path.with_suffix(".json")
+
     raw_json = f'{{ "pose": {_pose(model)} }}'
+
+    with open(path, "w") as file:
+        file.write(_format_json(raw_json))
+
+
+def save_calibration(path: Path, model: Model) -> None:
+    path = Path(path)
+
+    if not path.is_absolute():
+        path = Path(__import__("__main__").__file__).parent / path
+
+    path = path.with_suffix(".json")
+
+    raw_json = f'{{ "calibration": {_calibration(model)} }}'
 
     with open(path, "w") as file:
         file.write(_format_json(raw_json))
@@ -87,6 +106,10 @@ def _limit(limit: tuple[float, float] | None) -> str:
 
 def _pose(model: Model) -> str:
     return "{ " + ", ".join([f'"{n}": {_matrix(l.joint)}' for n, l in model.links.items()]) + " }"
+
+
+def _calibration(model: Model) -> str:
+    return "{ " + ", ".join([f'"{n}": {_matrix(l.imu)}' for n, l in model.links.items()]) + " }"
 
 
 def _number(value: float) -> str:

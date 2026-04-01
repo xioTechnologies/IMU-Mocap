@@ -7,7 +7,7 @@ import numpy as np
 from ..joint import Joint
 from ..link import Link
 from ..matrix import Matrix
-from ..model import Joints, Model, Pose
+from ..model import Calibration, Joints, Model, Pose
 
 
 def load_model(path: Path) -> Model:
@@ -15,6 +15,8 @@ def load_model(path: Path) -> Model:
 
     if not path.is_absolute():
         path = Path(__import__("__main__").__file__).parent / path
+
+    path = path.with_suffix(".json")
 
     key_values = _load_model(path)
 
@@ -25,6 +27,9 @@ def load_model(path: Path) -> Model:
     if "pose" in key_values:
         _load_pose(key_values["pose"], {l.name: l for l in Model.flatten(root)})
 
+    if "calibration" in key_values:
+        _load_calibration(key_values["calibration"], {l.name: l for l in Model.flatten(root)})
+
     return Model(root, joints)
 
 
@@ -34,9 +39,26 @@ def load_pose(path: Path, model: Model) -> Pose:
     if not path.is_absolute():
         path = Path(__import__("__main__").__file__).parent / path
 
+    path = path.with_suffix(".json")
+
     key_values = _load_model(path)
 
     _load_pose(key_values["pose"], model.links)
+
+    return model.get_pose()
+
+
+def load_calibration(path: Path, model: Model) -> Calibration:
+    path = Path(path)
+
+    if not path.is_absolute():
+        path = Path(__import__("__main__").__file__).parent / path
+
+    path = path.with_suffix(".json")
+
+    key_values = _load_model(path)
+
+    _load_calibration(key_values["calibration"], model.links)
 
     return model.get_pose()
 
@@ -92,3 +114,10 @@ def _load_pose(key_values: dict[str, Any], links: dict[str, Link]) -> None:
 
     for name, matrix in pose.items():
         links[name].joint = matrix
+
+
+def _load_calibration(key_values: dict[str, Any], links: dict[str, Link]) -> None:
+    calibration = {n: _matrix(a) for n, a in key_values.items()}
+
+    for name, matrix in calibration.items():
+        links[name].imu = matrix

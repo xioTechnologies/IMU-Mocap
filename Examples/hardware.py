@@ -112,3 +112,19 @@ class Ximu3s:
 
     def get_button_pressed(self) -> bool:
         return any(Ximu3s.__get_button_pressed(c) for c in self.__connections.values())
+
+
+class Twintig:
+    def __init__(self) -> None:
+        self.__twintig_connection, self.__keep_open = ximu3.helpers.quick_connect("Twintig", keep_open=True)
+
+        self.__imu_connections = ximu3.helpers.mux_connect_dict(self.__twintig_connection, 20)
+
+        for connection in [self.__twintig_connection] + [c for c in self.__imu_connections.values()]:
+            ximu3.helpers.send_command(connection, "color", "#04000F")
+
+    def get_imus(self) -> imumocap.Imus:
+        def matrix_from(message: ximu3.QuaternionMessage | None) -> imumocap.Matrix:
+            return imumocap.Matrix(quaternion=[message.w, message.x, message.y, message.z]) if message else imumocap.Matrix()
+
+        return {n: matrix_from(c.get_quaternion_message()) for n, c in self.__imu_connections.items()}
