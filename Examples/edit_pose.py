@@ -9,8 +9,8 @@ import imumocap.viewer
 import models
 
 
-initial_path = "left_hand_model_new.json"
-save_file_path: str | None = "left_hand_model_new.json"
+initial_path = "right_hand_model_new.json"
+save_file_path: str | None = "right_hand_model_new_splay.json"
 
 
 # Load model

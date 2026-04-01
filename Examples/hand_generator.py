@@ -1,4 +1,8 @@
+import time
+
+import imumocap
 import imumocap.file
+import imumocap.viewer
 from imumocap import Joint, Link, Matrix, Model
 
 # Segment lengths
@@ -43,6 +47,7 @@ carpus_alignment = Matrix.align_py_nz_nx()  # carpus joint
 
 right_finger_alignment = Matrix.align_ny_pz_nx()  # finger joints
 right_carpus_alignment = Matrix.align_ny_pz_nx()  # carpus joint
+
 
 def left_hand() -> Model:
 
@@ -223,12 +228,20 @@ def left_hand() -> Model:
         },
     )
 
+ 
+I_METACARPLE_SPLAY = 26
+II_METACARPLE_SPLAY = 7
+IV_METACARPLE_SPLAY = -12
+V_METACARPLE_SPLAY = -19
+THUMB_TILT = 45
+THUMB_FLICK = -21
+
 def right_hand() -> Model:
     # Head
 
     # I phalangeal and metacarpal
     i_distal = Link("I Distal IMU", Matrix(y=-I_LENGTH * (MIDDLE_RATIO + DISTAL_RATIO)))
-    i_proximal = Link("I Proximal IMU", Matrix(y=-I_LENGTH * PROXIMAL_RATIO)).connect(i_distal)
+    i_proximal = Link("I Proximal IMU", Matrix(y=-I_LENGTH * PROXIMAL_RATIO, rot_x=THUMB_FLICK)).connect(i_distal)
     i_metacarpal = Link("I Metacarpal IMU", Matrix(y=-I_LENGTH * METACARPAL_RATIO)).connect(i_proximal)
 
     # II phalangeal and metacarpal
@@ -257,12 +270,11 @@ def right_hand() -> Model:
 
     # carpus
     carpus = Link("Carpus IMU", Matrix(y=-CARPUS_LENGTH))
-    carpus.connect(i_metacarpal, Matrix(x=CARPUS_WIDTH * 0.5, rot_z=45))
-    carpus.connect(ii_metacarpal, Matrix(x=CARPUS_WIDTH * 0.25))
+    carpus.connect(i_metacarpal, Matrix(x=CARPUS_WIDTH * 0.5, rot_y=THUMB_TILT, rot_z=I_METACARPLE_SPLAY))
+    carpus.connect(ii_metacarpal, Matrix(x=CARPUS_WIDTH * 0.25, rot_z=II_METACARPLE_SPLAY))
     carpus.connect(iii_metacarpal)
-    carpus.connect(iv_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25))
-    carpus.connect(v_metacarpal, Matrix(x=CARPUS_WIDTH * -0.5))
-
+    carpus.connect(iv_metacarpal, Matrix(x=CARPUS_WIDTH * -0.25, rot_z=IV_METACARPLE_SPLAY))
+    carpus.connect(v_metacarpal, Matrix(x=CARPUS_WIDTH * -0.5, rot_z=V_METACARPLE_SPLAY))
 
     return Model(
         carpus,
@@ -401,11 +413,27 @@ def right_hand() -> Model:
                 beta_limit=METACARPAL_BETA,
                 gamma_limit=METACARPAL_GAMMA,
             ),
-        },        
-    ) 
+        },
+    )
 
     return
 
 
-if __name__ == "__main__":
-    imumocap.file.save_model("right_hand_model_new.json", right_hand())
+# if __name__ == "__main__":
+
+model = right_hand()
+
+imumocap.file.save_model("right_hand_model_new.json", model)
+
+viewer = imumocap.viewer.Connection()
+
+while True:
+    # for frame in frames:
+    time.sleep(1 / 30)  # 30 fps
+
+    # model.set_pose(frame)
+
+    viewer.send_frame(imumocap.viewer.model_to_primitives(model))
+
+    # if dont_block:
+    #     break
