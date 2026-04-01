@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -9,7 +10,12 @@ from ..matrix import Matrix
 from ..model import Joints, Model, Pose
 
 
-def load_model(path: str) -> Model:
+def load_model(path: Path) -> Model:
+    path = Path(path)
+
+    if not path.is_absolute():
+        path = Path(__import__("__main__").__file__).parent / path
+
     key_values = _load_model(path)
 
     root = _load_link(key_values["root"])
@@ -22,7 +28,12 @@ def load_model(path: str) -> Model:
     return Model(root, joints)
 
 
-def load_pose(path: str, model: Model) -> Pose:
+def load_pose(path: Path, model: Model) -> Pose:
+    path = Path(path)
+
+    if not path.is_absolute():
+        path = Path(__import__("__main__").__file__).parent / path
+
     key_values = _load_model(path)
 
     _load_pose(key_values["pose"], model.links)
