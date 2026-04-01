@@ -15,13 +15,13 @@ class Joint:
     def __init__(
         self,
         link: Link,
-        alignment: Matrix = Matrix(),  # if identity then alpha = rot_z, beta = rot_y, gamma = rot_x
+        alignment: Matrix | None = None,  # if identity then alpha = rot_z, beta = rot_y, gamma = rot_x
         alpha_limit: tuple[float, float] | None = None,  # (<min>, <max>) or None if unlimited
         beta_limit: tuple[float, float] | None = None,  # (<min>, <max>) or None if unlimited
         gamma_limit: tuple[float, float] | None = None,  # (<min>, <max>) or None if unlimited
     ) -> None:
         self.__link = link
-        self.__alignment = alignment
+        self.__alignment = Matrix() if alignment is None else alignment
         self.__alpha_limit = alpha_limit
         self.__beta_limit = beta_limit
         self.__gamma_limit = gamma_limit
