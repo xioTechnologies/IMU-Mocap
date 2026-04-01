@@ -96,4 +96,4 @@ def _number(value: float) -> str:
 
 
 def _format_json(raw_json: str) -> str:
-    return json.dumps(json.loads(raw_json), indent=4, ensure_ascii=False)
+    return json.dumps(json.loads(raw_json), indent=4)
