@@ -48,6 +48,9 @@ class Model:
 
         self.__root.joint = Matrix(xyz=self.__root.joint.xyz, rotation=(Matrix(rot_z=heading_offset) * self.__root.joint).rotation)
 
+    def get_imus(self) -> Imus:
+        return {n: l.get_imu_world() for n, l in self.links.items()}
+
     def set_pose_from_imus(self, imus: Imus, heading_offset: float = 0) -> None:
         alignment = Matrix(rot_z=heading_offset)
 
