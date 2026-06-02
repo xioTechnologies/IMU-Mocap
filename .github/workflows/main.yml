@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - if: startsWith(github.ref, 'refs/tags/v')
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - if: startsWith(github.ref, 'refs/tags/v')
         name: Create release
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Python dependencies
         run: |
@@ -53,14 +53,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install twine==6.0.1
           python -m pip install build
-        # use twine v6.0.1 because bug in latest version (v6.1.0)
+          python -m pip install twine
+          python -m pip install -U packaging
+        # https://github.com/pypa/twine/issues/1216#issuecomment-2606531615
 
       - name: Create distributions
         run: python -m build
@@ -77,15 +78,15 @@ jobs:
     needs: create-release
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v5
         with:
           path: "IMU Mocap Viewer/Library"
           key: Library-macOS
           restore-keys: Library-
 
-      - uses: game-ci/unity-builder@v4
+      - uses: game-ci/unity-builder@v5
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -140,7 +141,7 @@ jobs:
           xcrun notarytool submit "IMU-Mocap-Viewer.dmg" --team-id 29X883CFTW --apple-id ${{ secrets.AC_USERNAME }} --password ${{ secrets.AC_PASSWORD }} --wait
           xcrun stapler staple "IMU-Mocap-Viewer.dmg"       
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: IMU-Mocap-Viewer.dmg
           path: IMU-Mocap-Viewer.dmg
@@ -156,15 +157,15 @@ jobs:
     needs: create-release
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v5
         with:
           path: "IMU Mocap Viewer/Library"
           key: Library-Windows
           restore-keys: Library-
 
-      - uses: game-ci/unity-builder@v4
+      - uses: game-ci/unity-builder@v5
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -223,7 +224,7 @@ jobs:
         run: |
           ISCC.exe  WindowsInstaller.iss
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: IMU-Mocap-Viewer-Setup.exe
           path: Output/IMU-Mocap-Viewer-Setup.exe
@@ -239,15 +240,15 @@ jobs:
     needs: create-release
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v5
         with:
           path: "IMU Mocap Viewer/Library"
           key: Library-Ubuntu
           restore-keys: Library-
 
-      - uses: game-ci/unity-builder@v4
+      - uses: game-ci/unity-builder@v5
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -264,7 +265,7 @@ jobs:
       - name: Remove DoNotShip
         run: sudo rm -rf build/StandaloneLinux64/*DoNotShip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: IMU-Mocap-Viewer-Ubuntu
           path: build/StandaloneLinux64
