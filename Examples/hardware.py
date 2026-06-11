@@ -3,7 +3,6 @@ import time
 import cliny as cli
 import imumocap
 import ximu3
-import ximu3_helpers
 
 
 class Ximu3s:
@@ -74,8 +73,8 @@ class Ximu3s:
         connections = [ximu3.Connection(m.to_udp_connection_config()).open() for m in messages]
 
         for connection in connections:
-            ximu3_helpers.send_command(connection, "color", "#FF6600")  # orange LED
-            ximu3_helpers.send_command(connection, "device_name", "Unassigned")
+            ximu3.helpers.send_command(connection, "color", "#FF6600")  # orange LED
+            ximu3.helpers.send_command(connection, "device_name", "Unassigned")
 
         for name in names:
             print(f"Press the button on the {name}")
@@ -89,8 +88,8 @@ class Ximu3s:
                 if selected[0].ping().device_name != "Unassigned":
                     continue
 
-                ximu3_helpers.send_command(selected[0], "color")  # restore normal LED behavior
-                ximu3_helpers.send_command(selected[0], "device_name", name)
+                ximu3.helpers.send_command(selected[0], "color")  # restore normal LED behavior
+                ximu3.helpers.send_command(selected[0], "device_name", name)
                 break
 
         for connection in connections:
