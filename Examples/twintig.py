@@ -1,13 +1,12 @@
-import msvcrt
 import time
 
 import cliny as cli
+import hardware
 import imumocap
 import imumocap.file
 import imumocap.solvers
 import imumocap.viewer
-
-import hardware
+from pynput import keyboard
 
 # Load model
 model = imumocap.file.load_model("twintig.json")
@@ -52,15 +51,28 @@ def calibrate():
 
 viewer = imumocap.viewer.Connection()
 
+key_press = None
+
+
+def on_press(key):
+    global key_press
+    try:
+        key_press = key.char
+    except AttributeError:
+        pass
+
+
+keyboard.Listener(on_press=on_press).start()
+
 while True:
     time.sleep(1 / 30)  # 30 fps
 
-    if msvcrt.kbhit():
-        match msvcrt.getwch().lower():
-            case "z":
-                zero_heading()
-            case "c":
-                calibrate()
+    match key_press:
+        case "z":
+            zero_heading()
+        case "c":
+            calibrate()
+    key_press = None
 
     imus = heading.apply(twintig.get_imus())
 
