@@ -13,13 +13,11 @@ import models
 dont_block = "dont_block" in sys.argv  # don't block when script run by CI
 
 # Import IMU data
-devices = ximu3csv.read("logged_lower_body", ximu3csv.DataMessageType.QUATERNION)
-
 FPS = 30
 
-devices = ximu3csv.resample(devices, FPS)
+data = ximu3csv.read("logged_lower_body", ximu3csv.DataMessageFlag.QUATERNION).resample(FPS)
 
-imus_frames = [{d.device_name: Matrix(quaternion=d.quaternion.quaternion.wxyz[i]) for d in devices} for i, _ in enumerate(devices[0].quaternion.timestamp)]
+imus_frames = [{d.device_name: Matrix(quaternion=d.quaternion.wxyz[i]) for d in data} for i, _ in enumerate(data[0].quaternion.timestamp)]
 
 # Load model
 model = models.Factory().lower_body()
